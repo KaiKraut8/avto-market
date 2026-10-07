@@ -144,6 +144,13 @@
     <div class="inner footer-bottom">&copy; {{ date('Y') }} {{ config('company.name') }}. {{ __('All rights reserved.') }} · <a href="{{ route('contact') }}">{{ __('Contact us') }}</a> · <a href="{{ route('how-buying') }}">{{ __('How buying works') }}</a> · <a href="{{ route('privacy') }}">{{ __('Privacy policy') }}</a> · <a href="{{ route('cookies') }}">{{ __('Cookies') }}</a></div>
 </footer>
 
+{{-- sign up / log in panel for guests entering the site, unless skipped in this browser session --}}
+@guest
+    @if ((! request()->cookie('kai_auth_skipped') || old('_auth_panel')) && ! request()->routeIs('login', 'register', 'password.*'))
+        <x-welcome-panel />
+    @endif
+@endguest
+
 {{-- cookie notice: part of the page itself, so it shows at once; hidden for good after "OK" --}}
 @unless (request()->cookie('kai_cookies_seen'))
     <div class="cookie-notice" data-cookie-notice role="region" aria-label="{{ __('Cookies') }}">

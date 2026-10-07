@@ -6,6 +6,7 @@
         ['XSRF-TOKEN', __('Protects forms against forgery from other sites.'), $session],
         [\App\Support\Visitor::COOKIE, __('A random id that keeps your wishlist, the cars you viewed and the sellers you contacted, without an account. It doesn\'t say who you are.'), trans_choice(':count year|:count years', 1)],
         ['kai_cookies_seen', __('Remembers that you have seen the cookie notice, so it isn\'t shown again.'), trans_choice(':count year|:count years', 1)],
+        ['kai_auth_skipped', __('Remembers that you chose "Skip for now" on the sign-up panel, so it isn\'t shown again on every page.'), __('Until you close the browser')],
         ['remember_web_…', __('Only if you tick "Keep me logged in": keeps you logged in until you log out.'), trans_choice(':count day|:count days', 400)],
     ];
 @endphp
