@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             \App\Http\Middleware\EnsureVisitorId::class,
+            \App\Http\Middleware\SetLocale::class,
         ]);
         // the visitor cookie is shared with the old site and read by plain PHP there, so keep it unencrypted
         $middleware->encryptCookies(except: [\App\Support\Visitor::COOKIE]);

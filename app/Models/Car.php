@@ -143,6 +143,9 @@ class Car extends Model
     // Distinct people who looked at the car (one browser = one person)
     public function scopeWithPeopleCount(Builder $query): void
     {
+        if ($query->getQuery()->columns === null) {
+            $query->select('cars.*');
+        }
         $query->selectSub(
             DB::table('car_views')->selectRaw('COUNT(DISTINCT visitor_id)')->whereColumn('car_views.car_id', 'cars.id'),
             'people'
