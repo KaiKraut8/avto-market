@@ -1,0 +1,30 @@
+{
+  "name": "PHP 8.4 + MySQL",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "runServices": ["app", "web", "db"],
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "forwardPorts": [8000, 3306],
+  "portsAttributes": {
+    "8000": { "label": "PHP app" },
+    "3306": { "label": "MySQL" }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "xdebug.php-debug",
+        "bmewburn.vscode-intelephense-client",
+        "junstyle.php-cs-fixer",
+        "cweijan.vscode-mysql-client2",
+        "EditorConfig.EditorConfig",
+        "Anthropic.claude-code"
+      ],
+      "settings": {
+        "php.validate.executablePath": "/usr/local/bin/php",
+        "intelephense.environment.phpVersion": "8.4.0"
+      }
+    }
+  },
+  "remoteUser": "vscode",
+  "postCreateCommand": "bash -lc '[ -f composer.json ] && composer install || true; npm install -g @anthropic-ai/claude-code || true'"
+}

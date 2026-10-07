@@ -1,0 +1,6 @@
+/vendor/
+/backups/
+/public/uploads/*
+!/public/uploads/.gitkeep
+/photos-inbox/*
+!/photos-inbox/.gitkeep
