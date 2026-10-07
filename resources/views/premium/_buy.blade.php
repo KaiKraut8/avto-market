@@ -18,10 +18,9 @@
         <label class="plan plan-premium">
             <input type="radio" name="billing" value="yearly">
             <span class="plan-card">
-                <b>{{ __('Yearly') }}</b>
+                <b>{{ __('Yearly') }} <span class="save-badge">{{ __('Save :percent%', ['percent' => Pricing::yearlySaving()]) }}</span></b>
                 <span class="plan-price">@eur($yearly) <i>/ {{ __('year') }}</i></span>
                 <small><s>@eur($full)</s> {{ __('if paid monthly') }} &middot; {{ __('about :price a month', ['price' => Money::eur($yearly / 12)]) }}</small>
-                <span class="save-badge">{{ __('Save :percent%', ['percent' => Pricing::yearlySaving()]) }}</span>
             </span>
         </label>
     </fieldset>
