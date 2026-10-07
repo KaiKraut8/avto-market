@@ -22,4 +22,7 @@ interface PaymentGateway
 
     /** @return array{status:string, customer_id:?string, mandate_id:?string} */
     public function fetch(Payment $payment): array;
+
+    // Gives the whole payment back to the customer
+    public function refund(Payment $payment): void;
 }

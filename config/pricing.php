@@ -12,6 +12,11 @@ return [
     'premium_yearly_saving' => 39,   // percent saved against paying monthly for a year (both premium plans)
     'buyer_monthly' => 4.99,
     'boost_weekly' => 6.99,
+
+    // the marketplace's share of every car sale, in percent (see App\Models\CarSale and the "How buying works" page)
+    'commission_rate' => 5,
+    // how long a car stays reserved for a buyer who paid the commission, before the admin follows up
+    'reservation_days' => 7,
     'boost_days' => 7,
 
     // someone counts as "watching" a car if its open page checked in within this many seconds

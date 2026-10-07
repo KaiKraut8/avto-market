@@ -27,9 +27,10 @@ class DealController extends Controller
     public static function forVisitor(Alerts $alerts): Collection
     {
         $cars = Car::query()
+            ->forSale()
             ->withPlacement()
             ->withPeopleCount()
-            ->with(['coverPhoto', 'parts:id,car_id,name', 'activeDeal'])
+            ->with(['coverPhoto', 'parts:id,car_id,name', 'activeDeal', 'activeSale'])
             ->whereHas('deals', fn ($q) => $q->active())
             ->listingOrder()
             ->get();

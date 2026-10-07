@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Car;
+use App\Models\CarSale;
 use App\Models\Payment;
 use App\Models\Payout;
 use App\Models\Subscription;
@@ -25,7 +26,7 @@ class AdminController extends Controller
         $paid = Payment::where('status', 'paid');
         $byProduct = Payment::where('payments.status', 'paid')
             ->leftJoin('subscriptions', 'subscriptions.id', '=', 'payments.subscription_id')
-            ->selectRaw("CASE WHEN payments.purpose = 'boost' THEN 'boost' ELSE subscriptions.kind END AS product, SUM(payments.amount) AS total, COUNT(*) AS n")
+            ->selectRaw("CASE WHEN payments.purpose = 'boost' THEN 'boost' WHEN payments.purpose IN ('reservation', 'commission') THEN 'commission' ELSE subscriptions.kind END AS product, SUM(payments.amount) AS total, COUNT(*) AS n")
             ->groupBy('product')->get()->keyBy('product');
         $active = Subscription::current()->where('cancel_at_period_end', false)->get();
 
@@ -55,6 +56,7 @@ class AdminController extends Controller
             'balance' => $balance,
             'balanceError' => $balanceError,
             'payouts' => $payouts,
+            'openSales' => CarSale::whereIn('status', ['reserved', 'due'])->with(['car', 'seller:id,name', 'buyer:id,name'])->oldest('id')->get(),
             'accounts' => User::count(),
             'cars' => Car::count(),
             'testMode' => config('payments.driver') === 'test',

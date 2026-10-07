@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CarSale;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -28,6 +29,8 @@ class AccountController extends Controller
             'user' => $user,
             'cars' => $cars,
             'searches' => $user->savedSearches,
+            'selling' => CarSale::where('seller_id', $user->id)->whereIn('status', ['reserved', 'due'])->with(['car', 'buyer'])->latest('id')->get(),
+            'buying' => CarSale::where('buyer_id', $user->id)->whereIn('status', ['reserved', 'completed'])->with('car')->latest('id')->limit(10)->get(),
             'subscriptions' => $user->subscriptions()->current()->get(),
             'payments' => $user->payments()->where('status', '!=', 'open')->limit(20)->get(),
         ]);

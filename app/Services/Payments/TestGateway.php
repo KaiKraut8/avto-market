@@ -45,6 +45,11 @@ class TestGateway implements PaymentGateway
         ];
     }
 
+    public function refund(Payment $payment): void
+    {
+        // nothing to give back: no money moved
+    }
+
     // The test checkout page records the choice made there
     public static function setStatus(string $id, string $status): void
     {

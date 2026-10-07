@@ -50,11 +50,49 @@
                 @endif
             </section>
 
+            @if ($openSales->isNotEmpty())
+                <section class="panel">
+                    <h2>{{ __('Open sales') }}</h2>
+                    <div class="table-scroll">
+                        <table class="admin-table">
+                            <thead><tr><th>{{ __('Car') }}</th><th>{{ __('Seller') }}</th><th>{{ __('State') }}</th><th>{{ __('Commission') }}</th><th></th></tr></thead>
+                            <tbody>
+                                @foreach ($openSales as $sale)
+                                    <tr>
+                                        <td><a href="{{ route('cars.show', $sale->car_id) }}">{{ $sale->car->name }}</a></td>
+                                        <td>{{ $sale->seller?->name }}</td>
+                                        <td>
+                                            @if ($sale->status === 'reserved')
+                                                {{ __('Reserved by :name since :date', ['name' => $sale->buyer?->name, 'date' => $sale->updated_at->format('Y-m-d')]) }}
+                                                @if ($sale->updated_at->lt(now()->subDays((int) config('pricing.reservation_days'))))
+                                                    <span class="danger-text">· {{ __('waiting too long') }}</span>
+                                                @endif
+                                            @else
+                                                <span class="danger-text">{{ __('Sold elsewhere, commission unpaid') }}</span>
+                                            @endif
+                                        </td>
+                                        <td class="num">@eur($sale->commission)</td>
+                                        <td>
+                                            @if ($sale->status === 'reserved')
+                                                <form method="post" action="{{ route('sales.cancel', $sale) }}" data-confirm="{{ __('Cancel the sale? The buyer gets their money back and the car is for sale again.') }}">
+                                                    @csrf
+                                                    <button type="submit" class="btn danger small">{{ __('Cancel and refund') }}</button>
+                                                </form>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            @endif
+
             <section class="panel">
                 <h2>{{ __('Where the money comes from') }}</h2>
                 <div class="split-grid">
                     <ul class="split-list">
-                        @foreach (['seller' => __('Premium seller'), 'buyer' => __('Premium buyer'), 'boost' => __('Push forward')] as $key => $label)
+                        @foreach (['commission' => __('Sales commission'), 'seller' => __('Premium seller'), 'buyer' => __('Premium buyer'), 'boost' => __('Push forward')] as $key => $label)
                             <li><span>{{ $label }}</span><b>@eur($byProduct[$key]->total ?? 0)</b></li>
                         @endforeach
                     </ul>

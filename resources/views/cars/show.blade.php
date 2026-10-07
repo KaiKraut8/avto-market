@@ -4,10 +4,12 @@
     <p class="crumbs"><a href="{{ route('home') }}">{{ __('Home') }}</a> &rsaquo; <a href="{{ route('cars.index') }}">{{ __('All cars') }}</a> &rsaquo; {{ $car->name }}</p>
 
     <div class="detail-head">
-        <h1>{{ $car->name }}@if ($car->isPremium()) <span class="premium-tag"><span aria-hidden="true">&#9813;</span> {{ __('Premium') }}</span>@endif</h1>
+        <h1>{{ $car->name }}@if ($car->isSold()) <span class="sale-tag sold">{{ __('Sold') }}</span>@elseif ($car->isReserved()) <span class="sale-tag">{{ __('Reserved') }}</span>@endif @if ($car->isPremium()) <span class="premium-tag"><span aria-hidden="true">&#9813;</span> {{ __('Premium') }}</span>@endif</h1>
         <div class="detail-actions">
             <x-heart :car="$car" :wished="$wished" :label="true" />
-            <a class="btn accent" href="#contact"><x-icon name="chat" :size="17" /> {{ __('Contact seller') }}</a>
+            @unless ($car->isSold())
+                <a class="btn accent" href="#contact"><x-icon name="chat" :size="17" /> {{ __('Contact seller') }}</a>
+            @endunless
             <x-deal-price :car="$car" size="big" />
         </div>
     </div>
@@ -124,6 +126,63 @@
         </div>
 
         <aside>
+            @php
+                $sale = $car->activeSale;
+                $rate = \App\Models\CarSale::rate();
+                $commission = $car->price !== null ? \App\Models\CarSale::commissionFor((float) $car->price) : null;
+            @endphp
+            @if ($car->isSold())
+                <div class="panel sale-panel sold">
+                    <h2>{{ __('Sold') }}</h2>
+                    <p>{{ __('This car was sold on :date.', ['date' => $car->sold_at->format('Y-m-d')]) }}</p>
+                    <a class="btn ghost" href="{{ route('cars.index') }}">{{ __('See other cars') }}</a>
+                </div>
+            @elseif ($car->isReserved() && $canEdit)
+                <div class="panel sale-panel">
+                    <h2>{{ __('Reserved: a buyer paid') }}</h2>
+                    <p>{{ __(':name paid the :rate% commission online. Arrange the handover; at the handover they pay you :remainder.', ['name' => $sale->buyer?->name, 'rate' => (float) $sale->rate, 'remainder' => \App\Support\Money::price($sale->remainder())]) }}</p>
+                    @if ($sale->buyer)
+                        <a class="seller-line" href="tel:{{ preg_replace('/[^+0-9]/', '', $sale->buyer->phone) }}"><span>{{ __('Phone') }}</span><b>{{ $sale->buyer->phone }}</b></a>
+                        <a class="seller-line" href="mailto:{{ $sale->buyer->email }}"><span>{{ __('Email') }}</span><b>{{ $sale->buyer->email }}</b></a>
+                    @endif
+                    <div class="sale-actions">
+                        <form method="post" action="{{ route('sales.complete', $sale) }}" data-confirm="{{ __('Has the buyer paid you and taken the car?') }}">
+                            @csrf
+                            <button type="submit" class="btn gold">{{ __('Confirm the sale') }}</button>
+                        </form>
+                        <form method="post" action="{{ route('sales.cancel', $sale) }}" data-confirm="{{ __('Cancel the sale? The buyer gets their money back and the car is for sale again.') }}">
+                            @csrf
+                            <button type="submit" class="btn danger">{{ __('Cancel the sale') }}</button>
+                        </form>
+                    </div>
+                </div>
+            @elseif ($car->isReserved() && auth()->id() && (int) $sale->buyer_id === (int) auth()->id())
+                <div class="panel sale-panel mine">
+                    <h2>{{ __('Reserved for you') }}</h2>
+                    <p>{{ __('You paid the :rate% commission. The seller will contact you; at the handover you pay them :remainder.', ['rate' => (float) $sale->rate, 'remainder' => \App\Support\Money::price($sale->remainder())]) }}</p>
+                    @if ($contact)
+                        <a class="seller-line" href="tel:{{ preg_replace('/[^+0-9]/', '', $contact['phone']) }}"><span>{{ __('Phone') }}</span><b>{{ $contact['phone'] }}</b></a>
+                        <a class="seller-line" href="mailto:{{ $contact['email'] }}"><span>{{ __('Email') }}</span><b>{{ $contact['email'] }}</b></a>
+                    @endif
+                </div>
+            @elseif ($car->isReserved())
+                <div class="panel sale-panel">
+                    <h2>{{ __('Reserved') }}</h2>
+                    <p>{{ __('Another buyer has reserved this car. If the sale falls through, it will be for sale again.') }}</p>
+                </div>
+            @elseif ($car->isBuyable() && ! $isOwner)
+                <div class="panel sale-panel buy">
+                    <h2>{{ __('Buy this car') }}</h2>
+                    <div class="calc-rows small">
+                        <div><span>{{ __('Price of the car') }}</span><b>@price($car->price)</b></div>
+                        <div class="calc-online"><span>{{ __('You pay online now (:rate%, to KAI Garage)', ['rate' => $rate]) }}</span><b>@eur($commission)</b></div>
+                        <div><span>{{ __('You pay the seller at the handover') }}</span><b>@price((float) $car->price - $commission)</b></div>
+                    </div>
+                    <a class="btn gold big buy-btn" href="{{ route('checkout.create', ['product' => 'reserve', 'car' => $car->id]) }}">{{ __('Buy this car') }}</a>
+                    <p class="hint">{{ __('Paying online reserves the car for you. Refunded in full if the seller cancels.') }} <a href="{{ route('how-buying') }}">{{ __('How buying works') }}</a></p>
+                </div>
+            @endif
+
             @if ($deal = $car->activeDeal)
                 <div class="panel deal-panel">
                     <h2><x-icon name="tag" :size="16" /> {{ __('Special deal') }}</h2>
@@ -185,7 +244,7 @@
                         <button type="submit" class="btn gold"><x-icon name="tag" :size="16" /> {{ $car->activeDeal ? __('Replace the deal') : __('Start the deal') }}</button>
                     </form>
                 </div>
-            @elseif ($isOwner && ! auth()->user()->hasPremium())
+            @elseif ($isOwner && ! auth()->user()->hasPremium() && ! $car->isSold())
                 <div class="panel upsell">
                     <span class="upsell-crown" aria-hidden="true">&#9813;</span>
                     <h2>{{ __('Special deals') }}</h2>
@@ -194,6 +253,7 @@
                 </div>
             @endif
 
+            @unless ($car->isSold())
             <div class="panel contact-panel" id="contact">
                 <h2>{{ __('Contact seller') }}</h2>
                 @if ($isOwner)
@@ -253,6 +313,8 @@
                 @endif
             </div>
 
+            @endunless
+
             <div class="panel">
                 <h2>{{ __('Car data') }}</h2>
                 <table class="specs">
@@ -269,7 +331,7 @@
                 @endif
             </div>
 
-            @if ($canEdit && ! $car->isPremium())
+            @if ($canEdit && ! $car->isPremium() && ! $car->isSold())
                 <div class="panel upsell">
                     <span class="upsell-crown" aria-hidden="true">&#9813;</span>
                     <h2>{{ __('Push this car forward') }}</h2>
@@ -293,6 +355,13 @@
             @endif
 
             @if ($canEdit)
+                @unless ($car->isSold() || $car->isReserved())
+                    <div class="panel">
+                        <h2>{{ __('Sold the car another way?') }}</h2>
+                        <p class="hint">{{ __('Mark it as sold and pay the :rate% commission. It leaves the site.', ['rate' => \App\Models\CarSale::rate()]) }}</p>
+                        <a class="btn ghost" href="{{ route('cars.sold.create', $car) }}">{{ __('Mark it as sold') }}</a>
+                    </div>
+                @endunless
                 <div class="panel">
                     <h2>{{ __('Remove') }}</h2>
                     <p class="hint">{{ __('The car is hidden from the site but stays in the database.') }}</p>

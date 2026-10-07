@@ -11,7 +11,7 @@ beforeEach(fn () => Storage::fake('public'));
 
 function carData(array $overrides = []): array
 {
-    return array_merge(['name' => 'Škoda Octavia', 'price' => '12.900', 'location' => 'Maribor', 'country' => 'Slovenia', 'description' => "Line one\nLine two"], $overrides);
+    return array_merge(['name' => 'Škoda Octavia', 'price' => '12.900', 'location' => 'Maribor', 'country' => 'Slovenia', 'description' => "Line one\nLine two", 'terms' => 1], $overrides);
 }
 
 it('needs an account to post a car', function () {

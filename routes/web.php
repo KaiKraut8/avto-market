@@ -8,6 +8,7 @@ use App\Http\Controllers\CarDealController;
 use App\Http\Controllers\CarInquiryController;
 use App\Http\Controllers\CarPartController;
 use App\Http\Controllers\CarPhotoController;
+use App\Http\Controllers\CarSaleController;
 use App\Http\Controllers\CarWatchController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\DealController;
@@ -39,6 +40,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/cars/{car}/parts/{part}', [CarPartController::class, 'destroy'])->name('cars.parts.destroy')->can('update', 'car')->scopeBindings();
     Route::post('/cars/{car}/boost', CarBoostController::class)->name('cars.boost')->can('update', 'car');
     Route::post('/cars/{car}/deal', [CarDealController::class, 'store'])->name('cars.deal.store')->can('runDeal', 'car');
+    Route::get('/cars/{car}/sold', [CarSaleController::class, 'soldForm'])->name('cars.sold.create');
+    Route::post('/cars/{car}/sold', [CarSaleController::class, 'markSold'])->name('cars.sold');
+    Route::post('/sales/{sale}/complete', [CarSaleController::class, 'complete'])->name('sales.complete');
+    Route::post('/sales/{sale}/cancel', [CarSaleController::class, 'cancel'])->name('sales.cancel');
     Route::delete('/cars/{car}/deal', [CarDealController::class, 'destroy'])->name('cars.deal.destroy')->can('update', 'car');
 
     Route::get('/account', AccountController::class)->name('account');
@@ -84,6 +89,7 @@ Route::post('/webhooks/mollie', MollieWebhookController::class)->name('webhooks.
 
 // information pages
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
+Route::get('/how-buying-works', [PageController::class, 'howBuying'])->name('how-buying');
 Route::get('/why/{page}', [PageController::class, 'why'])->name('why')->whereIn('page', PageController::WHY_PAGES);
 
 Route::get('/language/{locale}', LanguageController::class)->name('language');

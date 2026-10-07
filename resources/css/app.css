@@ -1292,10 +1292,10 @@ a.why-item:hover { text-decoration: none; }
 .nav a.nav-admin { color: var(--ok); }
 .test-notice { background: rgba(255, 176, 46, .1); color: var(--accent); border-color: rgba(255, 176, 46, .35); }
 .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
-.stat { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.2rem; display: grid; gap: .2rem; }
-.stat span { color: var(--muted); font-size: .82rem; }
-.stat b { font: 800 1.5rem var(--font-head); }
-.stat small { color: var(--muted); font-size: .76rem; }
+.admin-page .stat { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.2rem; display: grid; gap: .2rem; }
+.admin-page .stat span { color: var(--muted); font-size: .82rem; }
+.admin-page .stat b { font: 800 1.5rem var(--font-head); }
+.admin-page .stat small { color: var(--muted); font-size: .76rem; }
 .admin-table { width: 100%; border-collapse: collapse; font-size: .86rem; }
 .admin-table th, .admin-table td { padding: .55rem .6rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
 .admin-table th { color: var(--muted); font-size: .76rem; font-weight: 600; }
@@ -1322,3 +1322,40 @@ a.why-item:hover { text-decoration: none; }
     .split-grid { grid-template-columns: 1fr; }
 }
 .btn:disabled, .btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* ---- buying through the site: commission, reserved / sold ---- */
+.sale-panel { border: 1.5px solid rgba(95, 211, 154, .5); background: radial-gradient(120% 90% at 100% 0%, rgba(95, 211, 154, .1), transparent 60%), var(--card); }
+.sale-panel h2 { color: var(--ok); }
+.sale-panel.sold { border-color: var(--line); background: var(--card); }
+.sale-panel.sold h2 { color: var(--muted); }
+.sale-panel p { font-size: .9rem; color: #cfd6df; }
+.buy-btn { width: 100%; justify-content: center; margin: .4rem 0 .6rem; }
+.sale-actions { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .8rem; }
+.calc-rows { display: grid; gap: .45rem; margin: 0 0 1rem; }
+.calc-rows div { display: flex; justify-content: space-between; gap: .8rem; align-items: baseline; }
+.calc-rows span { color: var(--muted); font-size: .9rem; }
+.calc-rows b { font: 700 1.05rem var(--font-head); white-space: nowrap; }
+.calc-rows .calc-online b { color: var(--ok); }
+.calc-rows .calc-total { border-top: 1px solid var(--line); padding-top: .45rem; }
+.calc-rows.small span { font-size: .84rem; }
+.calc-rows.small b { font-size: .95rem; }
+.example-calc { max-width: 40rem; }
+.how-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.steps { margin: 0; padding-left: 1.3rem; display: grid; gap: .7rem; color: #cfd6df; }
+.sale-tag { display: inline-flex; vertical-align: .45rem; margin-left: .4rem; padding: .25rem .7rem; border-radius: 999px; font: 800 .72rem var(--font-body); letter-spacing: .12em; text-transform: uppercase; color: #06210f; background: var(--ok); }
+.sale-tag.sold { background: var(--muted); color: var(--bg); }
+.sale-ribbon {
+    position: absolute; top: -.75rem; left: 1rem; z-index: 5; padding: .3rem .75rem; border-radius: 999px;
+    font-size: .72rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #06210f; background: var(--ok);
+}
+.sale-ribbon.sold { background: var(--muted); color: var(--bg); }
+.commission-box { margin: 1rem 0; padding: .9rem 1rem; border-radius: 12px; border: 1px solid rgba(95, 211, 154, .4); background: rgba(95, 211, 154, .06); }
+.commission-box b { color: var(--ok); }
+.commission-box p { margin: .3rem 0 .6rem; font-size: .86rem; color: #cfd6df; }
+.terms-check { margin: 0 0 1rem; }
+.sale-row { display: grid; gap: .3rem; padding: .7rem 0; border-top: 1px solid var(--line); font-size: .9rem; }
+.sale-row:first-of-type { border-top: 0; padding-top: 0; }
+.sale-row .btn { justify-self: start; }
+@media (max-width: 800px) {
+    .how-grid { grid-template-columns: 1fr; }
+}

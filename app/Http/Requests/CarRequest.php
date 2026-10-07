@@ -29,6 +29,8 @@ class CarRequest extends FormRequest
             'description' => ['nullable', 'string', 'max:5000'],
             // only when posting a new car
             'plan' => ['sometimes', Rule::in(['free', 'boost', 'premium'])],
+            // a new car: the seller agrees to the commission on its sale
+            'terms' => [$this->isMethod('post') ? 'accepted' : 'nullable'],
             'billing' => ['sometimes', Rule::in(['monthly', 'yearly'])],
             'photos' => ['sometimes', 'array', 'max:20'],
             'photos.*' => ['file'],   // contents are checked by PhotoStore
@@ -42,6 +44,7 @@ class CarRequest extends FormRequest
             'location.min' => __('Location is required: the town or city where the car is (2 to 80 characters).'),
             'country.in' => __('Choose the country where the car is listed.'),
             'price.numeric' => __('Price must be a number.'),
+            'terms.accepted' => __('Please confirm that you have read how buying works.'),
         ];
     }
 }

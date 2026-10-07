@@ -9,7 +9,8 @@ use Illuminate\Notifications\Notification;
 // (see App\Support\AlertText).
 class SiteAlert extends Notification
 {
-    public const KINDS = ['deal_saved_car', 'deal_for_you', 'search_match', 'car_saved', 'inquiry', 'renewal_due', 'payment_failed'];
+    public const KINDS = ['deal_saved_car', 'deal_for_you', 'search_match', 'car_saved', 'inquiry', 'renewal_due', 'payment_failed',
+        'car_reserved', 'reservation_paid', 'sale_canceled', 'sale_completed'];
 
     public function __construct(public string $kind, public array $values) {}
 

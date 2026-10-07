@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Car;
+use App\Models\CarSale;
 use App\Models\Payment;
 use App\Models\Subscription;
 use App\Services\Billing;
 use App\Services\Payments\TestGateway;
 use App\Services\Pricing;
+use App\Support\Money;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -27,7 +29,7 @@ class CheckoutController extends Controller
             return $order;
         }
 
-        return view('checkout.create', $order + ['methods' => config('payments.methods'), 'testMode' => config('payments.driver') === 'test']);
+        return view('checkout.create', $order + ['methods' => $this->methods($order['price']), 'testMode' => config('payments.driver') === 'test']);
     }
 
     public function store(Request $request, Billing $billing): RedirectResponse
@@ -36,7 +38,11 @@ class CheckoutController extends Controller
         if ($order instanceof RedirectResponse) {
             return $order;
         }
-        $method = $request->validate(['method' => ['required', Rule::in(config('payments.methods'))]])['method'];
+        $method = $request->validate([
+            'method' => ['required', Rule::in($this->methods($order['price']))],
+            // the sale rules have to be accepted before money moves
+            'terms' => [in_array($order['product'], ['reserve', 'commission'], true) ? 'accepted' : 'nullable'],
+        ], ['terms.accepted' => __('Please confirm that you have read how buying works.')])['method'];
         $user = $request->user();
 
         try {
@@ -44,6 +50,8 @@ class CheckoutController extends Controller
                 'seller', 'buyer' => $billing->startSubscription($user, $order['product'], $order['billing'], $method),
                 'renew' => $billing->payNextPeriod($order['subscription'], $method),
                 'boost' => $billing->startBoost($user, $order['car'], $method),
+                'reserve' => $billing->startReservation($user, $order['car'], $method),
+                'commission' => $billing->startCommission($user, $order['sale'], $method),
             };
         } catch (RuntimeException $e) {
             return redirect()->route('account')->with('error', $e->getMessage());
@@ -60,7 +68,7 @@ class CheckoutController extends Controller
         abort_unless((int) $payment->user_id === (int) $request->user()->id, 404);
         $payment = $billing->sync($payment);
 
-        $target = $payment->purpose === 'boost' && $payment->car ? route('cars.show', $payment->car) : route('account');
+        $target = in_array($payment->purpose, ['boost', 'reservation'], true) && $payment->car ? route('cars.show', $payment->car) : route('account');
 
         return match ($payment->status) {
             'paid' => redirect()->to($target)->with('status', $this->paidMessage($payment)),
@@ -91,7 +99,8 @@ class CheckoutController extends Controller
     private function order(Request $request): array|RedirectResponse
     {
         $data = $request->validate([
-            'product' => ['required', Rule::in(['seller', 'buyer', 'renew', 'boost'])],
+            'product' => ['required', Rule::in(['seller', 'buyer', 'renew', 'boost', 'reserve', 'commission'])],
+            'sale' => ['nullable', 'integer'],
             'billing' => ['nullable', Rule::in(['monthly', 'yearly'])],
             'car' => ['nullable', 'integer'],
             'subscription' => ['nullable', 'integer'],
@@ -125,8 +134,37 @@ class CheckoutController extends Controller
             ];
         }
 
-        $car = Car::findOrFail($data['car'] ?? 0);
+        if ($product === 'commission') {
+            $sale = CarSale::where('seller_id', $user->id)->where('status', 'due')->with('car')->findOrFail($data['sale'] ?? 0);
+
+            return [
+                'product' => 'commission', 'billing' => null, 'sale' => $sale, 'car' => $sale->car, 'price' => (float) $sale->commission,
+                'title' => __('Commission (:rate%): :car', ['rate' => (float) $sale->rate, 'car' => $sale->car->name]),
+                'period' => null, 'renews' => false,
+            ];
+        }
+
+        $car = Car::with('activeSale')->findOrFail($data['car'] ?? 0);
+        if ($product === 'reserve') {
+            if ((int) $car->user_id === (int) $user->id) {
+                return redirect()->route('cars.show', $car)->with('status', __('This is your own car.'));
+            }
+            if (! $car->isBuyable()) {
+                return redirect()->route('cars.show', $car)->with('error', __('This car can\'t be bought right now.'));
+            }
+            $commission = CarSale::commissionFor((float) $car->price);
+
+            return [
+                'product' => 'reserve', 'billing' => null, 'car' => $car, 'price' => $commission,
+                'title' => __('Reservation: :car', ['car' => $car->name]),
+                'period' => null, 'renews' => false,
+                'breakdown' => ['price' => (float) $car->price, 'commission' => $commission, 'remainder' => round((float) $car->price - $commission, 2), 'rate' => CarSale::rate()],
+            ];
+        }
         Gate::authorize('update', $car);
+        if ($car->isSold()) {
+            return redirect()->route('cars.show', $car)->with('status', __('This car is already reserved or sold.'));
+        }
         if ($car->isPremium()) {
             return redirect()->route('cars.show', $car)->with('status', __('This car is already premium, so it is shown first anyway.'));
         }
@@ -138,8 +176,27 @@ class CheckoutController extends Controller
         ];
     }
 
+    // Methods that can take this amount (paysafecard has a ceiling)
+    private function methods(float $amount): array
+    {
+        return array_values(array_filter(config('payments.methods'), fn ($m) => $amount <= (config('payments.max_amount')[$m] ?? INF)));
+    }
+
     private function paidMessage(Payment $payment): string
     {
+        if ($payment->purpose === 'reservation') {
+            $sale = $payment->sale->refresh();
+            if ($sale->status !== 'reserved') {
+                return __('Someone else bought this car a moment before you. Your payment is being refunded.');
+            }
+
+            return __('Payment received: :car is reserved for you. The seller will contact you; at the handover you pay them :remainder.', [
+                'car' => $payment->car->name, 'remainder' => Money::price($sale->remainder()),
+            ]);
+        }
+        if ($payment->purpose === 'commission') {
+            return __('Thank you: the commission is paid and you can list cars again.');
+        }
         if ($payment->purpose === 'boost') {
             $car = $payment->car->refresh();
 

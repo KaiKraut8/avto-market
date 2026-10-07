@@ -14,6 +14,14 @@
         <section class="panel order-summary">
             <h2>{{ __('Your order') }}</h2>
             <p class="order-title">@if ($product !== 'boost')&#9813; @endif{{ $title }}</p>
+            @isset($breakdown)
+                <div class="calc-rows small">
+                    <div><span>{{ __('Price of the car') }}</span><b>@price($breakdown['price'])</b></div>
+                    <div class="calc-online"><span>{{ __('You pay online now (:rate%, to KAI Garage)', ['rate' => $breakdown['rate']]) }}</span><b>@eur($breakdown['commission'])</b></div>
+                    <div><span>{{ __('You pay the seller at the handover') }}</span><b>@price($breakdown['remainder'])</b></div>
+                </div>
+                <p class="hint">{{ __('The car is reserved for you as soon as this is paid. If the seller cancels, you get it back in full.') }}</p>
+            @endisset
             @if ($product === 'renew')
                 <p class="hint">{{ __('The next period of your subscription.') }}</p>
             @elseif ($product !== 'boost')
@@ -82,6 +90,12 @@
                     </label>
                 @endforeach
             </fieldset>
+            @if (in_array($product, ['reserve', 'commission'], true))
+                @error('terms')
+                    <ul class="form-errors"><li>{{ $message }}</li></ul>
+                @enderror
+                <label class="remember terms-check"><input type="checkbox" name="terms" value="1" required> {!! __('I have read <a href=":url" target="_blank">how buying works</a> and agree to it.', ['url' => route('how-buying')]) !!}</label>
+            @endif
             <button type="submit" class="btn gold big pay-button">{{ __('Continue to payment') }} &middot; @eur($price)</button>
             <p class="hint secure-note"><x-icon name="lock" :size="14" />
                 @if ($testMode)

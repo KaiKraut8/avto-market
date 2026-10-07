@@ -25,6 +25,7 @@ class Car extends Model
             'price' => 'decimal:2',
             'boosted_until' => 'datetime',
             'legacy_premium_until' => 'datetime',
+            'sold_at' => 'datetime',
             'is_premium' => 'boolean',
             'is_boosted' => 'boolean',
         ];
@@ -60,6 +61,39 @@ class Car extends Model
     public function inquiries(): HasMany
     {
         return $this->hasMany(CarInquiry::class);
+    }
+
+    public function sales(): HasMany
+    {
+        return $this->hasMany(CarSale::class)->latest('id');
+    }
+
+    // A buyer has paid the commission and the car is held for them
+    public function activeSale(): HasOne
+    {
+        return $this->hasOne(CarSale::class)->ofMany(['id' => 'max'], fn (Builder $q) => $q->whereIn('car_sales.status', ['reserved', 'completed', 'due', 'paid']));
+    }
+
+    public function isSold(): bool
+    {
+        return $this->sold_at !== null;
+    }
+
+    public function isReserved(): bool
+    {
+        return ! $this->isSold() && $this->activeSale?->status === 'reserved';
+    }
+
+    // Can be bought on the site right now
+    public function isBuyable(): bool
+    {
+        return $this->price !== null && $this->user_id !== null && ! $this->isSold() && ! $this->isReserved();
+    }
+
+    // Cars still for sale (sold ones keep their page, but leave the lists)
+    public function scopeForSale(Builder $query): void
+    {
+        $query->whereNull('cars.sold_at');
     }
 
     public function deals(): HasMany

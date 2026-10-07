@@ -56,6 +56,14 @@ class MollieGateway implements PaymentGateway
         ];
     }
 
+    public function refund(Payment $payment): void
+    {
+        $this->http()->post($this->api.'/payments/'.$payment->provider_id.'/refunds', [
+            'amount' => ['currency' => $payment->currency ?? 'EUR', 'value' => number_format((float) $payment->amount, 2, '.', '')],
+            'description' => $payment->description,
+        ]);
+    }
+
     public function fetch(Payment $payment): array
     {
         $response = $this->http()->get($this->api.'/payments/'.$payment->provider_id)->json();

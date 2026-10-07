@@ -16,7 +16,7 @@ class WishlistController extends Controller
     {
         $cars = Car::query()
             ->withPlacement()
-            ->with(['coverPhoto', 'parts:id,car_id,name', 'activeDeal'])
+            ->with(['coverPhoto', 'parts:id,car_id,name', 'activeDeal', 'activeSale'])
             ->join('wishlist_items', 'wishlist_items.car_id', '=', 'cars.id')
             ->where('wishlist_items.visitor_id', Visitor::id())
             ->addSelect('wishlist_items.created_at as wished_at')

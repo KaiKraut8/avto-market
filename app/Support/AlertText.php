@@ -74,6 +74,32 @@ class AlertText
                 ]),
                 'url' => route('checkout.create', ['product' => 'renew', 'subscription' => $d['subscription_id'] ?? 0]),
             ],
+            'car_reserved' => [
+                'icon' => 'tag',
+                'title' => __(':car is reserved: a buyer paid', ['car' => $car]),
+                'text' => __(':name (:phone, :email) paid the commission online. Arrange the handover; they pay you :remainder. Then confirm the sale on the car\'s page.', [
+                    'name' => $d['name'] ?? '', 'phone' => $d['phone'] ?? '', 'email' => $d['email'] ?? '', 'remainder' => Money::price($d['remainder'] ?? 0),
+                ]),
+                'url' => $url,
+            ],
+            'reservation_paid' => [
+                'icon' => 'check',
+                'title' => __(':car is reserved for you', ['car' => $car]),
+                'text' => __('The seller has your details and will contact you. At the handover you pay the seller :remainder.', ['remainder' => Money::price($d['remainder'] ?? 0)]),
+                'url' => $url,
+            ],
+            'sale_canceled' => [
+                'icon' => 'card',
+                'title' => __('The purchase of :car was cancelled', ['car' => $car]),
+                'text' => __('Your :refund is being refunded to the same payment method.', ['refund' => Money::eur($d['refund'] ?? 0)]),
+                'url' => $url,
+            ],
+            'sale_completed' => [
+                'icon' => 'check',
+                'title' => __('Congratulations on your :car', ['car' => $car]),
+                'text' => __('The seller confirmed the handover. Enjoy the drive!'),
+                'url' => $url,
+            ],
             default => ['icon' => 'bell', 'title' => __('Notification'), 'text' => '', 'url' => $url],
         };
     }

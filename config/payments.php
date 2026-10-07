@@ -16,6 +16,8 @@ return [
     // the order they are offered in; only cards and PayPal can be charged again without the customer
     'methods' => ['creditcard', 'paypal', 'paysafecard'],
     'recurring' => ['creditcard', 'paypal'],
+    // the most one payment can be per method (paysafecard: 1.000 €); larger amounts don't offer it
+    'max_amount' => ['paysafecard' => 1000],
 
     // renewals are charged this long before the paid period ends, and retried daily if they fail
     'renew_before_hours' => 24,

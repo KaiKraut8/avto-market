@@ -110,7 +110,7 @@
             </ul>
         </div>
     </div>
-    <div class="inner footer-bottom">&copy; {{ date('Y') }} {{ config('company.name') }}. {{ __('All rights reserved.') }} · <a href="{{ route('contact') }}">{{ __('Contact us') }}</a></div>
+    <div class="inner footer-bottom">&copy; {{ date('Y') }} {{ config('company.name') }}. {{ __('All rights reserved.') }} · <a href="{{ route('contact') }}">{{ __('Contact us') }}</a> · <a href="{{ route('how-buying') }}">{{ __('How buying works') }}</a></div>
 </footer>
 
 </body>

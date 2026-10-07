@@ -6,7 +6,11 @@
 @endphp
 <article @class(['car-card', 'has-deal' => $car->activeDeal, 'premium' => $car->isPremium(), 'boosted' => ! $car->isPremium() && $car->isBoosted(), 'wish-card' => $wishlist])
          style="--i: {{ $i }}" data-href="{{ $link }}" @if ($wishlist) data-remove-on-unwish @endif>
-    @if ($car->activeDeal)
+    @if ($car->isSold())
+        <span class="sale-ribbon sold">{{ __('Sold') }}</span>
+    @elseif ($car->isReserved())
+        <span class="sale-ribbon">{{ __('Reserved') }}</span>
+    @elseif ($car->activeDeal)
         <span class="deal-ribbon"><x-icon name="tag" :size="13" /> {{ __('Special deal') }}</span>
     @elseif ($car->isPremium())
         <span class="premium-ribbon"><span aria-hidden="true">&#9813;</span> {{ __('Premium') }}</span>

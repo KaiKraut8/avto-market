@@ -21,6 +21,34 @@
 
     <div class="detail">
         <div>
+            @if ($selling->isNotEmpty() || $buying->isNotEmpty())
+                <section class="panel sales-panel" id="sales">
+                    <h2><x-icon name="tag" :size="16" /> {{ __('Sales and purchases') }}</h2>
+                    @foreach ($selling as $sale)
+                        <div class="sale-row">
+                            <a href="{{ route('cars.show', $sale->car_id) }}"><b>{{ $sale->car->name }}</b></a>
+                            @if ($sale->status === 'reserved')
+                                <span>{{ __('Reserved by :name (:phone). Collect :remainder at the handover, then confirm the sale.', ['name' => $sale->buyer?->name, 'phone' => $sale->buyer?->phone, 'remainder' => \App\Support\Money::price($sale->remainder())]) }}</span>
+                                <a class="btn small" href="{{ route('cars.show', $sale->car_id) }}">{{ __('Open the sale') }}</a>
+                            @else
+                                <span class="danger-text">{{ __('Sold elsewhere: the :rate% commission (:amount) is not paid yet.', ['rate' => (float) $sale->rate, 'amount' => \App\Support\Money::eur($sale->commission)]) }}</span>
+                                <a class="btn gold small" href="{{ route('checkout.create', ['product' => 'commission', 'sale' => $sale->id]) }}">{{ __('Pay the commission') }}</a>
+                            @endif
+                        </div>
+                    @endforeach
+                    @foreach ($buying as $sale)
+                        <div class="sale-row">
+                            <a href="{{ route('cars.show', $sale->car_id) }}"><b>{{ $sale->car->name }}</b></a>
+                            @if ($sale->status === 'reserved')
+                                <span>{{ __('Reserved for you. Pay the seller :remainder at the handover.', ['remainder' => \App\Support\Money::price($sale->remainder())]) }}</span>
+                            @else
+                                <span>{{ __('Bought on :date.', ['date' => $sale->completed_at?->format('Y-m-d')]) }}</span>
+                            @endif
+                        </div>
+                    @endforeach
+                </section>
+            @endif
+
             <section class="panel">
                 <h2>{{ __('Your cars (:count)', ['count' => $cars->count()]) }}</h2>
                 @if ($cars->isNotEmpty())

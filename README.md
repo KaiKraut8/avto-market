@@ -62,6 +62,21 @@ Every account is told when a car in its wishlist gets a deal; a wishlist saved b
 A deal keeps the price it started from, so changing the car's price ends it. Alerts are sent during the request;
 with many accounts they should move to a queue.
 
+## Selling: 5 % commission
+
+Every car is sold through the site, and the marketplace keeps `commission_rate` (5 %, `config/pricing.php`) of the price.
+The rules are on `/how-buying-works`, linked from every car, the checkout, the new-car form (sellers must accept them) and the footer.
+
+- **Buy this car**: the buyer pays 5 % of the price online (it goes to the admin's Mollie balance). That reserves the car
+  and gives buyer and seller each other's details. The buyer pays the seller the other 95 % at the handover, so the
+  buyer pays the listed price and the seller receives 95 % of it.
+- The seller then **confirms the sale** (the car is marked sold and leaves the lists) or **cancels** it (the buyer's 5 % is
+  refunded through Mollie and the car is for sale again). If two buyers pay at the same moment, the second is refunded automatically.
+- **Sold elsewhere**: the seller marks the car sold, enters the price and pays the 5 % themselves; until it is paid they
+  can't list new cars.
+- The admin page shows commissions and open sales, and can cancel a reservation that waits too long (`reservation_days`).
+- paysafecard is only offered up to 1.000 € per payment (`payments.max_amount`).
+
 ## Payments
 
 Premium (both plans) and push forward are paid through [Mollie](https://www.mollie.com): cards, PayPal and paysafecard.

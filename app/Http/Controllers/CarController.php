@@ -6,6 +6,7 @@ use App\Http\Requests\CarRequest;
 use App\Models\Car;
 use App\Models\CarInquiry;
 use App\Models\CarLog;
+use App\Models\CarSale;
 use App\Models\PartCategory;
 use App\Models\WishlistItem;
 use App\Services\Alerts;
@@ -42,17 +43,21 @@ class CarController extends Controller
     private function listing(string $q)
     {
         return Car::query()
+            ->forSale()
             ->withPlacement()
             ->withPeopleCount()
-            ->with(['coverPhoto', 'parts:id,car_id,name', 'activeDeal'])
+            ->with(['coverPhoto', 'parts:id,car_id,name', 'activeDeal', 'activeSale'])
             ->search($q)
             ->listingOrder()
             ->get();
     }
 
-    public function create(Request $request): View
+    public function create(Request $request): View|RedirectResponse
     {
         $user = $request->user();
+        if ($due = $this->unpaidCommission($user)) {
+            return $due;
+        }
 
         return view('cars.create', [
             'car' => new Car(['location' => $user->location, 'country' => $user->country ?? config('countries')[0]]),
@@ -62,6 +67,9 @@ class CarController extends Controller
     public function store(CarRequest $request, PhotoStore $photos, Alerts $alerts): RedirectResponse
     {
         $user = $request->user();
+        if ($due = $this->unpaidCommission($user)) {
+            return $due;
+        }
         $car = $user->cars()->create($request->safe()->only(['name', 'price', 'location', 'country', 'description']));
 
         $messages = [__('Saved.')];
@@ -85,7 +93,7 @@ class CarController extends Controller
 
     public function show(Car $car, ViewTracker $tracker): View
     {
-        $car = Car::withPlacement()->with(['user', 'photos', 'parts', 'activeDeal'])->findOrFail($car->id);
+        $car = Car::withPlacement()->with(['user', 'photos', 'parts', 'activeDeal', 'activeSale.buyer'])->findOrFail($car->id);
 
         // a visit counts as a view, the reload after saving or uploading doesn't
         if (! session()->has('status')) {
@@ -131,6 +139,15 @@ class CarController extends Controller
         CarLog::create(['car_id' => $car->id, 'action' => 'delete']);
 
         return redirect()->route('home')->with('status', __('The car was removed from the site.'));
+    }
+
+    // A seller who sold a car elsewhere lists again once its commission is paid
+    private function unpaidCommission($user): ?RedirectResponse
+    {
+        $sale = CarSale::where('seller_id', $user->id)->where('status', 'due')->first();
+
+        return $sale ? redirect()->route('checkout.create', ['product' => 'commission', 'sale' => $sale->id])
+            ->with('error', __('Please pay the commission for your last sale first; then you can list cars again.')) : null;
     }
 
     public static function photoMessage(array $result): string

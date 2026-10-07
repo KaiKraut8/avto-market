@@ -110,9 +110,9 @@ it('alerts premium buyers about new cars and deals that match a saved search', f
     $this->actingAs($buyer)->post(route('saved-searches.store'), ['query' => 'Audi', 'max_price' => '30.000'])->assertSessionHasNoErrors();
 
     $seller = User::factory()->premium()->create();
-    $this->actingAs($seller)->post(route('cars.store'), ['name' => 'Audi A4 Avant', 'price' => '27.400', 'location' => 'Celje', 'country' => 'Slovenia']);
-    $this->actingAs($seller)->post(route('cars.store'), ['name' => 'Audi Q7', 'price' => '45.000', 'location' => 'Celje', 'country' => 'Slovenia']);
-    $this->actingAs($seller)->post(route('cars.store'), ['name' => 'BMW 320d', 'price' => '20.000', 'location' => 'Celje', 'country' => 'Slovenia']);
+    $this->actingAs($seller)->post(route('cars.store'), ['name' => 'Audi A4 Avant', 'price' => '27.400', 'location' => 'Celje', 'country' => 'Slovenia', 'terms' => 1]);
+    $this->actingAs($seller)->post(route('cars.store'), ['name' => 'Audi Q7', 'price' => '45.000', 'location' => 'Celje', 'country' => 'Slovenia', 'terms' => 1]);
+    $this->actingAs($seller)->post(route('cars.store'), ['name' => 'BMW 320d', 'price' => '20.000', 'location' => 'Celje', 'country' => 'Slovenia', 'terms' => 1]);
     expect($buyer->notifications()->where('type', 'search_match')->count())->toBe(1);
 
     // the Q7 is too expensive, until a deal brings it under the limit

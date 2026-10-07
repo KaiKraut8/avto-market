@@ -12,10 +12,11 @@ class HomeController extends Controller
     public function __invoke(Alerts $alerts): View
     {
         $cars = Car::query()
+            ->forSale()
             ->withPlacement()
             ->withPeopleCount()
             ->withCount('parts')
-            ->with(['coverPhoto', 'activeDeal', 'parts' => fn ($q) => $q->select('id', 'car_id', 'name')])
+            ->with(['coverPhoto', 'activeDeal', 'activeSale', 'parts' => fn ($q) => $q->select('id', 'car_id', 'name')])
             ->orderBy('cars.id')
             ->get();
 

@@ -27,6 +27,6 @@ class CarPolicy
     public function runDeal(User $user, Car $car): bool
     {
         return $car->user_id !== null && (int) $car->user_id === (int) $user->id
-            && $user->hasPremium() && $car->price !== null;
+            && $user->hasPremium() && $car->price !== null && $car->sold_at === null;
     }
 }

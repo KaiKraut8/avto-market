@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Car;
+use App\Models\CarSale;
 use App\Models\Payment;
 use App\Models\Subscription;
 use App\Models\User;
@@ -75,6 +76,90 @@ class Billing
         $this->send($payment, 'oneoff', []);
 
         return $payment;
+    }
+
+    // A buyer reserves a car by paying the marketplace's commission; the rest goes to the seller at handover
+    public function startReservation(User $buyer, Car $car, string $method): Payment
+    {
+        if (! $car->isBuyable() || (int) $car->user_id === (int) $buyer->id) {
+            throw new RuntimeException(__('This car can\'t be bought right now.'));
+        }
+        $sale = CarSale::create([
+            'car_id' => $car->id, 'seller_id' => $car->user_id, 'buyer_id' => $buyer->id, 'via' => 'site', 'status' => 'pending',
+            'price' => $car->price, 'rate' => CarSale::rate(), 'commission' => CarSale::commissionFor((float) $car->price),
+        ]);
+        $payment = $this->newPayment($buyer, [
+            'car_id' => $car->id,
+            'car_sale_id' => $sale->id,
+            'purpose' => 'reservation',
+            'amount' => $sale->commission,
+            'method' => $method,
+            'description' => __('Reservation (:rate% of the price): :car', ['rate' => (float) $sale->rate, 'car' => $car->name]),
+        ]);
+        $this->send($payment, 'oneoff', []);
+
+        return $payment;
+    }
+
+    // A seller who sold a car elsewhere pays the commission themselves
+    public function startCommission(User $seller, CarSale $sale, string $method): Payment
+    {
+        $payment = $this->newPayment($seller, [
+            'car_id' => $sale->car_id,
+            'car_sale_id' => $sale->id,
+            'purpose' => 'commission',
+            'amount' => $sale->commission,
+            'method' => $method,
+            'description' => __('Commission (:rate%): :car', ['rate' => (float) $sale->rate, 'car' => $sale->car->name]),
+        ]);
+        $this->send($payment, 'oneoff', []);
+
+        return $payment;
+    }
+
+    // The seller handed the car over: the sale is final and the car leaves the lists
+    public function completeSale(CarSale $sale): void
+    {
+        DB::transaction(function () use ($sale) {
+            $sale->forceFill(['status' => 'completed', 'completed_at' => now()])->save();
+            $sale->car->forceFill(['sold_at' => now()])->save();
+        });
+        $sale->buyer?->notify(new SiteAlert('sale_completed', ['car_id' => $sale->car_id, 'car_name' => $sale->car->name]));
+    }
+
+    // The sale didn't happen: the buyer gets the commission back and the car is for sale again
+    public function cancelSale(CarSale $sale): void
+    {
+        $payment = $sale->payments()->where('purpose', 'reservation')->where('status', 'paid')->first();
+        if ($payment) {
+            $this->refund($payment);
+        }
+        $sale->forceFill(['status' => 'canceled', 'canceled_at' => now()])->save();
+        $sale->buyer?->notify(new SiteAlert('sale_canceled', [
+            'car_id' => $sale->car_id, 'car_name' => $sale->car->name, 'refund' => (float) $sale->commission,
+        ]));
+    }
+
+    // Sold elsewhere: the car leaves the lists and the seller owes the commission
+    public function markSoldElsewhere(Car $car, User $seller, float $price): CarSale
+    {
+        return DB::transaction(function () use ($car, $seller, $price) {
+            $car->forceFill(['sold_at' => now()])->save();
+
+            return CarSale::create([
+                'car_id' => $car->id, 'seller_id' => $seller->id, 'via' => 'offline', 'status' => 'due',
+                'price' => $price, 'rate' => CarSale::rate(), 'commission' => CarSale::commissionFor($price),
+            ]);
+        });
+    }
+
+    public function refund(Payment $payment): void
+    {
+        if ($payment->status !== 'paid' || $payment->refunded_at) {
+            return;
+        }
+        $this->gateway->refund($payment);
+        $payment->forceFill(['status' => 'refunded', 'refunded_at' => now()])->save();
     }
 
     // Ask the provider how the payment stands and act on it. Safe to call any number of times
@@ -195,6 +280,16 @@ class Billing
 
             return;
         }
+        if ($payment->purpose === 'commission') {
+            $payment->sale->forceFill(['status' => 'paid'])->save();
+
+            return;
+        }
+        if ($payment->purpose === 'reservation') {
+            $this->reserve($payment);
+
+            return;
+        }
         $subscription = $payment->subscription;
         $user = $subscription->user;
         // the new period follows on from what is already paid for (also premium bought before payments existed)
@@ -223,8 +318,46 @@ class Billing
         ])->save();
     }
 
+    // The buyer's commission is paid: the car is theirs to collect. If someone else got there first
+    // (two buyers paying at the same moment), this one is refunded straight away.
+    private function reserve(Payment $payment): void
+    {
+        $sale = $payment->sale;
+        $car = Car::lockForUpdate()->find($sale->car_id);
+        $taken = $car === null || $car->sold_at !== null
+            || CarSale::where('car_id', $sale->car_id)->whereKeyNot($sale->id)->whereIn('status', ['reserved', 'completed', 'due', 'paid'])->exists();
+        if ($taken) {
+            $sale->forceFill(['status' => 'canceled', 'canceled_at' => now()])->save();
+            DB::afterCommit(fn () => $this->refundTaken($payment->fresh()));
+
+            return;
+        }
+        $sale->forceFill(['status' => 'reserved'])->save();
+        $buyer = $sale->buyer;
+        $sale->seller?->notify(new SiteAlert('car_reserved', [
+            'car_id' => $car->id, 'car_name' => $car->name, 'name' => $buyer->name, 'phone' => $buyer->phone, 'email' => $buyer->email,
+            'remainder' => $sale->remainder(),
+        ]));
+        $buyer->notify(new SiteAlert('reservation_paid', [
+            'car_id' => $car->id, 'car_name' => $car->name, 'remainder' => $sale->remainder(),
+        ]));
+    }
+
+    private function refundTaken(Payment $payment): void
+    {
+        $this->refund($payment);
+        $payment->user->notify(new SiteAlert('sale_canceled', [
+            'car_id' => $payment->car_id, 'car_name' => $payment->car?->name, 'refund' => (float) $payment->amount,
+        ]));
+    }
+
     private function failed(Payment $payment): void
     {
+        if ($payment->purpose === 'reservation') {
+            $payment->sale?->forceFill(['status' => 'canceled', 'canceled_at' => now()])->save();
+
+            return;
+        }
         $subscription = $payment->subscription;
         if (! $subscription) {
             return;

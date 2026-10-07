@@ -75,6 +75,7 @@ class ViewTracker
         $window = (int) config('pricing.watch_window');
 
         return Car::query()
+            ->forSale()
             ->select('cars.*')
             ->with('coverPhoto')
             ->withCount('views as total')

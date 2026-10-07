@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Car;
 use App\Models\CarPart;
 use App\Models\CarPhoto;
+use App\Models\CarSale;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -43,19 +44,29 @@ class PageController extends Controller
         ]);
     }
 
+    // The sale rules, with a worked example: shown before anyone buys or lists a car
+    public function howBuying(): View
+    {
+        return view('pages.how-buying', [
+            'rate' => CarSale::rate(),
+            'days' => (int) config('pricing.reservation_days'),
+            'example' => 20000,
+        ]);
+    }
+
     public function why(string $page): View
     {
         $data = match ($page) {
             'documented-parts' => [
                 'parts' => CarPart::whereHas('car')->count(),
-                'cars' => Car::count(),
+                'cars' => Car::forSale()->count(),
                 'categories' => DB::table('car_parts')->join('cars', 'cars.id', '=', 'car_parts.car_id')->whereNull('cars.deleted_at')
                     ->select('car_parts.name', DB::raw('COUNT(*) AS n'))->groupBy('car_parts.name')->orderByDesc('n')->limit(8)->get(),
-                'example' => Car::withCount('parts')->with(['parts', 'coverPhoto'])->orderByDesc('parts_count')->first(),
+                'example' => Car::forSale()->withCount('parts')->with(['parts', 'coverPhoto'])->orderByDesc('parts_count')->first(),
             ],
             'real-photos' => [
                 'photos' => CarPhoto::whereHas('car')->count(),
-                'cars' => Car::count(),
+                'cars' => Car::forSale()->count(),
                 'withPhotos' => Car::has('photos')->count(),
                 'gallery' => CarPhoto::whereHas('car')->with('car')->latest('id')->limit(6)->get(),
             ],
@@ -63,7 +74,7 @@ class PageController extends Controller
                 'people' => (int) DB::table('car_views')->join('cars', 'cars.id', '=', 'car_views.car_id')->whereNull('cars.deleted_at')->distinct()->count('car_views.visitor_id'),
                 'views' => (int) DB::table('car_views')->join('cars', 'cars.id', '=', 'car_views.car_id')->whereNull('cars.deleted_at')->count(),
                 'watching' => (int) DB::table('car_watchers')->where('last_seen_at', '>', now()->subSeconds((int) config('pricing.watch_window')))->count(),
-                'top' => Car::withPeopleCount()->with('coverPhoto')->orderByDesc('people')->first(),
+                'top' => Car::forSale()->withPeopleCount()->with('coverPhoto')->orderByDesc('people')->first(),
             ],
         };
 
