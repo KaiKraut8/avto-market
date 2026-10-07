@@ -1387,3 +1387,16 @@ a.why-item:hover { text-decoration: none; }
     .legal-table tbody th { white-space: normal; overflow-wrap: anywhere; }
     .legal-table td { min-width: 7rem; }
 }
+
+/* cookie notice, bottom of the screen until "OK" */
+.cookie-notice { position: fixed; z-index: 50; left: 50%; transform: translateX(-50%); bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); width: min(46rem, calc(100% - 2rem));
+    display: flex; align-items: center; gap: 1rem; padding: 1rem 1.2rem; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 18px 50px rgba(0, 0, 0, .55); }
+.cookie-notice p { margin: 0; flex: 1; font-size: .9rem; color: #cfd6df; }
+.cookie-notice a { white-space: nowrap; }
+.cookie-notice .btn { flex: none; }
+.cookie-notice-icon { flex: none; color: var(--accent); }
+@media (max-width: 560px) {
+    .cookie-notice { flex-wrap: wrap; }
+    .cookie-notice p { flex-basis: calc(100% - 3rem); }
+    .cookie-notice .btn { width: 100%; justify-content: center; text-align: center; }
+}

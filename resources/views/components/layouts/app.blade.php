@@ -6,6 +6,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ? $title.' · ' : '' }}KAI Garage</title>
+    <meta name="description" content="{{ __(config('company.tagline')) }}">
+    {{-- icons: Google shows the 48 px (or larger) one next to the site in search results --}}
+    <link rel="icon" href="/favicon.ico" sizes="32x32">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon-48x48.png" type="image/png" sizes="48x48">
+    <link rel="icon" href="/favicon-96x96.png" type="image/png" sizes="96x96">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#0e1116">
+    {{-- link previews in chats and social networks --}}
+    <meta property="og:site_name" content="KAI Garage">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $title ? $title.' · ' : '' }}KAI Garage">
+    <meta property="og:description" content="{{ __(config('company.tagline')) }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ asset('og-image.png') }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    @if (request()->routeIs('home'))
+        {{-- tells Google the site's name and logo --}}
+        @php
+            $site = [
+                '@'.'context' => 'https://schema.org',
+                '@graph' => [
+                    ['@type' => 'WebSite', 'name' => 'KAI Garage', 'url' => url('/')],
+                    ['@type' => 'Organization', 'name' => config('company.name'), 'url' => url('/'), 'logo' => asset('icon-512.png'),
+                        'email' => config('company.email'), 'telephone' => config('company.phone')],
+                ],
+            ];
+        @endphp
+        <script type="application/ld+json">{!! json_encode($site, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
+    @endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @php
         // labels the scripts show, in the current language
@@ -110,6 +143,16 @@
     </div>
     <div class="inner footer-bottom">&copy; {{ date('Y') }} {{ config('company.name') }}. {{ __('All rights reserved.') }} · <a href="{{ route('contact') }}">{{ __('Contact us') }}</a> · <a href="{{ route('how-buying') }}">{{ __('How buying works') }}</a> · <a href="{{ route('privacy') }}">{{ __('Privacy policy') }}</a> · <a href="{{ route('cookies') }}">{{ __('Cookies') }}</a></div>
 </footer>
+
+{{-- cookie notice: part of the page itself, so it shows at once; hidden for good after "OK" --}}
+@unless (request()->cookie('kai_cookies_seen'))
+    <div class="cookie-notice" data-cookie-notice role="region" aria-label="{{ __('Cookies') }}">
+        <x-icon name="cookie" :size="26" class="cookie-notice-icon" />
+        <p>{{ __('KAI Garage uses only necessary cookies: to keep you logged in, protect forms and remember your wishlist. No tracking and no ads.') }}
+            <a href="{{ route('cookies') }}">{{ __('Cookie policy') }}</a></p>
+        <button type="button" class="btn accent" data-cookie-ok>{{ __('OK, got it') }}</button>
+    </div>
+@endunless
 
 </body>
 </html>

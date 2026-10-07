@@ -44,6 +44,7 @@ for the old site, and real environment variables would override `.env`.
 - Prices and the watch window: `config/pricing.php`
 - Company details, opening hours, map link, and the "last updated" date of the privacy and cookie policies: `config/company.php`
 - Privacy and cookie policies: `resources/views/pages/privacy.blade.php`, `cookies.blade.php`. Update them when the site starts collecting new data or setting new cookies
+- Site icon and link-preview image: `resources/brand/icon.svg` is the source; the PNGs, `favicon.ico` and `og-image.png` in `public/` are made from it
 - Countries and languages: `config/countries.php`, `config/locales.php`
 - Translations: `lang/{code}.json` (site text, keyed by the English text) and `lang/{code}/*.php` (Laravel's own messages, from laravel-lang)
 - Placement rules (premium, pushed, listing order, search): `app/Models/Car.php`

@@ -9,3 +9,4 @@ import './most-watched';
 import './premium';
 import './contact';
 import './language';
+import './cookie-notice';

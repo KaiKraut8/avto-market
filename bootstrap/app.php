@@ -20,7 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             SetLocale::class,
         ]);
         // the visitor cookie is shared with the old site and read by plain PHP there, so keep it unencrypted
-        $middleware->encryptCookies(except: [Visitor::COOKIE]);
+        $middleware->encryptCookies(except: [Visitor::COOKIE, 'kai_cookies_seen']);
         // Mollie can't send a CSRF token; the webhook only takes a payment id and asks Mollie for the status
         $middleware->validateCsrfTokens(except: ['webhooks/mollie']);
     })

@@ -49,6 +49,18 @@ it('serves the privacy and cookie policies, linked from every page', function ()
     $this->get('/register')->assertSee(route('privacy'));
 });
 
+it('shows the cookie notice until it has been accepted', function () {
+    $this->get('/')->assertSee('data-cookie-notice', false);
+    $this->withUnencryptedCookie('kai_cookies_seen', '1')->get('/')->assertDontSee('data-cookie-notice', false);
+});
+
+it('has an icon for search results and link previews', function () {
+    $this->get('/')->assertSee('favicon-48x48.png')->assertSee('og-image.png')->assertSee('"@type":"Organization"', false);
+    foreach (['favicon.ico', 'favicon.svg', 'favicon-48x48.png', 'icon-512.png', 'og-image.png', 'site.webmanifest'] as $file) {
+        expect(public_path($file))->toBeFile();
+    }
+});
+
 it('redirects the old site\'s addresses', function () {
     $this->get('/edit.php?id=2')->assertRedirect('/cars/2')->assertStatus(301);
     $this->get('/edit.php')->assertRedirect(route('cars.create'));

@@ -5,6 +5,7 @@
         [config('session.cookie'), __('Keeps you logged in, remembers your language and protects forms.'), $session],
         ['XSRF-TOKEN', __('Protects forms against forgery from other sites.'), $session],
         [\App\Support\Visitor::COOKIE, __('A random id that keeps your wishlist, the cars you viewed and the sellers you contacted, without an account. It doesn\'t say who you are.'), trans_choice(':count year|:count years', 1)],
+        ['kai_cookies_seen', __('Remembers that you have seen the cookie notice, so it isn\'t shown again.'), trans_choice(':count year|:count years', 1)],
         ['remember_web_…', __('Only if you tick "Keep me logged in": keeps you logged in until you log out.'), trans_choice(':count day|:count days', 400)],
     ];
 @endphp
@@ -43,7 +44,7 @@
 
     <section class="panel">
         <h2>{{ __('Why we don\'t ask for consent') }}</h2>
-        <p>{{ __('Cookies that are strictly necessary for a site to work, or for a service you asked for, don\'t need consent under the EU ePrivacy rules and Slovenia\'s Electronic Communications Act (ZEKom-2). That\'s why there is no cookie banner. If we ever add other cookies, we will ask you first.') }}</p>
+        <p>{{ __('Cookies that are strictly necessary for a site to work, or for a service you asked for, don\'t need consent under the EU ePrivacy rules and Slovenia\'s Electronic Communications Act (ZEKom-2). That\'s why the cookie notice on the site only informs you and doesn\'t ask for consent. If we ever add other cookies, we will ask you first.') }}</p>
     </section>
 
     <section class="panel">
