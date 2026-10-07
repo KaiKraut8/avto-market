@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Middleware\EnsureVisitorId;
+use App\Http\Middleware\SetLocale;
+use App\Support\Visitor;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,11 +16,13 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
-            \App\Http\Middleware\EnsureVisitorId::class,
-            \App\Http\Middleware\SetLocale::class,
+            EnsureVisitorId::class,
+            SetLocale::class,
         ]);
         // the visitor cookie is shared with the old site and read by plain PHP there, so keep it unencrypted
-        $middleware->encryptCookies(except: [\App\Support\Visitor::COOKIE]);
+        $middleware->encryptCookies(except: [Visitor::COOKIE]);
+        // Mollie can't send a CSRF token; the webhook only takes a payment id and asks Mollie for the status
+        $middleware->validateCsrfTokens(except: ['webhooks/mollie']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

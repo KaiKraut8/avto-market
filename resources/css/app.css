@@ -674,12 +674,13 @@ body::after {
 .empty-heart { display: block; width: 3rem; height: 3rem; margin: 0 auto .8rem; fill: none; stroke: var(--accent); stroke-width: 1.6; }
 
 /* ---- All cars: every card the same height ---- */
-.results { grid-auto-rows: 13.5rem; }
+.results { grid-auto-rows: 14.75rem; }
 .car-card { height: 100%; overflow: visible; }            /* visible so the ribbon and views panel can stick out */
 .car-card > .thumb { border-radius: var(--radius) 0 0 var(--radius); }
 .car-body { display: flex; flex-direction: column; min-height: 0; }
+.car-body > * { flex-shrink: 0; }                          /* never squeeze the description into half a line */
 .car-body .chips { max-height: 1.9rem; overflow: hidden; } /* one row of part chips */
-.car-body > .views-toggle { align-self: flex-start; margin-top: .6rem; }
+.car-body > .views-toggle { align-self: flex-start; margin-top: auto; }
 /* the views panel floats over the cards below instead of stretching this one */
 .car-body > .views-pop { position: absolute; z-index: 30; left: 0; top: 100%; margin-top: .4rem; width: min(26rem, 85vw); box-shadow: var(--shadow); }
 .car-card:has(.views-pop:not([hidden])) { z-index: 40; }
@@ -1222,3 +1223,66 @@ a.why-item:hover { text-decoration: none; }
 .saved-searches { list-style: none; margin: 0 0 1rem; padding: 0; display: grid; gap: .5rem; }
 .saved-searches li { display: flex; justify-content: space-between; align-items: center; gap: .6rem; padding: .5rem .7rem; border-radius: 10px; background: var(--card-2); }
 .panel h2 { display: flex; align-items: center; gap: .4rem; }
+
+/* Cars usually sit in the lower half of a photo (sky and buildings above), so crops keep that part.
+   Matters most for portrait photos in wide frames, like the imported Mercedes. */
+.thumb img, .offer-photo img, .hero-car-frame img, .deal-tile-photo img, .feature .photo img, .why-shot img,
+.why-top-car img, .my-car img, .photo-grid img, .thumbs img, .hero-img { object-position: 50% 62%; }
+
+/* ---- checkout, payment methods, subscriptions ---- */
+.checkout-page { max-width: 58rem; }
+.checkout-grid { display: grid; grid-template-columns: 1fr 1.3fr; gap: 1.5rem; align-items: start; }
+.order-summary { border: 1.5px solid rgba(255, 211, 107, .45); }
+.order-title { font: 700 1.2rem var(--font-head); color: #ffd36b; margin: 0 0 .2rem; }
+.renew-note { display: flex; gap: .45rem; align-items: flex-start; margin: 1rem 0 0; color: #cfd6df; font-size: .88rem; }
+.renew-note svg { flex: none; margin-top: .15rem; color: var(--accent); }
+.pay-methods { border: 0; margin: 0 0 1.2rem; padding: 0; display: grid; gap: .6rem; }
+.pay-method input { position: absolute; opacity: 0; pointer-events: none; }
+.pay-card { display: flex; gap: .9rem; align-items: center; padding: .85rem 1rem; border-radius: 12px; border: 1.5px solid var(--line); background: var(--card-2); cursor: pointer; transition: border-color .15s, background .15s; }
+.pay-method:hover .pay-card { border-color: #3b4654; }
+.pay-method input:checked + .pay-card { border-color: var(--accent); background: rgba(255, 176, 46, .08); box-shadow: 0 0 0 3px rgba(255, 176, 46, .15); }
+.pay-method input:focus-visible + .pay-card { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pay-logo { flex: none; width: 6.2rem; height: 2.4rem; border-radius: 8px; display: grid; place-items: center; background: #fff; color: #1a1f27; font-size: .9rem; }
+.pay-logo.pay-creditcard { background: linear-gradient(135deg, #2b3a55, #1b2333); color: #ffd36b; }
+.pay-logo.pay-paypal b { color: #003087; font-style: italic; }
+.pay-logo.pay-paypal i { color: #009cde; font-weight: 700; }
+.pay-logo.pay-paypal { display: flex; justify-content: center; align-items: center; font-size: 1.05rem; }
+.pay-logo.pay-paysafecard { color: #0a73b7; font-size: .82rem; }
+.pay-logo.pay-paysafecard b { color: #e30613; }
+.pay-text { display: grid; gap: .15rem; }
+.pay-text small { color: var(--muted); font-size: .8rem; }
+.pay-button { width: 100%; justify-content: center; }
+.secure-note { display: flex; gap: .4rem; align-items: flex-start; margin-top: .8rem; }
+.secure-note svg { flex: none; margin-top: .15rem; }
+.amber { color: var(--accent); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.test-pay { max-width: 34rem; margin: 0 auto; border: 1.5px dashed var(--accent); }
+.test-pay h1 { margin: 0 0 .6rem; }
+.test-pay-actions { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: 1.2rem; }
+.cancel-box { max-width: 38rem; margin: 0 auto; }
+.cancel-box h1 { font-size: 1.6rem; margin: 0 0 .8rem; }
+.perks.lose li::before { content: "✕"; color: var(--danger); }
+.cancel-actions { display: flex; gap: .7rem; flex-wrap: wrap; align-items: center; margin-top: 1.2rem; }
+.sub-row { padding: .9rem 0; border-top: 1px solid var(--line); }
+.sub-row:first-of-type { border-top: 0; padding-top: 0; }
+.sub-head { display: flex; justify-content: space-between; gap: .6rem; flex-wrap: wrap; }
+.sub-head b { color: #ffd36b; }
+.sub-price { color: var(--muted); font-size: .88rem; }
+.sub-state { margin: .35rem 0 .6rem; font-size: .88rem; color: #cfd6df; }
+.sub-row.canceled .sub-state { color: var(--muted); }
+.danger-text { color: var(--danger); }
+.sub-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.pay-history { margin-top: .8rem; font-size: .85rem; }
+.pay-history summary { cursor: pointer; color: var(--muted); font-weight: 600; }
+.pay-history ul { list-style: none; margin: .6rem 0 0; padding: 0; display: grid; gap: .45rem; }
+.pay-history li { display: flex; justify-content: space-between; gap: .6rem; color: #cfd6df; }
+.pay-amount { white-space: nowrap; }
+.pay-status { margin-left: .35rem; font-size: .72rem; font-weight: 700; padding: .08rem .45rem; border-radius: 999px; background: var(--card-2); color: var(--muted); }
+.pay-status.pay-paid { color: var(--ok); background: rgba(95, 211, 154, .12); }
+.pay-status.pay-failed, .pay-status.pay-expired { color: var(--danger); background: rgba(255, 107, 107, .1); }
+@media (max-width: 800px) {
+    .checkout-grid { grid-template-columns: 1fr; }
+}
+.pay-method { display: block; margin: 0; }
+.pay-text b { color: var(--ink); font-size: .98rem; }
+.pay-text small { font-weight: 400; line-height: 1.45; }

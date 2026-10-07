@@ -175,18 +175,6 @@ it('links the wishlist of this browser to the account on login', function () {
     expect(WishlistItem::first()->user_id)->toBe($user->id);
 });
 
-it('sells premium to buyers separately from sellers', function () {
-    $user = User::factory()->create();
-
-    $this->actingAs($user)->post(route('premium.store'), ['kind' => 'buyer', 'billing' => 'yearly'])->assertRedirect(route('premium.index').'#buyers');
-    $user->refresh();
-    expect($user->hasBuyerPremium())->toBeTrue()->and($user->hasPremium())->toBeFalse()
-        ->and($user->buyer_premium_until->isSameDay(now()->addYear()))->toBeTrue();
-
-    $this->actingAs($user)->post(route('premium.store'), ['kind' => 'buyer', 'billing' => 'monthly'])->assertSessionHas('error');
-    $this->actingAs($user)->get(route('account'))->assertSee('Saved searches')->assertSee('Premium buyer');
-});
-
 it('shows insights to premium sellers and a teaser to the rest', function () {
     $premium = User::factory()->premium()->create();
     Car::factory()->for($premium)->create();

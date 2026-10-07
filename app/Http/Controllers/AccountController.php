@@ -28,6 +28,8 @@ class AccountController extends Controller
             'user' => $user,
             'cars' => $cars,
             'searches' => $user->savedSearches,
+            'subscriptions' => $user->subscriptions()->current()->get(),
+            'payments' => $user->payments()->where('status', '!=', 'open')->limit(20)->get(),
         ]);
     }
 }

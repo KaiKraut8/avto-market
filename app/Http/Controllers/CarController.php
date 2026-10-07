@@ -10,7 +10,6 @@ use App\Models\PartCategory;
 use App\Models\WishlistItem;
 use App\Services\Alerts;
 use App\Services\PhotoStore;
-use App\Services\Pricing;
 use App\Services\ViewTracker;
 use App\Support\Visitor;
 use Illuminate\Http\RedirectResponse;
@@ -60,31 +59,28 @@ class CarController extends Controller
         ]);
     }
 
-    public function store(CarRequest $request, Pricing $pricing, PhotoStore $photos, Alerts $alerts): RedirectResponse
+    public function store(CarRequest $request, PhotoStore $photos, Alerts $alerts): RedirectResponse
     {
         $user = $request->user();
         $car = $user->cars()->create($request->safe()->only(['name', 'price', 'location', 'country', 'description']));
 
-        // a premium seller's cars are premium already; the others choose free, a push, or premium for the account
         $messages = [__('Saved.')];
-        if (! $user->hasPremium() && $request->input('plan') === 'premium') {
-            $pricing->activatePremium($user, $request->input('billing', 'monthly'));
-            $user->refresh();
-            $messages = [__('Premium activated for your account (:plan, until :date): all your cars are now shown first in All cars, in gold.', [
-                'plan' => __($user->premium_plan === 'yearly' ? 'yearly' : 'monthly'),
-                'date' => $user->premium_until->format('Y-m-d'),
-            ])];
-        } elseif (! $user->hasPremium() && $request->input('plan') === 'boost') {
-            $pricing->boost($car);
-            $messages = [__('Pushed forward until :date: shown first among the regular cars.', ['date' => $car->boosted_until->format('Y-m-d H:i')])];
-        }
-
         if ($request->hasFile('photos')) {
             $messages[] = $this->photoMessage($photos->store($car, $request->file('photos')));
         }
         $alerts->carListed($car);
 
-        return redirect()->route('cars.show', $car)->with('status', implode(' ', array_filter($messages)));
+        // a premium seller's cars are premium already; the others may pay for a push or premium for the account
+        $status = implode(' ', array_filter($messages));
+        $plan = $user->hasPremium() ? 'free' : $request->input('plan', 'free');
+        if ($plan === 'boost') {
+            return redirect()->route('checkout.create', ['product' => 'boost', 'car' => $car->id])->with('status', $status);
+        }
+        if ($plan === 'premium') {
+            return redirect()->route('checkout.create', ['product' => 'seller', 'billing' => $request->input('billing', 'monthly')])->with('status', $status);
+        }
+
+        return redirect()->route('cars.show', $car)->with('status', $status);
     }
 
     public function show(Car $car, ViewTracker $tracker): View

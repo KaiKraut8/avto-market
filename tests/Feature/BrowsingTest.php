@@ -59,11 +59,8 @@ it('switches language and translates plurals', function () {
     $this->get('/language/xx')->assertNotFound();
 });
 
-it('buys premium for the account, once', function () {
-    $user = User::factory()->create();
-
-    $this->post('/premium', ['billing' => 'monthly'])->assertRedirect('/login');
-    $this->actingAs($user)->post('/premium', ['billing' => 'yearly'])->assertSessionHas('status');
-    expect($user->fresh()->hasPremium())->toBeTrue();
-    $this->actingAs($user)->post('/premium', ['billing' => 'monthly'])->assertSessionHas('error');
+it('sends premium buyers to the checkout, which needs an account', function () {
+    $this->get(route('checkout.create', ['product' => 'seller', 'billing' => 'monthly']))->assertRedirect('/login');
+    $this->post(route('checkout.store'), ['product' => 'seller', 'method' => 'creditcard'])->assertRedirect('/login');
+    $this->get('/premium')->assertSee(route('checkout.create'), false);
 });

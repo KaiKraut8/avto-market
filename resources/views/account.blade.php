@@ -151,6 +151,57 @@
         </div>
 
         <aside>
+            @if ($subscriptions->isNotEmpty() || $payments->isNotEmpty())
+                <section class="panel" id="subscriptions">
+                    <h2><x-icon name="card" :size="16" /> {{ __('Subscriptions and payments') }}</h2>
+                    @foreach ($subscriptions as $sub)
+                        <div @class(['sub-row', 'canceled' => $sub->cancel_at_period_end, 'past-due' => $sub->status === 'past_due'])>
+                            <div class="sub-head">
+                                <b>&#9813; {{ $sub->label() }}</b>
+                                <span class="sub-price">@eur($sub->price()) / {{ $sub->plan === 'yearly' ? __('year') : __('month') }}</span>
+                            </div>
+                            <p class="sub-state">
+                                @if ($sub->status === 'past_due')
+                                    <span class="danger-text">{{ __('The last renewal payment failed. Pay now to keep premium.') }}</span>
+                                @elseif ($sub->cancel_at_period_end)
+                                    {{ __('Cancelled: premium stays on until :date, then ends. No more charges.', ['date' => $sub->current_period_end->format('Y-m-d')]) }}
+                                @elseif ($sub->renewsAutomatically())
+                                    {{ __('Renews automatically on :date with :method.', ['date' => $sub->current_period_end->format('Y-m-d'), 'method' => \App\Models\Payment::methodName($sub->method)]) }}
+                                @else
+                                    {{ __("Paid until :date. paysafecard can't renew automatically: pay the next period before then.", ['date' => $sub->current_period_end->format('Y-m-d')]) }}
+                                @endif
+                            </p>
+                            <div class="sub-actions">
+                                @if ($sub->status === 'past_due' || (! $sub->renewsAutomatically() && ! $sub->cancel_at_period_end))
+                                    <a class="btn gold small" href="{{ route('checkout.create', ['product' => 'renew', 'subscription' => $sub->id]) }}">{{ __('Pay the next period') }}</a>
+                                @endif
+                                @if ($sub->cancel_at_period_end)
+                                    <form method="post" action="{{ route('subscriptions.resume', $sub) }}">
+                                        @csrf
+                                        <button type="submit" class="btn small">{{ __('Resume subscription') }}</button>
+                                    </form>
+                                @else
+                                    <a class="btn ghost small" href="{{ route('subscriptions.cancel.confirm', $sub) }}">{{ __('Cancel subscription') }}</a>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                    @if ($payments->isNotEmpty())
+                        <details class="pay-history" @if ($subscriptions->isEmpty()) open @endif>
+                            <summary>{{ __('Payment history') }}</summary>
+                            <ul>
+                                @foreach ($payments as $p)
+                                    <li>
+                                        <span>{{ $p->created_at->format('Y-m-d') }} &middot; {{ $p->description }} &middot; {{ \App\Models\Payment::methodName($p->method) }}</span>
+                                        <span class="pay-amount">@eur($p->amount) <span @class(['pay-status', 'pay-'.$p->status])>{{ $p->statusLabel() }}</span></span>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </details>
+                    @endif
+                </section>
+            @endif
+
             @if ($user->hasPremium())
                 <section class="panel premium-status">
                     <h2>&#9813; {{ __('Premium seller') }}</h2>

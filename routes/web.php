@@ -8,14 +8,17 @@ use App\Http\Controllers\CarInquiryController;
 use App\Http\Controllers\CarPartController;
 use App\Http\Controllers\CarPhotoController;
 use App\Http\Controllers\CarWatchController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\DealController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\MollieWebhookController;
 use App\Http\Controllers\MostWatchedController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PremiumController;
 use App\Http\Controllers\SavedSearchController;
+use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
@@ -38,7 +41,16 @@ Route::middleware('auth')->group(function () {
     Route::delete('/cars/{car}/deal', [CarDealController::class, 'destroy'])->name('cars.deal.destroy')->can('update', 'car');
 
     Route::get('/account', AccountController::class)->name('account');
-    Route::post('/premium', [PremiumController::class, 'store'])->name('premium.store');
+
+    // payments: choose a method, pay at the provider, come back; subscriptions renew until cancelled
+    Route::get('/checkout', [CheckoutController::class, 'create'])->name('checkout.create');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store')->middleware('throttle:10,1');
+    Route::get('/checkout/{payment}/return', [CheckoutController::class, 'return'])->name('checkout.return');
+    Route::get('/checkout/{payment}/test', [CheckoutController::class, 'test'])->name('checkout.test');
+    Route::post('/checkout/{payment}/test', [CheckoutController::class, 'testComplete'])->name('checkout.test.complete');
+    Route::get('/subscriptions/{subscription}/cancel', [SubscriptionController::class, 'confirmCancel'])->name('subscriptions.cancel.confirm');
+    Route::post('/subscriptions/{subscription}/cancel', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+    Route::post('/subscriptions/{subscription}/resume', [SubscriptionController::class, 'resume'])->name('subscriptions.resume');
 
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::delete('/notifications', [NotificationController::class, 'destroy'])->name('notifications.destroy');
@@ -60,6 +72,7 @@ Route::post('/wishlist/{car}', [WishlistController::class, 'toggle'])->name('wis
 
 Route::get('/premium', [PremiumController::class, 'index'])->name('premium.index');
 Route::get('/deals', DealController::class)->name('deals.index');
+Route::post('/webhooks/mollie', MollieWebhookController::class)->name('webhooks.mollie');
 
 // information pages
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');

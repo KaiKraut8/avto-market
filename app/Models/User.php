@@ -39,6 +39,22 @@ class User extends Authenticatable
         return $this->hasMany(SavedSearch::class)->orderBy('id');
     }
 
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class)->latest('id');
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class)->latest('id');
+    }
+
+    // The running subscription of a kind (seller or buyer), if any
+    public function currentSubscription(string $kind): ?Subscription
+    {
+        return $this->subscriptions()->where('kind', $kind)->current()->first();
+    }
+
     public function wishlistItems(): HasMany
     {
         return $this->hasMany(WishlistItem::class);

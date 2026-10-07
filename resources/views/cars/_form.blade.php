@@ -109,7 +109,7 @@
                     </span>
                 </label>
             </div>
-            <p class="hint demo-note">{{ __('Demo: the chosen option is switched on right away, no payment is taken.') }}</p>
+            <p class="hint demo-note">{{ __('Push forward and premium are paid on the next page, by card, PayPal or paysafecard. The car is saved either way.') }}</p>
         </fieldset>
     @endif
 

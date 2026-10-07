@@ -40,7 +40,7 @@ for the old site, and real environment variables would override `.env`.
 
 ## Where things are
 
-- Prices and the watch window: `config/pricing.php` (purchases are simulated, nothing is charged)
+- Prices and the watch window: `config/pricing.php`
 - Company details, opening hours, map link: `config/company.php`
 - Countries and languages: `config/countries.php`, `config/locales.php`
 - Translations: `lang/{code}.json` (site text, keyed by the English text) and `lang/{code}/*.php` (Laravel's own messages, from laravel-lang)
@@ -50,7 +50,7 @@ for the old site, and real environment variables would override `.env`.
 
 ## Premium
 
-Two plans, both simulated purchases:
+Two plans, paid monthly or yearly (see Payments):
 
 - **Premium seller**: top placement in gold, special deals (1–50 % off for 3, 7 or 14 days, with an optional
   lower member price for premium buyers), insights per car on the account page, and an alert when someone saves a car.
@@ -60,6 +60,23 @@ Two plans, both simulated purchases:
 Every account is told when a car in its wishlist gets a deal; a wishlist saved before logging in is linked to the account on login.
 A deal keeps the price it started from, so changing the car's price ends it. Alerts are sent during the request;
 with many accounts they should move to a queue.
+
+## Payments
+
+Premium (both plans) and push forward are paid through [Mollie](https://www.mollie.com): cards, PayPal and paysafecard.
+
+- **Going live**: create a Mollie account, enable the three methods in its dashboard (PayPal is linked there),
+  and put the API key in `.env` as `MOLLIE_KEY` (`test_...` to try it with Mollie's test payments, `live_...` for real money).
+  Without a key the site uses local test payments (a page where you choose whether the payment succeeds);
+  a site with `APP_ENV=production` refuses to run without a key.
+- **Renewals**: subscriptions renew until cancelled. Cards and PayPal are charged automatically a day before the period ends
+  (retried daily, up to 3 times); paysafecard is prepaid and can't be charged again, so those customers get a reminder
+  3 days before the end and pay the next period themselves. Cancelling keeps premium until the paid period ends.
+- **The scheduler must run** for renewals: `* * * * * php /path/to/artisan schedule:run` in cron
+  (locally: `php artisan schedule:work`, or once by hand: `php artisan subscriptions:renew`).
+- **Webhook**: Mollie reports payments to `/webhooks/mollie`, which needs the site on a public address (`APP_URL`).
+  On a local machine the return page checks the payment instead.
+- Settings: `config/payments.php`; logic: `app/Services/Billing.php`; providers: `app/Services/Payments/`.
 
 ## Old site
 

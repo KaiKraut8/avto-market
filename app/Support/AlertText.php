@@ -57,6 +57,23 @@ class AlertText
                 ]).(! empty($d['member']) ? ' '.__('They are a premium buyer: your member price applies.') : ''),
                 'url' => $url,
             ],
+            'renewal_due' => [
+                'icon' => 'card',
+                'title' => __('Time to renew your premium'),
+                'text' => __(':plan ends on :date. paysafecard can\'t be charged automatically, so pay the next period (:price) to keep it.', [
+                    'plan' => ($d['plan'] ?? '') === 'buyer' ? __('Premium buyer') : __('Premium seller'),
+                    'date' => $d['date'] ?? '', 'price' => Money::eur($d['price'] ?? 0),
+                ]),
+                'url' => route('checkout.create', ['product' => 'renew', 'subscription' => $d['subscription_id'] ?? 0]),
+            ],
+            'payment_failed' => [
+                'icon' => 'card',
+                'title' => __('Your premium renewal payment failed'),
+                'text' => __('We could not charge your :plan renewal. We will try again tomorrow; you can also pay now with another method.', [
+                    'plan' => ($d['plan'] ?? '') === 'buyer' ? __('Premium buyer') : __('Premium seller'),
+                ]),
+                'url' => route('checkout.create', ['product' => 'renew', 'subscription' => $d['subscription_id'] ?? 0]),
+            ],
             default => ['icon' => 'bell', 'title' => __('Notification'), 'text' => '', 'url' => $url],
         };
     }

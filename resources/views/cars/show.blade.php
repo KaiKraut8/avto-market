@@ -288,7 +288,7 @@
                         <p>{!! __('Or make your <b>account premium</b>: every car you list goes to the top, in gold.') !!}</p>
                         <a class="btn gold" href="{{ route('premium.index') }}">&#9813; {{ __('See premium plans') }}</a>
                     </div>
-                    <p class="hint demo-note">{{ __('Demo: no payment is taken.') }}</p>
+                    <p class="hint demo-note">{{ __('Paid by card, PayPal or paysafecard on the next page.') }}</p>
                 </div>
             @endif
 

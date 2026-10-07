@@ -40,6 +40,7 @@
                     <h3>&#9813; {{ __("You're a premium seller") }}</h3>
                     <p>{{ __(':plan plan, active until :date.', ['plan' => __(ucfirst($user->premium_plan)), 'date' => $user->premium_until->format('Y-m-d')]) }}</p>
                     <a class="btn gold" href="{{ route('account') }}">{{ __('See your insights') }}</a>
+                    <a class="btn ghost" href="{{ route('account') }}#subscriptions">{{ __('Manage subscription') }}</a>
                 </div>
             @else
                 @include('premium._buy', ['kind' => 'seller', 'monthly' => Pricing::monthly(), 'yearly' => Pricing::yearly(), 'full' => Pricing::yearlyAtMonthlyRate()])
@@ -63,6 +64,7 @@
                     <p>{{ __(':plan plan, active until :date.', ['plan' => __(ucfirst($user->buyer_premium_plan)), 'date' => $user->buyer_premium_until->format('Y-m-d')]) }}</p>
                     <a class="btn gold" href="{{ route('deals.index') }}">{{ __('See the deals') }}</a>
                     <a class="btn ghost" href="{{ route('account') }}#saved-searches">{{ __('Your saved searches') }}</a>
+                    <a class="btn ghost" href="{{ route('account') }}#subscriptions">{{ __('Manage subscription') }}</a>
                 </div>
             @else
                 @include('premium._buy', ['kind' => 'buyer', 'monthly' => Pricing::buyerMonthly(), 'yearly' => Pricing::buyerYearly(), 'full' => Pricing::buyerYearlyAtMonthlyRate()])

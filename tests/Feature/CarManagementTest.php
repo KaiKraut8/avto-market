@@ -41,14 +41,16 @@ it('posts a car with photos and requires location and country', function () {
     expect(getimagesizefromstring(Storage::disk('public')->get($photo->path))[0])->toBe(1600);   // scaled down
 });
 
-it('applies the listing choice when a car is posted', function () {
+it('sends a paid listing choice to the checkout after saving the car', function () {
     $seller = User::factory()->create();
 
-    $this->actingAs($seller)->post('/cars', carData(['plan' => 'boost']));
-    expect(Car::first()->isBoosted())->toBeTrue();
+    $this->actingAs($seller)->post('/cars', carData(['plan' => 'boost']))
+        ->assertRedirect(route('checkout.create', ['product' => 'boost', 'car' => Car::first()->id]));
+    expect(Car::first()->isBoosted())->toBeFalse();   // only once it is paid
 
-    $this->actingAs($seller)->post('/cars', carData(['plan' => 'premium', 'billing' => 'yearly']));
-    expect($seller->fresh()->hasPremium())->toBeTrue()->and($seller->fresh()->premium_plan)->toBe('yearly');
+    $this->actingAs($seller)->post('/cars', carData(['plan' => 'premium', 'billing' => 'yearly']))
+        ->assertRedirect(route('checkout.create', ['product' => 'seller', 'billing' => 'yearly']));
+    expect($seller->fresh()->hasPremium())->toBeFalse();
 });
 
 it('lets only the seller change a car', function () {
@@ -112,16 +114,15 @@ it('adds parts linked to their category and removes them', function () {
     expect($car->parts()->count())->toBe(0);
 });
 
-it('pushes a car forward, but not a premium seller\'s car', function () {
+it('sends a push forward to the checkout, but not for a premium seller\'s car', function () {
     $owner = User::factory()->create();
     $car = Car::factory()->for($owner)->create();
-    $this->actingAs($owner)->post(route('cars.boost', $car));
-    expect($car->fresh()->isBoosted())->toBeTrue();
+    $this->actingAs($owner)->post(route('cars.boost', $car))->assertRedirect(route('checkout.create', ['product' => 'boost', 'car' => $car->id]));
 
     $premium = User::factory()->premium()->create();
     $gold = Car::factory()->for($premium)->create();
-    $this->actingAs($premium)->post(route('cars.boost', $gold));
-    expect($gold->fresh()->boosted_until)->toBeNull();
+    $this->actingAs($premium)->post(route('cars.boost', $gold))->assertRedirect(route('cars.show', $gold));
+    $this->actingAs($premium)->get(route('checkout.create', ['product' => 'boost', 'car' => $gold->id]))->assertRedirect(route('cars.show', $gold));
 });
 
 // CSRF protection can't be tested here: Laravel switches it off while tests run. It is checked against the running site instead.

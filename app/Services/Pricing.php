@@ -82,10 +82,11 @@ class Pricing
         return true;
     }
 
-    // One more week of "pushed forward"; extends a push that is still running. Refused for premium cars.
-    public function boost(Car $car): bool
+    // One more week of "pushed forward"; extends a push that is still running. Refused for premium cars,
+    // unless it was already paid for ($force): then the week is given anyway.
+    public function boost(Car $car, bool $force = false): bool
     {
-        if ($car->isPremium()) {
+        if (! $force && $car->isPremium()) {
             return false;
         }
         $days = (int) config('pricing.boost_days');
