@@ -36,7 +36,7 @@ class PhotoStore
             $path = "cars/{$car->id}/".Str::random(32).".{$ext}";
             $this->put($path, $file->getRealPath(), $ext);
 
-            CarPhoto::create(['car_id' => $car->id, 'path' => $path, 'position' => ++$position]);
+            $car->photos()->create(['path' => $path, 'position' => ++$position]);
             $added++;
         }
 
