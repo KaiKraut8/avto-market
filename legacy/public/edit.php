@@ -13,12 +13,13 @@ $user = current_user();
 
 // Only the car's seller may change it. Cars listed before accounts existed have no seller yet,
 // so any logged-in user may manage those until they're assigned to an account.
-function can_edit_car(mysqli $conn, $carId, ?array $user): bool
+function can_edit_car(mysqli $conn, int|string|null $carId, ?array $user): bool
 {
     if (!$user || !$carId) {
         return false;
     }
     $stmt = $conn->prepare("SELECT user_id FROM cars WHERE id = ? AND deleted_at IS NULL");
+    $carId = (int)$carId;
     $stmt->bind_param("i", $carId);
     $stmt->execute();
     $row = $stmt->get_result()->fetch_assoc();
