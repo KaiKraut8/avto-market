@@ -1,50 +1,63 @@
 <x-layouts.app :title="__('Best car offers in town')" active="home">
 
-<section class="home-hero">
-    @if ($topPick?->coverPhoto)
-        <div class="hero-backdrop" style="background-image: url('{{ $topPick->coverPhoto->url() }}')"></div>
-    @endif
-    <div class="hero-shade"></div>
-    <div class="hero-sun" aria-hidden="true"></div>
-    <div class="hero-road" aria-hidden="true"></div>
-    <div class="hero-sparks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<section class="home-hero" data-hero>
+    <x-hero-scene />
 
     <div class="inner hero-grid">
         <div class="hero-copy">
             <p class="pill"><span class="live-dot"></span>{{ trans_choice(':count car in the garage right now|:count cars in the garage right now', $cars->count()) }}</p>
             <h1>{{ __('The best car offers') }} <span>{{ __('in town.') }}</span></h1>
             <p class="hero-lede">{{ __('Hand-picked cars, photographed and documented part by part. Fair prices, no surprises: find your next car before someone else does.') }}</p>
-            <x-search-bar class="hero-search" :placeholder="__('What car are you looking for? e.g. BMW, Mercedes, Ljubljana')" />
-            <div class="hero-cta">
-                <a class="btn accent big" href="{{ route('cars.index') }}">{{ __('Browse all cars') }} <span aria-hidden="true">&rarr;</span></a>
-                <a class="btn ghost big" href="{{ route('most-watched') }}">{{ __("See what's trending") }}</a>
-            </div>
+            <x-search-panel :bounds="$bounds" :hero="true" :placeholder="__('What car are you looking for? e.g. BMW, Mercedes, Ljubljana')" />
             <dl class="hero-facts">
                 @if ($lowest !== null)
                     <div><dt>{{ __('Prices from') }}</dt><dd>@price($lowest)</dd></div>
                 @endif
-                <div><dt>{{ __('Parts documented') }}</dt><dd>{{ $totalParts }}</dd></div>
+                @if ($bounds['yearMin'] && $bounds['yearMax'] > $bounds['yearMin'])
+                    <div class="fact-teal"><dt>{{ __('Years') }}</dt><dd>{{ $bounds['yearMin'] }}–{{ $bounds['yearMax'] }}</dd></div>
+                @endif
+                <div class="fact-blue"><dt>{{ __('Parts documented') }}</dt><dd>{{ $totalParts }}</dd></div>
                 @if ($interested > 0)
-                    <div><dt>{{ __('Interested buyers') }}</dt><dd>{{ $interested }}</dd></div>
+                    <div class="fact-violet"><dt>{{ __('Interested buyers') }}</dt><dd>{{ $interested }}</dd></div>
                 @endif
             </dl>
         </div>
 
         @if ($topPick)
-            <a class="hero-car" href="{{ route('cars.show', $topPick) }}">
-                <span class="hero-car-tag">{{ $topLabel }}</span>
-                <div class="hero-car-frame"><x-car-photo :car="$topPick" :lazy="false" /></div>
-                <div class="hero-car-info">
-                    <strong>{{ $topPick->name }}</strong>
-                    <span class="price">@price($topPick->price)</span>
+            {{-- the featured car floats and can be turned around by dragging; the back shows its key facts --}}
+            <div class="hero-car-stage">
+                <div class="hero-car" data-flip-card>
+                    <div class="hero-car-inner">
+                        <a class="hero-car-face front" href="{{ route('cars.show', $topPick) }}" draggable="false">
+                            <span class="hero-car-tag">{{ $topLabel }}</span>
+                            <div class="hero-car-frame"><x-car-photo :car="$topPick" :lazy="false" /></div>
+                            <div class="hero-car-info">
+                                <strong>{{ $topPick->name }}</strong>
+                                <span class="price">@price($topPick->price)</span>
+                            </div>
+                        </a>
+                        <div class="hero-car-face back">
+                            <span class="hero-car-tag">{{ __('At a glance') }}</span>
+                            <dl class="back-facts">
+                                <div><dt>{{ __('Year') }}</dt><dd>{{ $topPick->year ?: '—' }}</dd></div>
+                                <div><dt>{{ __('Price') }}</dt><dd>@price($topPick->price)</dd></div>
+                                <div><dt>{{ __('Location') }}</dt><dd>{{ $topPick->locationLabel() ?: '—' }}</dd></div>
+                                <div><dt>{{ __('Parts documented') }}</dt><dd>{{ $topPick->parts_count }}</dd></div>
+                                <div><dt>{{ __('People who looked') }}</dt><dd>{{ $topPick->people }}</dd></div>
+                            </dl>
+                            <a class="btn accent" href="{{ route('cars.show', $topPick) }}" draggable="false">{{ __('View this car') }} <span aria-hidden="true">&rarr;</span></a>
+                        </div>
+                    </div>
                 </div>
-            </a>
+                <p class="hero-car-hint"><span aria-hidden="true">&#8634;</span> {{ __('Drag the card to turn it around') }}</p>
+            </div>
         @endif
     </div>
     <a class="scroll-cue" href="#highlights" aria-label="{{ __('Scroll to the highlights') }}"><span></span></a>
 </section>
 
 <main class="wrap home">
+    <div class="journey" aria-hidden="true"><div class="journey-car"><x-car-top /></div></div>
     <div class="section-head" id="highlights">
         <div>
             <p class="eyebrow">{{ __('Hot right now') }}</p>
@@ -77,7 +90,7 @@
                         <span class="offer-price">@price($car->activeDeal ? $car->activeDeal->deal_price : $car->price)@if ($car->activeDeal) <s>@price($car->activeDeal->regular_price)</s>@endif</span>
                     </div>
                     <div class="offer-body">
-                        <h3>{{ $car->name }}</h3>
+                        <h3>{{ $car->name }}@if ($car->year) <span class="offer-year">{{ $car->year }}</span>@endif</h3>
                         <p class="offer-desc">{{ $car->description ?: __('Checked, photographed and ready for a test drive.') }}</p>
                         @if ($parts->isNotEmpty())
                             <div class="chips">
@@ -101,7 +114,7 @@
     @if ($deals->isNotEmpty())
         <div class="section-head" id="deals">
             <div>
-                <p class="eyebrow">{{ __('For a few days only') }}</p>
+                <p class="eyebrow rose">{{ __('For a few days only') }}</p>
                 <h2 class="big-title">{{ __('Special deals') }}</h2>
             </div>
             <a href="{{ route('deals.index') }}">{{ __('All deals') }} &rarr;</a>
@@ -170,19 +183,19 @@
     </section>
 
     <section class="why">
-        <a class="why-item" href="{{ route('why', 'documented-parts') }}">
+        <a class="why-item teal" href="{{ route('why', 'documented-parts') }}">
             <x-icon name="check" />
             <h3>{{ __('Every part documented') }}</h3>
             <p>{{ __("Steering, brakes, seats, keys: each car lists what it has, so you know exactly what you're buying.") }}</p>
             <span class="why-more">{{ __('Learn more') }} &rarr;</span>
         </a>
-        <a class="why-item" href="{{ route('why', 'real-photos') }}">
+        <a class="why-item blue" href="{{ route('why', 'real-photos') }}">
             <x-icon name="camera" />
             <h3>{{ __('Real photos, no stock images') }}</h3>
             <p>{{ __('What you see is the actual car sitting in our garage, not a picture from a catalogue.') }}</p>
             <span class="why-more">{{ __('Learn more') }} &rarr;</span>
         </a>
-        <a class="why-item" href="{{ route('why', 'live-interest') }}">
+        <a class="why-item violet" href="{{ route('why', 'live-interest') }}">
             <x-icon name="eye" />
             <h3>{{ __('See the interest live') }}</h3>
             <p>{{ __("Every car shows how many people looked at it and who's viewing it right now. Good offers go fast.") }}</p>

@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
-#[Fillable(['name', 'price', 'description', 'location', 'country'])]
+#[Fillable(['name', 'price', 'year', 'description', 'location', 'country'])]
 class Car extends Model
 {
     /** @use HasFactory<CarFactory> */
@@ -23,6 +23,7 @@ class Car extends Model
     {
         return [
             'price' => 'decimal:2',
+            'year' => 'integer',
             'boosted_until' => 'datetime',
             'legacy_premium_until' => 'datetime',
             'sold_at' => 'datetime',

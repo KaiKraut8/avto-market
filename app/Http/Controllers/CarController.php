@@ -12,6 +12,7 @@ use App\Models\WishlistItem;
 use App\Services\Alerts;
 use App\Services\PhotoStore;
 use App\Services\ViewTracker;
+use App\Support\CarSearch;
 use App\Support\Visitor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,31 +24,33 @@ class CarController extends Controller
     // All cars, or search results. Premium cars come first in their own block.
     public function index(Request $request): View
     {
-        $q = trim(mb_substr((string) $request->query('q', ''), 0, 80));
-        $cars = $this->listing($q);
-        $noMatch = $q !== '' && $cars->isEmpty();
+        $search = CarSearch::fromRequest($request);
+        $cars = $this->listing($search);
+        $noMatch = ! $search->isEmpty() && $cars->isEmpty();
         if ($noMatch) {
-            $cars = $this->listing('');   // still offer every car, as other options
+            $cars = $this->listing(new CarSearch);   // still offer every car, as other options
         }
 
         return view('cars.index', [
-            'q' => $q,
+            'search' => $search,
+            'q' => $search->q,
             'noMatch' => $noMatch,
             'cars' => $cars,
+            'bounds' => CarSearch::bounds(),
             'premium' => $cars->filter->isPremium()->values(),
             'regular' => $cars->reject->isPremium()->values(),
             'wished' => WishlistItem::where('visitor_id', Visitor::id())->pluck('car_id')->flip(),
         ]);
     }
 
-    private function listing(string $q)
+    private function listing(CarSearch $search)
     {
         return Car::query()
             ->forSale()
             ->withPlacement()
             ->withPeopleCount()
             ->with(['coverPhoto', 'parts:id,car_id,name', 'activeDeal', 'activeSale'])
-            ->search($q)
+            ->tap(fn ($q) => $search->apply($q))
             ->listingOrder()
             ->get();
     }
@@ -70,7 +73,7 @@ class CarController extends Controller
         if ($due = $this->unpaidCommission($user)) {
             return $due;
         }
-        $car = $user->cars()->create($request->safe()->only(['name', 'price', 'location', 'country', 'description']));
+        $car = $user->cars()->create($request->safe()->only(['name', 'price', 'year', 'location', 'country', 'description']));
 
         $messages = [__('Saved.')];
         if ($request->hasFile('photos')) {
@@ -118,7 +121,7 @@ class CarController extends Controller
     public function update(CarRequest $request, Car $car): RedirectResponse
     {
         $old = $car->name;
-        $car->update($request->safe()->only(['name', 'price', 'location', 'country', 'description']));   // never changes premium or a push
+        $car->update($request->safe()->only(['name', 'price', 'year', 'location', 'country', 'description']));   // never changes premium or a push
         if ($old !== $car->name) {
             CarLog::create(['car_id' => $car->id, 'action' => 'edit', 'old_name' => $old, 'new_name' => $car->name]);
         }

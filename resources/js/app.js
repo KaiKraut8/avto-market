@@ -10,3 +10,4 @@ import './premium';
 import './contact';
 import './language';
 import './cookie-notice';
+import './home';

@@ -45,6 +45,9 @@
         @endunless
         <h2><a href="{{ $link }}">{{ $car->name }}</a></h2>
         <div class="meta">
+            @if ($car->year)
+                <span class="year">{{ $car->year }}</span> &middot;
+            @endif
             @if ($car->locationLabel())
                 <span class="loc"><x-icon name="pin" :size="13" />{{ $car->locationLabel() }}</span> &middot;
             @endif

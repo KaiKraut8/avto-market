@@ -1,18 +1,25 @@
-@php($quoted = '“'.$q.'”')
-<x-layouts.app :title="$q !== '' ? __('Search: :q', ['q' => $q]) : __('All cars')" active="cars">
+@php
+    $quoted = '“'.$q.'”';
+    // "Results for “bmw”", "Cars 2018–2022, up to 20.000 €" or both
+    $what = $q !== '' ? $quoted : '';
+    if ($search->hasFilters()) {
+        $what = trim($what.' '.implode(', ', $search->labels()));
+    }
+@endphp
+<x-layouts.app :title="$what !== '' ? __('Search: :q', ['q' => $what]) : __('All cars')" active="cars">
 
 <main class="wrap">
     <div class="page-title">
-        <h1>{{ $q !== '' && ! $noMatch ? __('Results for :q', ['q' => $quoted]) : __('All cars') }}</h1>
+        <h1>{{ $what !== '' && ! $noMatch ? ($q !== '' ? __('Results for :q', ['q' => $what]) : __('Cars :filters', ['filters' => $what])) : __('All cars') }}</h1>
         @unless ($noMatch)
             <span class="count">{{ trans_choice(':count result|:count results', $cars->count()) }}</span>
         @endunless
     </div>
 
-    <x-search-bar :q="$q" :clear="true" />
+    <x-search-panel :search="$search" :bounds="$bounds" />
 
     @if ($noMatch)
-        <div class="empty search-empty">{{ __('No cars match :q. Here are other options you might like.', ['q' => $quoted]) }}</div>
+        <div class="empty search-empty">{{ __('No cars match :q. Here are other options you might like.', ['q' => $what]) }}</div>
     @endif
 
     @if ($cars->isNotEmpty())
@@ -28,7 +35,7 @@
         @if ($regular->isNotEmpty())
             @if ($premium->isNotEmpty() || $q !== '')
                 <div class="group-label">
-                    {{ $noMatch ? __('Other options you might like') : ($q !== '' ? __('Other options related to :q', ['q' => $quoted]) : __('Other options')) }}
+                    {{ $noMatch ? __('Other options you might like') : ($what !== '' ? __('Other options related to :q', ['q' => $what]) : __('Other options')) }}
                 </div>
             @endif
             <div class="results regular-results">

@@ -19,6 +19,10 @@
     --accent-ink: #1a1203;
     --danger: #ff6b6b;
     --ok: #5fd39a;
+    --teal: #2fd4b4;
+    --blue: #5cb8ff;
+    --violet: #a98bff;
+    --rose: #ff6f9c;
     --radius: 14px;
     --shadow: 0 10px 30px rgba(0, 0, 0, .35);
     --font-head: "Sora", "Inter", system-ui, sans-serif;
@@ -382,40 +386,49 @@ body::after {
 .btn.light { background: rgba(255, 255, 255, .9); color: #1a1203; }
 .btn.light:hover { background: #fff; }
 
+/* ---- home hero: an evening drive ---- */
 .home-hero {
-    position: relative; overflow: hidden; isolation: isolate;
-    min-height: min(46rem, 92vh); display: flex; align-items: center;
-    padding: 4rem 0 7rem; border-bottom: 1px solid var(--line);
+    position: relative; overflow: hidden; isolation: isolate; --p: 0;
+    min-height: min(50rem, 94vh); display: flex; align-items: center;
+    padding: 3.5rem 0 8rem; border-bottom: 1px solid var(--line);
 }
-.hero-backdrop {
-    position: absolute; inset: -40px; z-index: -5;
-    background-size: cover; background-position: center;
-    filter: blur(28px) saturate(1.2) brightness(.55); transform: scale(1.1);
-    animation: backdrop-breathe 18s ease-in-out infinite alternate;
+.scene { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.scene > * { position: absolute; }
+/* sky: night at the top, a sunset at the horizon (70 % down, where the road starts) */
+.sky { inset: 0; background: linear-gradient(180deg, #070a16 0%, #121a3f 28%, #35205a 50%, #7a2d4e 63%, #d4602c 69.5%, #0b0e14 70%, #0e1116 100%); }
+.stars {
+    inset: 0 0 32% 0; opacity: .6;
+    background-image:
+        radial-gradient(1.5px 1.5px at 20% 30%, #fff 50%, transparent 51%),
+        radial-gradient(1px 1px at 70% 20%, #fff 50%, transparent 51%),
+        radial-gradient(1.2px 1.2px at 45% 60%, #cfe3ff 50%, transparent 51%),
+        radial-gradient(1px 1px at 85% 45%, #fff 50%, transparent 51%),
+        radial-gradient(1.6px 1.6px at 10% 70%, #ffe9b5 50%, transparent 51%);
+    background-size: 420px 300px, 380px 260px, 500px 340px, 300px 220px, 460px 280px;
+    -webkit-mask-image: linear-gradient(#000 30%, transparent 85%); mask-image: linear-gradient(#000 30%, transparent 85%);
+    animation: twinkle 4s ease-in-out infinite alternate;
 }
-@keyframes backdrop-breathe { to { transform: scale(1.18) translateY(-10px); } }
-.hero-shade {
-    position: absolute; inset: 0; z-index: -4;
-    background:
-        radial-gradient(ellipse 70% 60% at 30% 40%, rgba(14, 17, 22, .35), rgba(14, 17, 22, .85) 70%),
-        linear-gradient(180deg, rgba(14, 17, 22, .55), rgba(14, 17, 22, .2) 45%, var(--bg) 100%);
-}
-/* a glowing sun on the horizon, with the stripes cut out of its lower half */
+@keyframes twinkle { to { opacity: .3; } }
+/* the sun on the horizon, with stripes cut out of its lower half */
 .hero-sun {
-    position: absolute; z-index: -3; left: 50%; bottom: 31%; width: min(34rem, 80vw); aspect-ratio: 1;
+    left: 80%; bottom: 30%; width: min(26rem, 60vw); aspect-ratio: 1;
     transform: translate(-50%, 50%); border-radius: 50%;
     background: radial-gradient(circle at 50% 40%, #ffe08a, #ffb02e 45%, #ff6a1a 75%);
-    filter: blur(.5px); opacity: .55;
+    opacity: .6;
     -webkit-mask: linear-gradient(#000 50%, transparent 50%), repeating-linear-gradient(#000 0 14px, transparent 14px 22px);
     mask: linear-gradient(#000 50%, transparent 50%), repeating-linear-gradient(#000 0 14px, transparent 14px 22px);
-    box-shadow: 0 0 120px 40px rgba(255, 140, 40, .35);
+    box-shadow: 0 0 120px 40px rgba(255, 140, 40, .3);
 }
+/* the city, two layers that slide a little as you scroll */
+.skyline { left: -2%; width: 104%; bottom: 30%; height: 24%; }
+.skyline.far { fill: #1a1d3c; opacity: .9; transform: translateX(calc(var(--p) * -1.5%)); }
+.skyline.near { height: 18%; transform: translateX(calc(var(--p) * -4%)); }
 /* the road: a perspective grid that rolls toward the viewer */
 .hero-road {
-    position: absolute; z-index: -2; left: -50%; right: -50%; bottom: 0; height: 32%;
+    left: -50%; right: -50%; bottom: 0; height: 30%;
     background-image:
-        linear-gradient(rgba(255, 176, 46, .55) 2px, transparent 2px),
-        linear-gradient(90deg, rgba(255, 176, 46, .45) 2px, transparent 2px);
+        linear-gradient(rgba(255, 176, 46, .5) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(255, 176, 46, .4) 2px, transparent 2px);
     background-size: 70px 70px;
     transform: perspective(380px) rotateX(58deg); transform-origin: center bottom;
     -webkit-mask-image: linear-gradient(to top, #000 10%, transparent 100%);
@@ -428,27 +441,19 @@ body::after {
     box-shadow: 0 0 24px 6px rgba(255, 176, 46, .6);
 }
 @keyframes road-roll { to { background-position: 0 70px, 0 0; } }
-/* floating sparks drifting up */
-.hero-sparks { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-.hero-sparks i {
-    position: absolute; bottom: -10px; width: 4px; height: 4px; border-radius: 50%;
-    background: #ffc94d; box-shadow: 0 0 10px 2px rgba(255, 176, 46, .8); opacity: 0;
-    animation: spark 9s linear infinite;
+/* the car drives across the road as the page scrolls; its wheels always turn */
+.drive-car {
+    left: 0; bottom: 2.5%; width: clamp(170px, 24vw, 360px);
+    transform: translateX(calc(4vw + var(--p) * 118vw));
+    filter: drop-shadow(0 12px 18px rgba(0, 0, 0, .5));
+    animation: car-bob .45s ease-in-out infinite alternate;
 }
-.hero-sparks i:nth-child(1) { left: 8%;  animation-delay: 0s; }
-.hero-sparks i:nth-child(2) { left: 22%; animation-delay: 2.5s; animation-duration: 11s; }
-.hero-sparks i:nth-child(3) { left: 37%; animation-delay: 5s; }
-.hero-sparks i:nth-child(4) { left: 51%; animation-delay: 1.2s; animation-duration: 12s; }
-.hero-sparks i:nth-child(5) { left: 64%; animation-delay: 6.5s; }
-.hero-sparks i:nth-child(6) { left: 76%; animation-delay: 3.4s; animation-duration: 10s; }
-.hero-sparks i:nth-child(7) { left: 88%; animation-delay: 7.8s; }
-.hero-sparks i:nth-child(8) { left: 95%; animation-delay: 4.4s; animation-duration: 13s; }
-@keyframes spark {
-    0% { transform: translateY(0) scale(.6); opacity: 0; }
-    10% { opacity: 1; }
-    80% { opacity: .7; }
-    100% { transform: translateY(-80vh) translateX(30px) scale(1); opacity: 0; }
-}
+.car-drawing { display: block; width: 100%; height: auto; }
+.car-drawing .wheel { animation: wheel-spin 1.1s linear infinite; }
+.car-drawing .car-headlight { animation: headlight 2.6s ease-in-out infinite; }
+@keyframes wheel-spin { to { transform: rotate(360deg); } }
+@keyframes car-bob { to { translate: 0 1.5px; } }
+@keyframes headlight { 50% { opacity: .7; } }
 
 .hero-grid { width: 100%; display: grid; grid-template-columns: 1.15fr .85fr; gap: 3rem; align-items: center; }
 .hero-copy > * { animation: rise-in .8s cubic-bezier(.2, .8, .2, 1) both; }
@@ -482,23 +487,44 @@ body::after {
 .hero-cta .btn.accent:hover span { transform: translateX(4px); }
 .hero-cta .btn.ghost { color: var(--ink); background: rgba(255, 255, 255, .05); backdrop-filter: blur(8px); }
 
-.hero-facts { display: flex; gap: 2.2rem; flex-wrap: wrap; margin: 0; }
+.hero-facts { display: flex; gap: 1rem 1.8rem; flex-wrap: wrap; margin: 0; }
 .hero-facts div { border-left: 2px solid var(--accent); padding-left: .8rem; }
 .hero-facts dt { color: var(--muted); font-size: .76rem; text-transform: uppercase; letter-spacing: .1em; }
 .hero-facts dd { margin: .1rem 0 0; font: 700 1.5rem var(--font-head); }
 
-/* featured car card in the hero, tilted toward the viewer */
-.hero-car {
-    position: relative; display: block; color: var(--ink); padding: .7rem;
-    background: rgba(26, 32, 41, .7); backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 176, 46, .35); border-radius: 22px;
-    box-shadow: 0 30px 70px rgba(0, 0, 0, .55), 0 0 60px rgba(255, 150, 40, .18);
-    transform: perspective(1200px) rotateY(-9deg) rotateX(3deg);
-    transition: transform .5s cubic-bezier(.2, .8, .2, 1), box-shadow .5s;
-    animation: float 7s ease-in-out infinite;
-}
-.hero-car:hover { text-decoration: none; transform: perspective(1200px) rotateY(0) rotateX(0) scale(1.02); box-shadow: 0 34px 80px rgba(0, 0, 0, .6), 0 0 80px rgba(255, 150, 40, .35); }
+.hero-facts .fact-teal { border-color: var(--teal); }
+.hero-facts .fact-blue { border-color: var(--blue); }
+.hero-facts .fact-violet { border-color: var(--violet); }
+
+/* featured car: a floating card you can turn around; the back shows its key facts */
+.hero-car-stage { perspective: 1400px; }
+.hero-car { position: relative; cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; animation: float 7s ease-in-out infinite; }
+.hero-car.dragging { cursor: grabbing; }
+.hero-car img { -webkit-user-drag: none; pointer-events: none; }
+.hero-car-inner { position: relative; transform-style: preserve-3d; will-change: transform; }
 @keyframes float { 50% { translate: 0 -10px; } }
+.hero-car-face {
+    display: block; color: var(--ink); padding: .7rem; border-radius: 22px;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    background: rgba(26, 32, 41, .88); border: 1px solid rgba(255, 176, 46, .35);
+    box-shadow: 0 30px 70px rgba(0, 0, 0, .55), 0 0 60px rgba(255, 150, 40, .18);
+}
+.hero-car-face.front { position: relative; }
+.hero-car-face.front:hover { text-decoration: none; }
+.hero-car-face.back {
+    position: absolute; inset: 0; transform: rotateY(180deg);
+    display: flex; flex-direction: column; justify-content: center; gap: 1.2rem; padding: 1.6rem 1.6rem 1.4rem;
+    border-color: rgba(47, 212, 180, .45);
+    background: linear-gradient(160deg, rgba(23, 44, 58, .96), rgba(14, 17, 22, .96));
+    box-shadow: 0 30px 70px rgba(0, 0, 0, .55), 0 0 60px rgba(47, 212, 180, .18);
+}
+.hero-car-face.back .hero-car-tag { background: linear-gradient(135deg, var(--teal), var(--blue)); color: #04201a; box-shadow: 0 6px 18px rgba(47, 212, 180, .4); }
+.hero-car-face.back .btn { align-self: flex-start; }
+.back-facts { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: .9rem 1rem; }
+.back-facts div { border-left: 2px solid var(--teal); padding-left: .7rem; min-width: 0; }
+.back-facts div:nth-child(2n) { border-color: var(--blue); }
+.back-facts dt { color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; }
+.back-facts dd { margin: .1rem 0 0; font: 700 1.15rem var(--font-head); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hero-car-tag {
     position: absolute; top: -.8rem; left: 1.2rem; z-index: 2;
     background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--accent-ink);
@@ -507,10 +533,13 @@ body::after {
 }
 .hero-car-frame { aspect-ratio: 4 / 3; border-radius: 16px; overflow: hidden; background: linear-gradient(135deg, #263142, #3b4b63); display: grid; place-items: center; }
 .hero-car-frame img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .8s; }
-.hero-car:hover .hero-car-frame img { transform: scale(1.05); }
+.hero-car-face.front:hover .hero-car-frame img { transform: scale(1.05); }
 .hero-car-frame .initial { font: 800 6rem var(--font-head); color: rgba(255, 255, 255, .45); }
 .hero-car-info { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding: .9rem .5rem .3rem; }
 .hero-car-info strong { font: 700 1.25rem var(--font-head); }
+.hero-car-hint { text-align: center; color: #c9d2dd; font-size: .8rem; margin: 1rem 0 0; text-shadow: 0 1px 8px rgba(0, 0, 0, .9), 0 0 2px rgba(0, 0, 0, .9); }
+.hero-car-hint span { display: inline-block; color: var(--teal); font-size: 1rem; animation: spin-hint 3s ease-in-out infinite; }
+@keyframes spin-hint { 50% { transform: rotate(-180deg); } }
 
 .scroll-cue { position: absolute; left: 50%; bottom: 1.6rem; translate: -50% 0; width: 26px; height: 42px; border: 2px solid rgba(255, 255, 255, .35); border-radius: 14px; }
 .scroll-cue span { position: absolute; left: 50%; top: 8px; width: 4px; height: 8px; margin-left: -2px; border-radius: 2px; background: var(--accent); animation: cue 1.8s ease-in-out infinite; }
@@ -616,6 +645,12 @@ body::after {
 .why { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin: 4.5rem 0; }
 .why-item { padding: 1.5rem; border-radius: 18px; background: rgba(26, 32, 41, .6); border: 1px solid var(--line); transition: border-color .3s, transform .3s; }
 .why-item:hover { border-color: rgba(255, 176, 46, .45); transform: translateY(-4px); }
+.why-item.teal svg { background: linear-gradient(135deg, #2fd4b4, #1c9bd6); color: #04201a; box-shadow: 0 8px 22px rgba(47, 212, 180, .3); }
+.why-item.teal:hover { border-color: rgba(47, 212, 180, .55); }
+.why-item.blue svg { background: linear-gradient(135deg, #5cb8ff, #6a7bff); color: #061a33; box-shadow: 0 8px 22px rgba(92, 184, 255, .3); }
+.why-item.blue:hover { border-color: rgba(92, 184, 255, .55); }
+.why-item.violet svg { background: linear-gradient(135deg, #a98bff, #ff6f9c); color: #1d0b2e; box-shadow: 0 8px 22px rgba(169, 139, 255, .3); }
+.why-item.violet:hover { border-color: rgba(169, 139, 255, .55); }
 .why-item svg { width: 2.6rem; height: 2.6rem; padding: .55rem; border-radius: 12px; color: var(--accent-ink); background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 8px 22px rgba(255, 150, 40, .35); }
 .why-item h3 { margin: 1rem 0 .4rem; font-size: 1.1rem; }
 .why-item p { margin: 0; color: var(--muted); font-size: .92rem; }
@@ -623,9 +658,9 @@ body::after {
 /* ---- call band ---- */
 .cta-band {
     position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;
-    padding: 2.2rem 2.4rem; border-radius: 24px; color: #1a1203;
-    background: linear-gradient(120deg, #ffd36b, #ffb02e 40%, #ff7a1a);
-    box-shadow: 0 24px 60px rgba(255, 130, 30, .3);
+    padding: 2.2rem 2.4rem; border-radius: 24px; color: #06111c;
+    background: linear-gradient(120deg, #2fd4b4, #37b6ea 45%, #6a7bff);
+    box-shadow: 0 24px 60px rgba(55, 182, 234, .3);
 }
 .cta-band::before { content: ""; position: absolute; right: -6rem; top: -6rem; width: 18rem; height: 18rem; border-radius: 50%; border: 40px solid rgba(255, 255, 255, .15); }
 .cta-band h2 { margin: 0 0 .3rem; font-size: clamp(1.4rem, 3vw, 1.9rem); }
@@ -634,13 +669,13 @@ body::after {
 
 @media (max-width: 900px) {
     .hero-grid { grid-template-columns: 1fr; gap: 2.5rem; }
-    .hero-car { transform: none; max-width: 30rem; }
+    .hero-car-stage { max-width: 30rem; }
+    .drive-car { bottom: 1.5%; }
     .offer-row, .why { grid-template-columns: 1fr; }
     .home-hero { padding-bottom: 6rem; }
 }
 @media (prefers-reduced-motion: reduce) {
-    .hero-road, .hero-sparks i, .hero-backdrop, .hero-car, .home-hero h1 span, .scroll-cue span, .offer, .hero-copy > * { animation: none; }
-    .hero-sparks { display: none; }
+    .hero-road, .stars, .drive-car, .car-drawing .wheel, .car-drawing .car-headlight, .hero-car, .hero-car-hint span, .home-hero h1 span, .scroll-cue span, .offer, .hero-copy > *, .journey-car { animation: none; }
 }
 
 /* ---- Details button on car cards: amber outline that fills on hover ---- */
@@ -916,7 +951,8 @@ input[type=email]:focus, input[type=tel]:focus { outline: none; border-color: va
 .search-bar input::-webkit-search-cancel-button { display: none; }
 .search-clear { color: var(--muted); font-size: 1.4rem; line-height: 1; padding: 0 .3rem; }
 .search-clear:hover { color: var(--ink); text-decoration: none; }
-.hero-search { max-width: 34rem; margin-bottom: 1.4rem; background: rgba(26, 32, 41, .75); backdrop-filter: blur(10px); }
+.hero-search { max-width: 40rem; margin-bottom: 1.6rem; }
+.hero-search .search-bar, .hero-search select, .hero-search .filter-money input { background: rgba(26, 32, 41, .78); backdrop-filter: blur(10px); }
 .search-empty { margin-bottom: 1.6rem; }
 
 /* ---- accounts: nav chip, login / sign up, profile ---- */
@@ -1399,4 +1435,53 @@ a.why-item:hover { text-decoration: none; }
     .cookie-notice { flex-wrap: wrap; }
     .cookie-notice p { flex-basis: calc(100% - 3rem); }
     .cookie-notice .btn { width: 100%; justify-content: center; text-align: center; }
+}
+
+/* ---- search panel: text, year and price ---- */
+.search-panel { display: grid; gap: .7rem; margin-bottom: 1.6rem; }
+.search-filters { display: flex; flex-wrap: wrap; gap: .6rem 1.4rem; align-items: center; }
+.filter-group { display: inline-flex; align-items: center; gap: .4rem; }
+.filter-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 700; margin-right: .2rem; }
+.filter-group:focus-within .filter-label { color: var(--teal); }
+.filter-group select, .filter-money input {
+    background: var(--card); border: 1px solid var(--line); color: var(--ink); border-radius: 10px;
+    padding: .45rem .6rem; font: inherit; font-size: .9rem; transition: border-color .2s, box-shadow .2s;
+}
+.filter-group select { min-width: 5.6rem; }
+.filter-group select:focus, .filter-money input:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(47, 212, 180, .2); }
+.filter-money { position: relative; display: inline-flex; align-items: center; }
+.filter-money input { width: 7.2rem; padding-right: 1.7rem; }
+.filter-money i { position: absolute; right: .65rem; font-style: normal; color: var(--muted); font-size: .85rem; pointer-events: none; }
+.filter-dash { color: var(--muted); }
+.filter-apply { padding: .45rem 1rem; color: var(--ink); }
+.quick-searches { display: flex; flex-wrap: wrap; gap: .45rem; }
+.quick-searches a { font-size: .8rem; font-weight: 600; padding: .32rem .8rem; border-radius: 999px; border: 1px solid var(--line); background: rgba(255, 255, 255, .04); color: var(--ink); transition: transform .2s, background .2s; }
+.quick-searches a:hover { text-decoration: none; transform: translateY(-1px); background: rgba(255, 255, 255, .09); }
+.quick-searches a:nth-child(1) { border-color: rgba(47, 212, 180, .5); color: var(--teal); }
+.quick-searches a:nth-child(2) { border-color: rgba(92, 184, 255, .5); color: var(--blue); }
+.quick-searches a:nth-child(3) { border-color: rgba(169, 139, 255, .5); color: var(--violet); }
+.quick-searches a:nth-child(4) { border-color: rgba(242, 181, 68, .5); color: var(--accent); }
+.quick-searches a:nth-child(5) { border-color: rgba(255, 111, 156, .5); color: var(--rose); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.eyebrow.rose { color: var(--rose); }
+.offer-year { display: inline-block; vertical-align: middle; margin-left: .5rem; font: 600 .78rem var(--font-body); color: var(--teal); background: rgba(47, 212, 180, .12); padding: .1rem .55rem; border-radius: 999px; }
+.car-body .meta .year { color: var(--teal); font-weight: 600; }
+
+/* ---- the road down the page: a car in the margin that keeps pace with the scrolling ---- */
+.home { position: relative; }
+.journey {
+    position: absolute; top: 0; bottom: 0; right: -5.5rem; width: 3.4rem; pointer-events: none;
+    border-left: 3px solid rgba(255, 255, 255, .08); border-right: 3px solid rgba(255, 255, 255, .08);
+    background: repeating-linear-gradient(180deg, transparent 0 26px, rgba(255, 211, 107, .4) 26px 44px) 50% 0 / 3px 100% no-repeat;
+}
+.journey-car { position: sticky; top: 46vh; width: 1.9rem; margin: 0 auto; animation: engine .3s ease-in-out infinite alternate; }
+.car-top { display: block; width: 100%; height: auto; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .5)); }
+@keyframes engine { to { translate: .4px 0; } }
+@media (max-width: 1400px) { .journey { display: none; } }
+@media (max-width: 560px) {
+    .search-filters { gap: .8rem; }
+    .filter-group { display: grid; grid-template-columns: 1fr auto 1fr; width: 100%; }
+    .filter-label { grid-column: 1 / -1; margin: 0; }
+    .filter-group select, .filter-money, .filter-money input { width: 100%; }
+    .filter-dash { text-align: center; }
 }

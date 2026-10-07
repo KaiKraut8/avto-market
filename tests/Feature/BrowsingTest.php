@@ -22,6 +22,19 @@ it('searches and falls back to other options when nothing matches', function () 
     $this->get('/cars?q='.urlencode('%'))->assertSee('No cars match');   // % is literal text, not "match all"
 });
 
+it('filters cars by year and price, in either order', function () {
+    Car::factory()->create(['name' => 'Old Cheap', 'year' => 2012, 'price' => 4000]);
+    Car::factory()->create(['name' => 'New Dear', 'year' => 2023, 'price' => 32000]);
+    Car::factory()->create(['name' => 'No Year', 'year' => null, 'price' => 9000]);
+
+    $this->get('/cars?year_from=2020')->assertSee('New Dear')->assertDontSee('Old Cheap')->assertDontSee('No Year');
+    $this->get('/cars?price_to=10.000')->assertSee('Old Cheap')->assertSee('No Year')->assertDontSee('New Dear');
+    $this->get('/cars?year_from=2023&year_to=2010')->assertSee('Old Cheap')->assertSee('New Dear');   // reversed range still works
+    $this->get('/cars?year_from=abc&price_from=-5')->assertOk()->assertSee('Old Cheap');                 // nonsense is ignored
+    $this->get('/cars?year_from=2025')->assertSee('No cars match')->assertSee('Old Cheap');
+    $this->get('/cars?q=dear&price_to=5000')->assertSee('No cars match');
+});
+
 it('shows premium cars as home page highlights, filled up to three', function () {
     Car::factory()->create(['name' => 'Third Car']);
     Car::factory()->boosted()->create(['name' => 'Pushed Car']);

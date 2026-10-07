@@ -15,6 +15,7 @@ class CarFactory extends Factory
             'user_id' => User::factory(),
             'name' => fake()->randomElement(['BMW 320d', 'Mercedes C220', 'Audi A4', 'VW Golf', 'Škoda Octavia', 'Renault Clio']),
             'price' => fake()->numberBetween(30, 600) * 100,
+            'year' => fake()->numberBetween(2008, (int) date('Y')),
             'description' => fake()->optional()->paragraph(),
             'location' => fake()->randomElement(['Ljubljana', 'Maribor', 'Celje', 'Kranj', 'Koper']),
             'country' => 'Slovenia',

@@ -16,9 +16,15 @@
         <label for="name">{{ __('Name') }}</label>
         <input type="text" id="name" name="name" maxlength="50" required placeholder="{{ __('e.g. BMW 320d Touring') }}" value="{{ old('name', $car->name) }}">
     </div>
-    <div class="field">
-        <label for="price">{{ __('Price (€)') }}</label>
-        <input type="number" id="price" name="price" min="0" step="100" placeholder="{{ __('e.g. 24900') }}" value="{{ old('price', $car->price !== null ? (int) $car->price : '') }}">
+    <div class="field-row">
+        <div class="field">
+            <label for="price">{{ __('Price (€)') }}</label>
+            <input type="number" id="price" name="price" min="0" step="100" placeholder="{{ __('e.g. 24900') }}" value="{{ old('price', $car->price !== null ? (int) $car->price : '') }}">
+        </div>
+        <div class="field">
+            <label for="year">{{ __('Year') }}</label>
+            <input type="number" id="year" name="year" min="{{ \App\Support\CarSearch::MIN_YEAR }}" max="{{ \App\Support\CarSearch::maxYear() }}" inputmode="numeric" placeholder="{{ __('e.g. 2019') }}" value="{{ old('year', $car->year) }}">
+        </div>
     </div>
     <div class="field-row">
         <div class="field">

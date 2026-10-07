@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Support\CarSearch;
 use App\Support\Money;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -24,6 +25,7 @@ class CarRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:50'],
             'price' => ['nullable', 'numeric', 'min:0', 'max:99999999'],
+            'year' => ['nullable', 'integer', 'min:'.CarSearch::MIN_YEAR, 'max:'.CarSearch::maxYear()],
             'location' => ['required', 'string', 'min:2', 'max:80'],
             'country' => ['required', Rule::in(config('countries'))],
             'description' => ['nullable', 'string', 'max:5000'],
@@ -44,6 +46,9 @@ class CarRequest extends FormRequest
             'location.min' => __('Location is required: the town or city where the car is (2 to 80 characters).'),
             'country.in' => __('Choose the country where the car is listed.'),
             'price.numeric' => __('Price must be a number.'),
+            'year.integer' => __('Year must be a number, e.g. 2019.'),
+            'year.min' => __('Year must be between :min and :max.', ['min' => CarSearch::MIN_YEAR, 'max' => CarSearch::maxYear()]),
+            'year.max' => __('Year must be between :min and :max.', ['min' => CarSearch::MIN_YEAR, 'max' => CarSearch::maxYear()]),
             'terms.accepted' => __('Please confirm that you have read how buying works.'),
         ];
     }

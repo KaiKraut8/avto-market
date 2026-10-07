@@ -320,6 +320,7 @@
                 <h2>{{ __('Car data') }}</h2>
                 <table class="specs">
                     <tr><th>{{ __('ID') }}</th><td>#{{ $car->id }}</td></tr>
+                    <tr><th>{{ __('Year') }}</th><td>{!! $car->year ? e($car->year) : '<span class="hint">'.e(__('Not set')).'</span>' !!}</td></tr>
                     <tr><th>{{ __('Price') }}</th><td>@price($car->price)@if ($car->activeDeal) <span class="hint">({{ __('deal: :price', ['price' => \App\Support\Money::price($car->activeDeal->deal_price)]) }})</span>@endif</td></tr>
                     <tr><th>{{ __('Location') }}</th><td>{!! $car->locationLabel() ? e($car->locationLabel()) : '<span class="hint">'.e(__('Not set')).'</span>' !!}</td></tr>
                     <tr><th>{{ __('Added') }}</th><td>{{ $car->created_at?->format('Y-m-d H:i') }}</td></tr>

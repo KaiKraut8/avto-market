@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Car;
 use App\Services\Alerts;
+use App\Support\CarSearch;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -57,6 +58,7 @@ class HomeController extends Controller
             'topPick' => $watched ? $mostWatched : ($priciest ?? $cars->first()),
             'topLabel' => $watched ? __('Most watched right now') : __('Top pick of the week'),
             'lowest' => $priced->first()?->price,
+            'bounds' => CarSearch::bounds(),
             'totalParts' => $cars->sum('parts_count'),
             // distinct people across all listed cars (one person looking at three cars is one person)
             'interested' => (int) DB::table('car_views')->join('cars', 'cars.id', '=', 'car_views.car_id')

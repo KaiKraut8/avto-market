@@ -11,8 +11,17 @@ beforeEach(fn () => Storage::fake('public'));
 
 function carData(array $overrides = []): array
 {
-    return array_merge(['name' => 'Škoda Octavia', 'price' => '12.900', 'location' => 'Maribor', 'country' => 'Slovenia', 'description' => "Line one\nLine two", 'terms' => 1], $overrides);
+    return array_merge(['name' => 'Škoda Octavia', 'price' => '12.900', 'location' => 'Maribor', 'country' => 'Slovenia', 'description' => "Line one\nLine two", 'year' => 2019, 'terms' => 1], $overrides);
 }
+
+it('saves the year and rejects an impossible one', function () {
+    $seller = User::factory()->create();
+    $this->actingAs($seller)->post('/cars', carData(['year' => 1800]))->assertSessionHasErrors('year');
+    $this->actingAs($seller)->post('/cars', carData(['year' => 'soon']))->assertSessionHasErrors('year');
+    $this->actingAs($seller)->post('/cars', carData(['year' => 2019]));
+    expect(Car::first()->year)->toBe(2019);
+    $this->get('/cars/'.Car::first()->id)->assertSee('2019');
+});
 
 it('needs an account to post a car', function () {
     $this->get('/cars/create')->assertRedirect('/login');
