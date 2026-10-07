@@ -70,14 +70,6 @@ it('lets only the seller change a car', function () {
         ->and(CarLog::where('car_id', $car->id)->where('action', 'edit')->exists())->toBeTrue();
 });
 
-it('lets any logged-in user manage cars that have no seller yet', function () {
-    $car = Car::factory()->unowned()->create();
-
-    $this->put(route('cars.update', $car), carData())->assertRedirect('/login');
-    $this->actingAs(User::factory()->create())->put(route('cars.update', $car), carData(['name' => 'Claimed']))->assertRedirect();
-    expect($car->fresh()->name)->toBe('Claimed');
-});
-
 it('shows edit controls only to the seller', function () {
     $owner = User::factory()->create();
     $car = Car::factory()->for($owner)->create();

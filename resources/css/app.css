@@ -1286,3 +1286,39 @@ a.why-item:hover { text-decoration: none; }
 .pay-method { display: block; margin: 0; }
 .pay-text b { color: var(--ink); font-size: .98rem; }
 .pay-text small { font-weight: 400; line-height: 1.45; }
+
+/* ---- admin: earnings, payment account, withdrawals ---- */
+.admin-page { max-width: 76rem; }
+.nav a.nav-admin { color: var(--ok); }
+.test-notice { background: rgba(255, 176, 46, .1); color: var(--accent); border-color: rgba(255, 176, 46, .35); }
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+.stat { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.2rem; display: grid; gap: .2rem; }
+.stat span { color: var(--muted); font-size: .82rem; }
+.stat b { font: 800 1.5rem var(--font-head); }
+.stat small { color: var(--muted); font-size: .76rem; }
+.admin-table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+.admin-table th, .admin-table td { padding: .55rem .6rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.admin-table th { color: var(--muted); font-size: .76rem; font-weight: 600; }
+.admin-table .num { text-align: right; white-space: nowrap; }
+.split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.split-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+.split-list li { display: flex; justify-content: space-between; gap: .6rem; padding-bottom: .4rem; border-bottom: 1px dashed var(--line); }
+.wallet { border: 1.5px solid rgba(95, 211, 154, .45); background: radial-gradient(120% 90% at 100% 0%, rgba(95, 211, 154, .1), transparent 60%), var(--card); }
+.balance-figures { display: grid; gap: .6rem; margin-bottom: 1rem; }
+.balance-figures div { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem; }
+.balance-figures span { color: var(--muted); font-size: .86rem; }
+.balance-figures b { font: 800 1.6rem var(--font-head); color: var(--ok); }
+.balance-figures b.muted-figure { font-size: 1.05rem; color: var(--ink); }
+.payout-dest { display: grid; grid-template-columns: auto 1fr; gap: .3rem .8rem; margin: 0 0 1rem; font-size: .86rem; }
+.payout-dest dt { color: var(--muted); }
+.payout-dest dd { margin: 0; }
+.iban { font-family: ui-monospace, monospace; letter-spacing: .03em; }
+.wallet-btn { width: 100%; justify-content: center; margin-bottom: .8rem; }
+.payout-row { display: grid; grid-template-columns: 1fr auto auto; gap: .6rem; align-items: center; padding: .45rem 0; border-bottom: 1px solid var(--line); font-size: .86rem; }
+.withdraw-box { max-width: 34rem; margin: 0 auto; }
+.withdraw-box h1 { margin: 0 0 1rem; }
+@media (max-width: 900px) {
+    .stat-row { grid-template-columns: 1fr 1fr; }
+    .split-grid { grid-template-columns: 1fr; }
+}
+.btn:disabled, .btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }

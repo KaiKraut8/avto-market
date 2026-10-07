@@ -34,6 +34,7 @@ for the old site, and real environment variables would override `.env`.
 |---|---|
 | `php artisan test` | Pest tests, on the separate `kai_test` database (refuses to run anywhere else) |
 | `php artisan legacy:import --fresh` | Copies cars, photos, parts, views, wishlists and inquiries from the old site's database (`app`) |
+| `php artisan users:admin you@example.com` | Makes that account the only admin (`--create` makes the account too) |
 | `php artisan cars:assign you@example.com 1 2 3` | Gives cars listed before accounts existed to a seller account |
 | `php artisan db:seed --class=DemoSeeder` | Sample sellers and cars for a local setup |
 | `./vendor/bin/pint` | Code style |
@@ -77,6 +78,18 @@ Premium (both plans) and push forward are paid through [Mollie](https://www.moll
 - **Webhook**: Mollie reports payments to `/webhooks/mollie`, which needs the site on a public address (`APP_URL`).
   On a local machine the return page checks the payment instead.
 - Settings: `config/payments.php`; logic: `app/Services/Billing.php`; providers: `app/Services/Payments/`.
+
+## Admin
+
+One account is the admin (`php artisan users:admin`); there is no way to become admin from the website, and everyone
+who signs up is a regular account. The admin may edit and delete any car, and has an **Admin** page with earnings
+(from the payments table), the **payment account** (the Mollie balance, the bank account it pays out to and the payout
+schedule) and **Withdraw to bank**, which asks for the password again and requests a payout through Mollie's Payouts API.
+
+The balance and withdrawals need `MOLLIE_ACCESS_TOKEN` in `.env`: an access token from the Mollie dashboard
+(Developers → Access tokens) with the scopes `balances.read`, `payouts.read` and `payouts.write`.
+The bank account is set and verified in the Mollie dashboard only; the website can't change where money goes.
+A manual withdrawal switches Mollie's automatic payouts off until they are switched back on in the dashboard.
 
 ## Old site
 

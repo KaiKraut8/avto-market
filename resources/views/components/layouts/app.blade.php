@@ -33,6 +33,9 @@
             <a href="{{ route('wishlist.index') }}" @class(['active' => $active === 'wishlist'])>{{ __('Wishlist') }} <span class="nav-count" data-wish-count @if (! $wishCount) hidden @endif>{{ $wishCount }}</span></a>
             <a href="{{ route('premium.index') }}" @class(['active' => $active === 'premium'])><span class="nav-crown" aria-hidden="true">&#9813;</span> {{ __('Premium') }}</a>
             <a class="btn accent" href="{{ route('cars.create') }}">+ {{ __('Add car') }}</a>
+            @can('admin')
+                <a href="{{ route('admin.dashboard') }}" @class(['nav-admin', 'active' => $active === 'admin'])>{{ __('Admin') }}</a>
+            @endcan
             @auth
                 <a @class(['nav-bell', 'active' => $active === 'notifications']) href="{{ route('notifications.index') }}" title="{{ __('Notifications') }}" aria-label="{{ __('Notifications') }}">
                     <x-icon name="bell" :size="19" />

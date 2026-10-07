@@ -22,6 +22,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
             'premium_since' => 'datetime',
             'premium_until' => 'datetime',
             'buyer_premium_since' => 'datetime',
@@ -58,6 +59,12 @@ class User extends Authenticatable
     public function wishlistItems(): HasMany
     {
         return $this->hasMany(WishlistItem::class);
+    }
+
+    // The marketplace's own account (not fillable: only php artisan users:admin sets it)
+    public function isAdmin(): bool
+    {
+        return (bool) $this->is_admin;
     }
 
     // A premium seller account that hasn't run out

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CarBoostController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarDealController;
@@ -51,6 +52,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/subscriptions/{subscription}/cancel', [SubscriptionController::class, 'confirmCancel'])->name('subscriptions.cancel.confirm');
     Route::post('/subscriptions/{subscription}/cancel', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
     Route::post('/subscriptions/{subscription}/resume', [SubscriptionController::class, 'resume'])->name('subscriptions.resume');
+
+    // the marketplace's own account: earnings, balance, withdrawals
+    Route::middleware('can:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/withdraw', [AdminController::class, 'withdrawForm'])->name('withdraw.create')->middleware('password.confirm');
+        Route::post('/withdraw', [AdminController::class, 'withdraw'])->name('withdraw')->middleware(['password.confirm', 'throttle:5,1']);
+    });
 
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::delete('/notifications', [NotificationController::class, 'destroy'])->name('notifications.destroy');

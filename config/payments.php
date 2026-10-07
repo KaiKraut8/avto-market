@@ -9,6 +9,8 @@ return [
     'mollie' => [
         'key' => env('MOLLIE_KEY'),          // test_... while trying it out, live_... for real money
         'api' => 'https://api.mollie.com/v2',
+        // for the admin's balance and withdrawals: an access token with balances.read, payouts.read, payouts.write
+        'access_token' => env('MOLLIE_ACCESS_TOKEN'),
     ],
 
     // the order they are offered in; only cards and PayPal can be charged again without the customer
