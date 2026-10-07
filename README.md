@@ -21,6 +21,9 @@ php artisan storage:link         # serves car photos from storage/app/public
 ```
 
 Set `XDEBUG_MODE=off` in front of composer/artisan commands to make them much faster.
+The web server runs with Xdebug off, because it roughly doubles page times. To step-debug,
+rebuild the container with `XDEBUG_MODE=debug` set, then start a request with the Xdebug
+browser extension or `?XDEBUG_TRIGGER=1`.
 
 The database settings are `KAI_DB_*` in `.env`, not `DB_*`: the dev container exports `DB_*`
 for the old site, and real environment variables would override `.env`.

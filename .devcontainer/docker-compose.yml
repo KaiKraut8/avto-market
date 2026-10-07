@@ -15,7 +15,8 @@ services:
       DB_DATABASE: app
       DB_USERNAME: app
       DB_PASSWORD: secret
-      XDEBUG_MODE: debug
+      # Xdebug roughly doubles PHP time, so it is off unless asked for: XDEBUG_MODE=debug before rebuilding
+      XDEBUG_MODE: ${XDEBUG_MODE:-off}
       XDEBUG_CONFIG: client_host=host.docker.internal client_port=9003
     extra_hosts:
       - "host.docker.internal:host-gateway"

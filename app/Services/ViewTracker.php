@@ -10,10 +10,13 @@ use Illuminate\Support\Facades\DB;
 // Who looked at a car (views, distinct people) and who has its page open right now (watchers).
 class ViewTracker
 {
+    // One transaction, so MySQL flushes to disk once instead of once per write
     public function record(Car $car): void
     {
-        DB::table('car_views')->insert(['car_id' => $car->id, 'visitor_id' => Visitor::id(), 'viewed_at' => now()]);
-        $this->ping($car);
+        DB::transaction(function () use ($car) {
+            DB::table('car_views')->insert(['car_id' => $car->id, 'visitor_id' => Visitor::id(), 'viewed_at' => now()]);
+            $this->ping($car);
+        });
     }
 
     // An open car page checks in every 15 s; the row is created or its last_seen_at refreshed
