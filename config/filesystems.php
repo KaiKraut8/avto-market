@@ -41,7 +41,7 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            'url' => '/storage',   // relative, so photo links work on any host or forwarded port
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

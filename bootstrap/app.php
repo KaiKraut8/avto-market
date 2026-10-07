@@ -12,7 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->web(append: [
+            \App\Http\Middleware\EnsureVisitorId::class,
+        ]);
+        // the visitor cookie is shared with the old site and read by plain PHP there, so keep it unencrypted
+        $middleware->encryptCookies(except: [\App\Support\Visitor::COOKIE]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

@@ -13,10 +13,18 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
+            $table->string('name', 60);
+            $table->string('email', 120)->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            // seller contact shown to buyers who contact them
+            $table->string('phone', 25);
+            $table->string('location', 80)->nullable();
+            $table->string('country', 60)->nullable();
+            // premium seller account (simulated purchase, see App\Services\Pricing)
+            $table->string('premium_plan', 10)->nullable();
+            $table->timestamp('premium_since')->nullable();
+            $table->timestamp('premium_until')->nullable()->index();
             $table->rememberToken();
             $table->timestamps();
         });

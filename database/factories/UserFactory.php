@@ -28,9 +28,21 @@ class UserFactory extends Factory
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
+            'phone' => '+386 40 '.fake()->numerify('### ###'),
+            'location' => fake()->randomElement(['Ljubljana', 'Maribor', 'Celje']),
+            'country' => 'Slovenia',
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];
+    }
+
+    public function premium(string $plan = 'monthly'): static
+    {
+        return $this->state([
+            'premium_plan' => $plan,
+            'premium_since' => now(),
+            'premium_until' => now()->addMonths($plan === 'yearly' ? 12 : 1),
+        ]);
     }
 
     /**
