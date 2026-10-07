@@ -30,6 +30,21 @@ class Pricing
         return round(self::monthly() * 12, 2);
     }
 
+    public static function buyerMonthly(): float
+    {
+        return (float) config('pricing.buyer_monthly');
+    }
+
+    public static function buyerYearly(): float
+    {
+        return round(self::buyerMonthly() * 12 * (1 - self::yearlySaving() / 100), 2);
+    }
+
+    public static function buyerYearlyAtMonthlyRate(): float
+    {
+        return round(self::buyerMonthly() * 12, 2);
+    }
+
     public static function boostWeekly(): float
     {
         return (float) config('pricing.boost_weekly');
@@ -46,6 +61,22 @@ class Pricing
             'premium_plan' => $plan,
             'premium_since' => now(),
             'premium_until' => now()->addMonths($plan === 'yearly' ? 12 : 1),
+        ])->save();
+
+        return true;
+    }
+
+    // Premium for a buyer account. Refused while a subscription is still running.
+    public function activateBuyerPremium(User $user, string $plan): bool
+    {
+        if ($user->hasBuyerPremium()) {
+            return false;
+        }
+        $plan = $plan === 'yearly' ? 'yearly' : 'monthly';
+        $user->forceFill([
+            'buyer_premium_plan' => $plan,
+            'buyer_premium_since' => now(),
+            'buyer_premium_until' => now()->addMonths($plan === 'yearly' ? 12 : 1),
         ])->save();
 
         return true;

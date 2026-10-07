@@ -3,18 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Car;
+use App\Services\Alerts;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class HomeController extends Controller
 {
-    public function __invoke(): View
+    public function __invoke(Alerts $alerts): View
     {
         $cars = Car::query()
             ->withPlacement()
             ->withPeopleCount()
             ->withCount('parts')
-            ->with(['coverPhoto', 'parts' => fn ($q) => $q->select('id', 'car_id', 'name')])
+            ->with(['coverPhoto', 'activeDeal', 'parts' => fn ($q) => $q->select('id', 'car_id', 'name')])
             ->orderBy('cars.id')
             ->get();
 
@@ -47,6 +48,7 @@ class HomeController extends Controller
 
         return view('home', [
             'cars' => $cars,
+            'deals' => DealController::forVisitor($alerts)->take(3),
             'premiumCount' => $premium->count(),
             'highlights' => $highlights,
             'badges' => $badges,

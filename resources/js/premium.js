@@ -1,7 +1,6 @@
-// Premium tab: show the total for the chosen billing period
-const total = document.getElementById('buy-total');
-if (total) {
-    document.querySelectorAll('input[name="billing"]').forEach((r) => r.addEventListener('change', () => {
+// Premium page: each plan's total follows the billing period chosen in its own form
+document.querySelectorAll('[data-buy-total]').forEach((total) => {
+    total.closest('form').querySelectorAll('input[name="billing"]').forEach((r) => r.addEventListener('change', () => {
         total.textContent = r.value === 'yearly' ? total.dataset.yearly : total.dataset.monthly;
     }));
-}
+});

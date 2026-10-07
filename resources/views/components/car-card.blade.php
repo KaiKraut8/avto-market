@@ -4,9 +4,11 @@
     $parts = $car->parts;
     $shown = $parts->take(4);
 @endphp
-<article @class(['car-card', 'premium' => $car->isPremium(), 'boosted' => ! $car->isPremium() && $car->isBoosted(), 'wish-card' => $wishlist])
+<article @class(['car-card', 'has-deal' => $car->activeDeal, 'premium' => $car->isPremium(), 'boosted' => ! $car->isPremium() && $car->isBoosted(), 'wish-card' => $wishlist])
          style="--i: {{ $i }}" data-href="{{ $link }}" @if ($wishlist) data-remove-on-unwish @endif>
-    @if ($car->isPremium())
+    @if ($car->activeDeal)
+        <span class="deal-ribbon"><x-icon name="tag" :size="13" /> {{ __('Special deal') }}</span>
+    @elseif ($car->isPremium())
         <span class="premium-ribbon"><span aria-hidden="true">&#9813;</span> {{ __('Premium') }}</span>
     @elseif ($car->isBoosted())
         <span class="boost-ribbon"><span aria-hidden="true">&#8679;</span> {{ __('Pushed') }}</span>
@@ -74,7 +76,10 @@
     </div>
     <div class="car-side">
         <x-heart :car="$car" :wished="$wished" />
-        <span @class(['price', 'muted' => $car->price === null])>@price($car->price)</span>
+        <x-deal-price :car="$car" />
+        @if ($car->activeDeal)
+            <span class="deal-ends">{{ __('Deal ends :date', ['date' => $car->activeDeal->ends_at->format('Y-m-d')]) }}</span>
+        @endif
         <span class="id-tag">#{{ $car->id }} &middot; {{ trans_choice(':count part|:count parts', $parts->count()) }}</span>
         <a class="btn details" href="{{ $link }}">{{ __('Details') }}</a>
     </div>

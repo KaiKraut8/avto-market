@@ -24,6 +24,8 @@ class User extends Authenticatable
             'password' => 'hashed',
             'premium_since' => 'datetime',
             'premium_until' => 'datetime',
+            'buyer_premium_since' => 'datetime',
+            'buyer_premium_until' => 'datetime',
         ];
     }
 
@@ -32,10 +34,26 @@ class User extends Authenticatable
         return $this->hasMany(Car::class);
     }
 
+    public function savedSearches(): HasMany
+    {
+        return $this->hasMany(SavedSearch::class)->orderBy('id');
+    }
+
+    public function wishlistItems(): HasMany
+    {
+        return $this->hasMany(WishlistItem::class);
+    }
+
     // A premium seller account that hasn't run out
     public function hasPremium(): bool
     {
         return (bool) $this->premium_until?->isFuture();
+    }
+
+    // Premium for buyers: member prices, deal alerts and saved-search alerts
+    public function hasBuyerPremium(): bool
+    {
+        return (bool) $this->buyer_premium_until?->isFuture();
     }
 
     public function firstName(): string

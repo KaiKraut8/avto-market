@@ -27,4 +27,16 @@
     @case('camera')
         <svg viewBox="0 0 24 24" width="{{ $size }}" height="{{ $size }}" aria-hidden="true" {{ $attributes }}><path d="M4 7h3l2-3h6l2 3h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="13" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
         @break
+    @case('tag')
+        <svg viewBox="0 0 24 24" width="{{ $size }}" height="{{ $size }}" aria-hidden="true" {{ $attributes }}><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="7.5" cy="7.5" r="1.6" fill="currentColor"/></svg>
+        @break
+    @case('heart')
+        <svg viewBox="0 0 24 24" width="{{ $size }}" height="{{ $size }}" aria-hidden="true" {{ $attributes }}><path d="M12 20.5S3 15 3 8.8A4.8 4.8 0 0 1 12 6.4a4.8 4.8 0 0 1 9 2.4C21 15 12 20.5 12 20.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        @break
+    @case('bell')
+        <svg viewBox="0 0 24 24" width="{{ $size }}" height="{{ $size }}" aria-hidden="true" {{ $attributes }}><path d="M6 9a6 6 0 1 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 20a2.2 2.2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        @break
+    @case('chart')
+        <svg viewBox="0 0 24 24" width="{{ $size }}" height="{{ $size }}" aria-hidden="true" {{ $attributes }}><path d="M3 3v18h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="m7 15 4-4 3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        @break
 @endswitch

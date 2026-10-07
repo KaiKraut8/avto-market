@@ -62,6 +62,28 @@ class Car extends Model
         return $this->hasMany(CarInquiry::class);
     }
 
+    public function deals(): HasMany
+    {
+        return $this->hasMany(CarDeal::class);
+    }
+
+    // The special deal running right now, if any
+    public function activeDeal(): HasOne
+    {
+        return $this->hasOne(CarDeal::class)->ofMany(['id' => 'max'], fn (Builder $q) => $q->where('car_deals.ends_at', '>', now()));
+    }
+
+    public function wishlistItems(): HasMany
+    {
+        return $this->hasMany(WishlistItem::class);
+    }
+
+    // First word of the name, lower case: "BMW 530d" and "bmw12" are different words, "BMW" and "bmw x5" share "bmw"
+    public function make(): string
+    {
+        return mb_strtolower(strtok(trim($this->name), ' ') ?: '');
+    }
+
     // ---- premium / push ----
 
     // "This car is premium right now": its seller's account has premium, or it still has

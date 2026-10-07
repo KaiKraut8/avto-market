@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Support\Money;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -15,9 +16,7 @@ class CarRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        // "24.900", "24 900 €" and "24900" all mean the same price
-        $price = str_replace(['.', ' ', '€'], '', (string) $this->input('price'));
-        $this->merge(['price' => $price === '' ? null : str_replace(',', '.', $price)]);
+        $this->merge(['price' => Money::parse($this->input('price'))]);
     }
 
     public function rules(): array

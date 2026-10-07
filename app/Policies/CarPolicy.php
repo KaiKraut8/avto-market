@@ -23,4 +23,11 @@ class CarPolicy
     {
         return $this->update($user, $car);
     }
+
+    // Special deals are a premium seller perk, for their own priced cars
+    public function runDeal(User $user, Car $car): bool
+    {
+        return $car->user_id !== null && (int) $car->user_id === (int) $user->id
+            && $user->hasPremium() && $car->price !== null;
+    }
 }

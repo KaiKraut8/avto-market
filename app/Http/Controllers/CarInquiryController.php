@@ -6,6 +6,7 @@ use App\Models\Car;
 use App\Models\CarInquiry;
 use App\Rules\PersonName;
 use App\Rules\PhoneNumber;
+use App\Services\Alerts;
 use App\Support\Visitor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,7 +14,7 @@ use Illuminate\Http\Request;
 // A buyer contacts the seller: their own details have to be valid before the seller's are shown
 class CarInquiryController extends Controller
 {
-    public function __invoke(Request $request, Car $car): RedirectResponse
+    public function __invoke(Request $request, Car $car, Alerts $alerts): RedirectResponse
     {
         abort_unless($car->sellerContact(), 404);
 
@@ -27,14 +28,17 @@ class CarInquiryController extends Controller
             'buyer_email.required' => __('Enter a valid email address, like name@example.com.'),
         ]);
 
-        CarInquiry::create([
+        $inquiry = CarInquiry::create([
             'car_id' => $car->id,
             'visitor_id' => Visitor::id(),
             'name' => $data['buyer_name'],
             'email' => $data['buyer_email'],
             'phone' => $data['buyer_phone'],
-            'message' => $data['buyer_message'] ?: null,
+            'message' => ($data['buyer_message'] ?? null) ?: null,
+            // a premium buyer asking about a car with a member price: the seller is told it applies
+            'is_member' => (bool) ($request->user()?->hasBuyerPremium() && $car->activeDeal?->member_price !== null),
         ]);
+        $alerts->inquiry($car, $inquiry);
 
         return redirect()->to(route('cars.show', $car).'#contact')->with('contacted', true);
     }

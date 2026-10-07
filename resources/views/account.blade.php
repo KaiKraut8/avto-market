@@ -15,6 +15,8 @@
         <div class="notice">{{ __('Password changed.') }}</div>
     @elseif (session('status'))
         <div class="notice">{{ session('status') }}</div>
+    @elseif (session('error'))
+        <div class="notice error">{{ session('error') }}</div>
     @endif
 
     <div class="detail">
@@ -51,20 +53,128 @@
                 @endif
                 <a class="btn accent" href="{{ route('cars.create') }}" style="margin-top:1rem">+ {{ __('Sell a car') }}</a>
             </section>
+
+            @if ($cars->isNotEmpty())
+                <section @class(['panel', 'insights', 'locked' => ! $user->hasPremium()])>
+                    <h2><x-icon name="chart" :size="16" /> {{ __('Insights') }}</h2>
+                    @if ($user->hasPremium())
+                        <div class="table-scroll">
+                            <table class="insights-table">
+                                <thead>
+                                    <tr>
+                                        <th>{{ __('Car') }}</th>
+                                        <th title="{{ __('Views in the last 30 days') }}">{{ __('Views (30 days)') }}</th>
+                                        <th>{{ __('People') }}</th>
+                                        <th>{{ __('Saves') }}</th>
+                                        <th>{{ __('Inquiries') }}</th>
+                                        <th title="{{ __('Share of people who looked and then contacted you') }}">{{ __('Contacted') }}</th>
+                                        <th>{{ __('Deal') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($cars as $c)
+                                        <tr>
+                                            <td><a href="{{ route('cars.show', $c) }}">{{ $c->name }}</a></td>
+                                            <td>{{ $c->views_30 }}</td>
+                                            <td>{{ (int) $c->people }}</td>
+                                            <td>{{ $c->saves }}</td>
+                                            <td>{{ $c->inquiries_count }}</td>
+                                            <td>{{ $c->people ? round(100 * $c->inquiries_count / $c->people).'%' : '–' }}</td>
+                                            <td>
+                                                @if ($c->activeDeal)
+                                                    <span class="deal-off">&minus;{{ $c->activeDeal->percentOff() }}%</span> <small class="hint">{{ __('until :date', ['date' => $c->activeDeal->ends_at->format('Y-m-d')]) }}</small>
+                                                @elseif ($c->price !== null)
+                                                    <a href="{{ route('cars.show', $c) }}#deal">{{ __('Start one') }}</a>
+                                                @else
+                                                    <span class="hint">{{ __('Needs a price') }}</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="hint">{{ __('Lots of saves but few inquiries? A short special deal often turns savers into buyers: they are told the moment it starts.') }}</p>
+                    @else
+                        <div class="insights-teaser" aria-hidden="true">
+                            <span></span><span></span><span></span><span></span>
+                        </div>
+                        <p>{{ __('See views over 30 days, saves, inquiries and how many lookers contacted you, for every car. Insights are part of premium for sellers.') }}</p>
+                        <a class="btn gold" href="{{ route('premium.index') }}#sellers">&#9813; {{ __('See premium plans') }}</a>
+                    @endif
+                </section>
+            @endif
+
+            <section class="panel" id="saved-searches">
+                <h2><x-icon name="search" :size="16" /> {{ __('Saved searches') }}</h2>
+                @if ($user->hasBuyerPremium())
+                    <p class="hint">{{ __('New cars and deals that match are sent to your notifications right away.') }}</p>
+                    @if ($searches->isNotEmpty())
+                        <ul class="saved-searches">
+                            @foreach ($searches as $search)
+                                <li>
+                                    <a href="{{ route('cars.index', ['q' => $search->query]) }}">{{ $search->label() }}</a>
+                                    <form method="post" action="{{ route('saved-searches.destroy', $search) }}">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="btn ghost small">{{ __('Remove') }}</button>
+                                    </form>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                    @if ($errors->search->any())
+                        <ul class="form-errors">
+                            @foreach ($errors->search->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    @endif
+                    @if ($searches->count() < \App\Models\SavedSearch::LIMIT)
+                        <form method="post" action="{{ route('saved-searches.store') }}" class="row">
+                            @csrf
+                            <div>
+                                <label for="search_query">{{ __('Search') }}</label>
+                                <input type="text" id="search_query" name="query" maxlength="80" placeholder="{{ __('e.g. BMW, Audi, Ljubljana') }}" value="{{ old('query') }}">
+                            </div>
+                            <div>
+                                <label for="search_max">{{ __('Highest price') }}</label>
+                                <input type="text" id="search_max" name="max_price" inputmode="decimal" placeholder="30.000" value="{{ old('max_price') }}">
+                            </div>
+                            <button type="submit" class="btn">{{ __('Save search') }}</button>
+                        </form>
+                    @endif
+                @else
+                    <p>{{ __('Save searches like “BMW up to 30.000 €” and hear about new matching cars and deals first. Saved searches are part of premium for buyers.') }}</p>
+                    <a class="btn gold" href="{{ route('premium.index') }}#buyers">&#9813; {{ __('Premium for buyers') }}</a>
+                @endif
+            </section>
         </div>
 
         <aside>
             @if ($user->hasPremium())
                 <section class="panel premium-status">
                     <h2>&#9813; {{ __('Premium seller') }}</h2>
-                    <p>{{ __('Every car you list is shown first in All cars, in gold.') }}</p>
+                    <p>{{ __('Top placement, special deals, insights and interest alerts for every car you list.') }}</p>
                     <p class="hint">{{ __(':plan plan, active until :date.', ['plan' => __(ucfirst($user->premium_plan)), 'date' => $user->premium_until->format('Y-m-d')]) }}</p>
                 </section>
-            @else
+            @endif
+            @if ($user->hasBuyerPremium())
+                <section class="panel premium-status">
+                    <h2>&#9813; {{ __('Premium buyer') }}</h2>
+                    <p>{{ __('Member prices on deals, alerts for deals on cars like yours, and saved searches.') }}</p>
+                    <p class="hint">{{ __(':plan plan, active until :date.', ['plan' => __(ucfirst($user->buyer_premium_plan)), 'date' => $user->buyer_premium_until->format('Y-m-d')]) }}</p>
+                </section>
+            @endif
+            @if (! $user->hasPremium() || ! $user->hasBuyerPremium())
                 <section class="panel upsell">
                     <span class="upsell-crown" aria-hidden="true">&#9813;</span>
                     <h2>{{ __('Go premium') }}</h2>
-                    <p>{{ __('Put every car you list at the top of All cars, in gold. From :price a month.', ['price' => \App\Support\Money::eur(\App\Services\Pricing::monthly())]) }}</p>
+                    @unless ($user->hasPremium())
+                        <p><b>{{ __('Selling?') }}</b> {{ __('Top placement, special deals and insights. From :price a month.', ['price' => \App\Support\Money::eur(\App\Services\Pricing::monthly())]) }}</p>
+                    @endunless
+                    @unless ($user->hasBuyerPremium())
+                        <p><b>{{ __('Buying?') }}</b> {{ __('Member prices, deal alerts and saved searches. From :price a month.', ['price' => \App\Support\Money::eur(\App\Services\Pricing::buyerMonthly())]) }}</p>
+                    @endunless
                     <a class="btn gold" href="{{ route('premium.index') }}">&#9813; {{ __('See premium plans') }}</a>
                 </section>
             @endif

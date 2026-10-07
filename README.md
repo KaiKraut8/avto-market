@@ -45,7 +45,21 @@ for the old site, and real environment variables would override `.env`.
 - Countries and languages: `config/countries.php`, `config/locales.php`
 - Translations: `lang/{code}.json` (site text, keyed by the English text) and `lang/{code}/*.php` (Laravel's own messages, from laravel-lang)
 - Placement rules (premium, pushed, listing order, search): `app/Models/Car.php`
-- Who may change a car: `app/Policies/CarPolicy.php`
+- Who may change a car, and who may run a special deal: `app/Policies/CarPolicy.php`
+- Who gets which alert (deals, saved searches, saves, inquiries): `app/Services/Alerts.php`; their text: `app/Support/AlertText.php`
+
+## Premium
+
+Two plans, both simulated purchases:
+
+- **Premium seller**: top placement in gold, special deals (1–50 % off for 3, 7 or 14 days, with an optional
+  lower member price for premium buyers), insights per car on the account page, and an alert when someone saves a car.
+- **Premium buyer**: member prices on deals, alerts for deals on cars like the ones in their wishlist
+  (same first word of the name, or a price within 15 %), and up to 10 saved searches that alert on new matching cars and deals.
+
+Every account is told when a car in its wishlist gets a deal; a wishlist saved before logging in is linked to the account on login.
+A deal keeps the price it started from, so changing the car's price ends it. Alerts are sent during the request;
+with many accounts they should move to a queue.
 
 ## Old site
 

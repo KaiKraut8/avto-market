@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-// The seller's profile: their cars, premium status and contact details
+// The account: cars and their insights, premium plans, saved searches and contact details
 class AccountController extends Controller
 {
     public function __invoke(Request $request): View
@@ -15,10 +15,19 @@ class AccountController extends Controller
             ->withPlacement()
             ->with('coverPhoto')
             ->withPeopleCount()
-            ->withCount('inquiries')
+            ->withCount([
+                'inquiries',
+                'wishlistItems as saves',
+                'views as views_30' => fn ($q) => $q->where('viewed_at', '>=', now()->subDays(30)),
+            ])
+            ->with('activeDeal')
             ->orderByDesc('cars.id')
             ->get();
 
-        return view('account', ['user' => $user, 'cars' => $cars]);
+        return view('account', [
+            'user' => $user,
+            'cars' => $cars,
+            'searches' => $user->savedSearches,
+        ]);
     }
 }

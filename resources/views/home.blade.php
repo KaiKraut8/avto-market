@@ -64,6 +64,9 @@
                     <div class="offer-photo">
                         <x-car-photo :car="$car" />
                         <div class="offer-badges">
+                            @if ($car->activeDeal)
+                                <span class="tag tag-sale">{{ __('Deal −:percent%', ['percent' => $car->activeDeal->percentOff()]) }}</span>
+                            @endif
                             @foreach ($badges[$car->id] as [$label, $kind])
                                 <span class="tag tag-{{ $kind }}">{{ $label }}</span>
                             @endforeach
@@ -71,7 +74,7 @@
                         @if ($car->people > 0)
                             <span class="offer-eye" title="{{ __('People who looked at this car') }}"><x-icon name="eye" :size="15" /> {{ $car->people }}</span>
                         @endif
-                        <span class="offer-price">@price($car->price)</span>
+                        <span class="offer-price">@price($car->activeDeal ? $car->activeDeal->deal_price : $car->price)@if ($car->activeDeal) <s>@price($car->activeDeal->regular_price)</s>@endif</span>
                     </div>
                     <div class="offer-body">
                         <h3>{{ $car->name }}</h3>
@@ -95,12 +98,43 @@
         <div class="empty">{{ __('The garage is empty.') }} <a href="{{ route('cars.create') }}">{{ __('Add the first car') }}</a>.</div>
     @endif
 
+    @if ($deals->isNotEmpty())
+        <div class="section-head" id="deals">
+            <div>
+                <p class="eyebrow">{{ __('For a few days only') }}</p>
+                <h2 class="big-title">{{ __('Special deals') }}</h2>
+            </div>
+            <a href="{{ route('deals.index') }}">{{ __('All deals') }} &rarr;</a>
+        </div>
+        <section class="deal-strip">
+            @foreach ($deals as $car)
+                <a class="deal-tile" href="{{ route('cars.show', $car) }}">
+                    <div class="deal-tile-photo">
+                        <x-car-photo :car="$car" />
+                        <span class="deal-off">&minus;{{ $car->activeDeal->percentOff() }}%</span>
+                        @if ($car->for_you)
+                            <span class="for-you"><x-icon name="heart" :size="12" /> {{ __('For you') }}</span>
+                        @endif
+                    </div>
+                    <div class="deal-tile-body">
+                        <b>{{ $car->name }}</b>
+                        <x-deal-price :car="$car" size="tile" />
+                        <small><x-icon name="clock" :size="13" /> {{ __('Ends :date', ['date' => $car->activeDeal->ends_at->format('Y-m-d')]) }}</small>
+                    </div>
+                </a>
+            @endforeach
+        </section>
+    @endif
+
     <section class="premium-promo">
         <span class="promo-crown" aria-hidden="true">&#9813;</span>
         <div class="promo-copy">
-            <p class="eyebrow">{{ __('For sellers') }}</p>
-            <h2>{{ __('Selling cars?') }} <span>{{ __('Go premium.') }}</span></h2>
-            <p>{{ __('A premium seller account puts every car you list first on All cars and in the home page highlights, in gold.') }}</p>
+            <p class="eyebrow">{{ __('Premium') }}</p>
+            <h2>{{ __('More than a spot at the top.') }} <span>{{ __('Go premium.') }}</span></h2>
+            <ul class="promo-perks">
+                <li><b>{{ __('Sellers') }}</b> {{ __('Top placement in gold, special deals that reach interested buyers, and insights for every car.') }}</li>
+                <li><b>{{ __('Buyers') }}</b> {{ __('Member prices on deals, alerts when cars like yours drop in price, and saved searches. From :price a month.', ['price' => \App\Support\Money::eur(\App\Services\Pricing::buyerMonthly())]) }}</li>
+            </ul>
             <div class="promo-cta">
                 <a class="btn gold big" href="{{ route('premium.index') }}">&#9813; {{ __('Get premium') }}</a>
                 @auth
@@ -121,6 +155,11 @@
                 <b>{{ __('Yearly') }}</b>
                 <span class="promo-price">@eur(\App\Services\Pricing::yearly())</span>
                 <small><s>@eur(\App\Services\Pricing::yearlyAtMonthlyRate())</s> {{ __('per year') }}</small>
+            </a>
+            <a class="promo-plan buyer" href="{{ route('premium.index') }}#buyers">
+                <b>&#9813; {{ __('Premium buyer') }}</b>
+                <span class="promo-price">@eur(\App\Services\Pricing::buyerMonthly())</span>
+                <small>{{ __('per month') }}</small>
             </a>
             <a class="promo-plan boost" href="{{ route('cars.create') }}">
                 <b>&#8679; {{ __('Push forward') }}</b>

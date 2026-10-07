@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Car;
 use App\Models\WishlistItem;
+use App\Services\Alerts;
 use App\Support\Visitor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
@@ -15,7 +16,7 @@ class WishlistController extends Controller
     {
         $cars = Car::query()
             ->withPlacement()
-            ->with(['coverPhoto', 'parts:id,car_id,name'])
+            ->with(['coverPhoto', 'parts:id,car_id,name', 'activeDeal'])
             ->join('wishlist_items', 'wishlist_items.car_id', '=', 'cars.id')
             ->where('wishlist_items.visitor_id', Visitor::id())
             ->addSelect('wishlist_items.created_at as wished_at')
@@ -28,11 +29,13 @@ class WishlistController extends Controller
         ]);
     }
 
-    public function toggle(Car $car): JsonResponse
+    // Saved while logged in, the item belongs to the account too, so deal alerts can reach it
+    public function toggle(Car $car, Alerts $alerts): JsonResponse
     {
         $removed = WishlistItem::where('visitor_id', Visitor::id())->where('car_id', $car->id)->delete();
         if (! $removed) {
-            WishlistItem::create(['visitor_id' => Visitor::id(), 'car_id' => $car->id]);
+            WishlistItem::create(['visitor_id' => Visitor::id(), 'user_id' => auth()->id(), 'car_id' => $car->id]);
+            $alerts->carSaved($car);
         }
         $wished = ! $removed;
 

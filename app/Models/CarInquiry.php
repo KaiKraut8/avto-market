@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class CarInquiry extends Model
 {
-    protected $fillable = ['car_id', 'visitor_id', 'name', 'email', 'phone', 'message'];
+    protected $fillable = ['car_id', 'visitor_id', 'name', 'email', 'phone', 'message', 'is_member'];
 }

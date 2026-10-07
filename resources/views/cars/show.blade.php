@@ -8,7 +8,7 @@
         <div class="detail-actions">
             <x-heart :car="$car" :wished="$wished" :label="true" />
             <a class="btn accent" href="#contact"><x-icon name="chat" :size="17" /> {{ __('Contact seller') }}</a>
-            <span @class(['price', 'muted' => $car->price === null])>@price($car->price)</span>
+            <x-deal-price :car="$car" size="big" />
         </div>
     </div>
 
@@ -124,6 +124,76 @@
         </div>
 
         <aside>
+            @if ($deal = $car->activeDeal)
+                <div class="panel deal-panel">
+                    <h2><x-icon name="tag" :size="16" /> {{ __('Special deal') }}</h2>
+                    <p class="deal-panel-price">
+                        <s>@price($deal->regular_price)</s>
+                        <b>@price($deal->deal_price)</b>
+                        <span class="deal-off">&minus;{{ $deal->percentOff() }}%</span>
+                    </p>
+                    @if ($deal->member_price !== null)
+                        <p class="deal-member">
+                            &#9813; {{ __('Premium buyers pay :price', ['price' => \App\Support\Money::price($deal->member_price)]) }}
+                            @if (auth()->user()?->hasBuyerPremium())
+                                <span class="gold">{{ __('That is you: mention it when you contact the seller, they will see it too.') }}</span>
+                            @else
+                                <a href="{{ route('premium.index') }}#buyers">{{ __('Become a premium buyer') }}</a>
+                            @endif
+                        </p>
+                    @endif
+                    <p class="hint"><x-icon name="clock" :size="14" /> {{ __('Ends :date', ['date' => $deal->ends_at->format('Y-m-d H:i')]) }}</p>
+                    @if ($canEdit)
+                        <form method="post" action="{{ route('cars.deal.destroy', $car) }}" data-confirm="{{ __('End this deal now?') }}">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="btn ghost small">{{ __('End the deal') }}</button>
+                        </form>
+                    @endif
+                </div>
+            @endif
+
+            @if ($canDeal)
+                <div class="panel upsell deal-form" id="deal">
+                    <span class="upsell-crown" aria-hidden="true">&#9813;</span>
+                    <h2>{{ $car->activeDeal ? __('Replace the deal') : __('Run a special deal') }}</h2>
+                    <p>{{ __('Cut the price for a few days. The car gets a Special deal badge, appears on the Deals page and the home page, and buyers who saved it or similar cars get an alert.') }}</p>
+                    @if ($errors->deal->any())
+                        <ul class="form-errors">
+                            @foreach ($errors->deal->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    @endif
+                    <form method="post" action="{{ route('cars.deal.store', $car) }}">
+                        @csrf
+                        <div class="field">
+                            <label for="deal_price">{{ __('Deal price (now :price)', ['price' => \App\Support\Money::price($car->price)]) }}</label>
+                            <input type="text" id="deal_price" name="deal_price" inputmode="decimal" required value="{{ old('deal_price') }}" placeholder="{{ number_format((float) $car->price * 0.93, 0, ',', '.') }}">
+                        </div>
+                        <div class="field">
+                            <label for="member_price">{{ __('Member price for premium buyers (optional)') }}</label>
+                            <input type="text" id="member_price" name="member_price" inputmode="decimal" value="{{ old('member_price') }}" placeholder="{{ number_format((float) $car->price * 0.9, 0, ',', '.') }}">
+                        </div>
+                        <div class="field">
+                            <label for="days">{{ __('How long') }}</label>
+                            <select id="days" name="days">
+                                @foreach (\App\Models\CarDeal::DURATIONS as $days)
+                                    <option value="{{ $days }}" @selected((int) old('days', 7) === $days)>{{ trans_choice(':count day|:count days', $days) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <button type="submit" class="btn gold"><x-icon name="tag" :size="16" /> {{ $car->activeDeal ? __('Replace the deal') : __('Start the deal') }}</button>
+                    </form>
+                </div>
+            @elseif ($isOwner && ! auth()->user()->hasPremium())
+                <div class="panel upsell">
+                    <span class="upsell-crown" aria-hidden="true">&#9813;</span>
+                    <h2>{{ __('Special deals') }}</h2>
+                    <p>{{ __('Premium sellers can cut the price for a few days and buyers who saved this car or similar ones are told right away.') }}</p>
+                    <a class="btn gold" href="{{ route('premium.index') }}">&#9813; {{ __('See premium plans') }}</a>
+                </div>
+            @endif
+
             <div class="panel contact-panel" id="contact">
                 <h2>{{ __('Contact seller') }}</h2>
                 @if ($isOwner)
@@ -187,7 +257,7 @@
                 <h2>{{ __('Car data') }}</h2>
                 <table class="specs">
                     <tr><th>{{ __('ID') }}</th><td>#{{ $car->id }}</td></tr>
-                    <tr><th>{{ __('Price') }}</th><td>@price($car->price)</td></tr>
+                    <tr><th>{{ __('Price') }}</th><td>@price($car->price)@if ($car->activeDeal) <span class="hint">({{ __('deal: :price', ['price' => \App\Support\Money::price($car->activeDeal->deal_price)]) }})</span>@endif</td></tr>
                     <tr><th>{{ __('Location') }}</th><td>{!! $car->locationLabel() ? e($car->locationLabel()) : '<span class="hint">'.e(__('Not set')).'</span>' !!}</td></tr>
                     <tr><th>{{ __('Added') }}</th><td>{{ $car->created_at?->format('Y-m-d H:i') }}</td></tr>
                     <tr><th>{{ __('Parts') }}</th><td>{{ $car->parts->count() }}</td></tr>

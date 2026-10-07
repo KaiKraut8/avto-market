@@ -28,11 +28,18 @@
         <nav class="nav">
             <a href="{{ route('home') }}" @class(['active' => $active === 'home'])>{{ __('Home') }}</a>
             <a href="{{ route('cars.index') }}" @class(['active' => $active === 'cars'])>{{ __('All cars') }}</a>
+            <a href="{{ route('deals.index') }}" @class(['active' => $active === 'deals'])>{{ __('Deals') }}</a>
             <a href="{{ route('most-watched') }}" @class(['active' => $active === 'most-watched'])>{{ __('Most watched') }}</a>
             <a href="{{ route('wishlist.index') }}" @class(['active' => $active === 'wishlist'])>{{ __('Wishlist') }} <span class="nav-count" data-wish-count @if (! $wishCount) hidden @endif>{{ $wishCount }}</span></a>
             <a href="{{ route('premium.index') }}" @class(['active' => $active === 'premium'])><span class="nav-crown" aria-hidden="true">&#9813;</span> {{ __('Premium') }}</a>
             <a class="btn accent" href="{{ route('cars.create') }}">+ {{ __('Add car') }}</a>
             @auth
+                <a @class(['nav-bell', 'active' => $active === 'notifications']) href="{{ route('notifications.index') }}" title="{{ __('Notifications') }}" aria-label="{{ __('Notifications') }}">
+                    <x-icon name="bell" :size="19" />
+                    @if ($unreadAlerts)
+                        <span class="nav-count">{{ $unreadAlerts }}</span>
+                    @endif
+                </a>
                 <a @class(['account-chip', 'active' => $active === 'account']) href="{{ route('account') }}" title="{{ __('Your profile') }}">
                     <span class="chip-avatar">{{ auth()->user()->initial() }}</span>
                     {{ auth()->user()->firstName() }}@if (auth()->user()->hasPremium()) <span class="nav-crown" title="{{ __('Premium seller') }}">&#9813;</span>@endif

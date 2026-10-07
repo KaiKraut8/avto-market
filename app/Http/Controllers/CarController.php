@@ -8,6 +8,7 @@ use App\Models\CarInquiry;
 use App\Models\CarLog;
 use App\Models\PartCategory;
 use App\Models\WishlistItem;
+use App\Services\Alerts;
 use App\Services\PhotoStore;
 use App\Services\Pricing;
 use App\Services\ViewTracker;
@@ -44,7 +45,7 @@ class CarController extends Controller
         return Car::query()
             ->withPlacement()
             ->withPeopleCount()
-            ->with(['coverPhoto', 'parts:id,car_id,name'])
+            ->with(['coverPhoto', 'parts:id,car_id,name', 'activeDeal'])
             ->search($q)
             ->listingOrder()
             ->get();
@@ -59,7 +60,7 @@ class CarController extends Controller
         ]);
     }
 
-    public function store(CarRequest $request, Pricing $pricing, PhotoStore $photos): RedirectResponse
+    public function store(CarRequest $request, Pricing $pricing, PhotoStore $photos, Alerts $alerts): RedirectResponse
     {
         $user = $request->user();
         $car = $user->cars()->create($request->safe()->only(['name', 'price', 'location', 'country', 'description']));
@@ -81,13 +82,14 @@ class CarController extends Controller
         if ($request->hasFile('photos')) {
             $messages[] = $this->photoMessage($photos->store($car, $request->file('photos')));
         }
+        $alerts->carListed($car);
 
         return redirect()->route('cars.show', $car)->with('status', implode(' ', array_filter($messages)));
     }
 
     public function show(Car $car, ViewTracker $tracker): View
     {
-        $car = Car::withPlacement()->with(['user', 'photos', 'parts'])->findOrFail($car->id);
+        $car = Car::withPlacement()->with(['user', 'photos', 'parts', 'activeDeal'])->findOrFail($car->id);
 
         // a visit counts as a view, the reload after saving or uploading doesn't
         if (! session()->has('status')) {
@@ -99,6 +101,7 @@ class CarController extends Controller
         return view('cars.show', [
             'car' => $car,
             'canEdit' => $user && Gate::allows('update', $car),
+            'canDeal' => $user && Gate::allows('runDeal', $car),
             'isOwner' => $user && $car->user_id !== null && (int) $car->user_id === (int) $user->id,
             'wished' => WishlistItem::where('visitor_id', Visitor::id())->where('car_id', $car->id)->exists(),
             'contacted' => CarInquiry::where('visitor_id', Visitor::id())->where('car_id', $car->id)->exists(),
@@ -116,7 +119,13 @@ class CarController extends Controller
             CarLog::create(['car_id' => $car->id, 'action' => 'edit', 'old_name' => $old, 'new_name' => $car->name]);
         }
 
-        return redirect()->route('cars.show', $car)->with('status', __('Saved.'));
+        // a running deal compares against the price it started from, so a new price ends it
+        $message = __('Saved.');
+        if ($car->wasChanged('price') && $car->deals()->active()->update(['ends_at' => now()])) {
+            $message .= ' '.__('The price changed, so the special deal has ended. Start a new one if you like.');
+        }
+
+        return redirect()->route('cars.show', $car)->with('status', $message);
     }
 
     // Soft delete: the car disappears from the site but stays in the database

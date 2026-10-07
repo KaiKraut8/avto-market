@@ -48,6 +48,15 @@ class UserFactory extends Factory
     /**
      * Indicate that the model's email address should be unverified.
      */
+    public function premiumBuyer(string $plan = 'monthly'): static
+    {
+        return $this->state(fn () => [
+            'buyer_premium_plan' => $plan,
+            'buyer_premium_since' => now(),
+            'buyer_premium_until' => now()->addMonths($plan === 'yearly' ? 12 : 1),
+        ]);
+    }
+
     public function unverified(): static
     {
         return $this->state(fn (array $attributes) => [
