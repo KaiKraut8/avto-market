@@ -89,6 +89,8 @@ Route::post('/webhooks/mollie', MollieWebhookController::class)->name('webhooks.
 
 // information pages
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
+Route::view('/privacy', 'pages.privacy')->name('privacy');
+Route::view('/cookies', 'pages.cookies')->name('cookies');
 Route::get('/how-buying-works', [PageController::class, 'howBuying'])->name('how-buying');
 Route::get('/why/{page}', [PageController::class, 'why'])->name('why')->whereIn('page', PageController::WHY_PAGES);
 

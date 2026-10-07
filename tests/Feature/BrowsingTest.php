@@ -2,6 +2,7 @@
 
 use App\Models\Car;
 use App\Models\User;
+use App\Support\Visitor;
 
 it('lists premium cars first, then pushed, then the rest under "Other options"', function () {
     Car::factory()->create(['name' => 'Plain Car']);
@@ -38,6 +39,14 @@ it('serves the information pages', function () {
     }
     $this->get('/why/nope')->assertNotFound();
     $this->get('/contact')->assertSee('tel:+38640123456', false)->assertSee('mailto:kaigarage.info@gmail.com', false);
+});
+
+it('serves the privacy and cookie policies, linked from every page', function () {
+    $this->get('/privacy')->assertOk()->assertSee('Privacy policy')->assertSee(config('company.name'))->assertSee('Mollie B.V., Amsterdam');
+    $this->get('/cookies')->assertOk()->assertSee('Cookie policy')
+        ->assertSee(config('session.cookie'))->assertSee(Visitor::COOKIE)->assertSee('2 hours after your last visit');
+    $this->get('/')->assertSee(route('privacy'))->assertSee(route('cookies'))->assertDontSee('fonts.googleapis.com');
+    $this->get('/register')->assertSee(route('privacy'));
 });
 
 it('redirects the old site\'s addresses', function () {

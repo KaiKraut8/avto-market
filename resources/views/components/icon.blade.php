@@ -1,5 +1,11 @@
 @props(['name', 'size' => 18])
 @switch($name)
+    @case('shield')
+        <svg viewBox="0 0 24 24" width="{{ $size }}" height="{{ $size }}" aria-hidden="true" {{ $attributes }}><path d="M12 2.5 4 5.5v6c0 5 3.4 8.8 8 10 4.6-1.2 8-5 8-10v-6Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m8.5 12 2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        @break
+    @case('cookie')
+        <svg viewBox="0 0 24 24" width="{{ $size }}" height="{{ $size }}" aria-hidden="true" {{ $attributes }}><path d="M21 12.5A9 9 0 1 1 11.5 3a3 3 0 0 0 3.5 3.5 3 3 0 0 0 3 3 3 3 0 0 0 3 3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="8.5" cy="10" r="1.2" fill="currentColor"/><circle cx="14" cy="15" r="1.2" fill="currentColor"/><circle cx="9" cy="15.5" r="1" fill="currentColor"/></svg>
+        @break
     @case('eye')
         <svg viewBox="0 0 24 24" width="{{ $size }}" height="{{ $size }}" aria-hidden="true" {{ $attributes }}><path d="M1.5 12S5.5 4.5 12 4.5 22.5 12 22.5 12 18.5 19.5 12 19.5 1.5 12 1.5 12Z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3.2" fill="currentColor"/></svg>
         @break

@@ -49,6 +49,7 @@
                     </select>
                 </div>
             </div>
+            <p class="hint">{!! __('How we use your details is explained in our :link.', ['link' => '<a href="'.route('privacy').'">'.e(__('Privacy policy')).'</a>']) !!}</p>
             <button type="submit" class="btn accent big">{{ __('Create account') }}</button>
         </form>
         <p class="auth-switch">{{ __('Already have an account?') }} <a href="{{ route('login') }}">{{ __('Log in') }}</a></p>

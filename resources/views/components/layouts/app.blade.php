@@ -6,8 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ? $title.' · ' : '' }}KAI Garage</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600&display=swap">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @php
         // labels the scripts show, in the current language
@@ -110,7 +108,7 @@
             </ul>
         </div>
     </div>
-    <div class="inner footer-bottom">&copy; {{ date('Y') }} {{ config('company.name') }}. {{ __('All rights reserved.') }} · <a href="{{ route('contact') }}">{{ __('Contact us') }}</a> · <a href="{{ route('how-buying') }}">{{ __('How buying works') }}</a></div>
+    <div class="inner footer-bottom">&copy; {{ date('Y') }} {{ config('company.name') }}. {{ __('All rights reserved.') }} · <a href="{{ route('contact') }}">{{ __('Contact us') }}</a> · <a href="{{ route('how-buying') }}">{{ __('How buying works') }}</a> · <a href="{{ route('privacy') }}">{{ __('Privacy policy') }}</a> · <a href="{{ route('cookies') }}">{{ __('Cookies') }}</a></div>
 </footer>
 
 </body>

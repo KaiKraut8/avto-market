@@ -307,6 +307,7 @@
                                 <label for="buyer_message">{{ __('Message (optional)') }}</label>
                                 <textarea id="buyer_message" name="buyer_message" rows="3" maxlength="2000">{{ old('buyer_message', __('Hi, is the :car still available?', ['car' => $car->name])) }}</textarea>
                             </div>
+                            <p class="hint">{!! __('We pass your details on to the seller. :link', ['link' => '<a href="'.route('privacy').'">'.e(__('Privacy policy')).'</a>']) !!}</p>
                             <button type="submit" class="btn accent">{{ __('Contact seller') }}</button>
                         </form>
                     @endif
