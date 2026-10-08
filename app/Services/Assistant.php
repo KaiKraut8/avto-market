@@ -8,10 +8,22 @@ use App\Support\Money;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
-// Answers visitors' questions about the site and the cars. Claude when an API key is set, otherwise
-// a small built-in helper that recognises the common questions and searches the cars.
+// Answers visitors' questions about the site and the cars: a model on an Ollama server (with tools to search the cars),
+// Claude, or a small built-in helper that recognises the common questions and searches the cars (config/assistant.php).
 class Assistant
 {
+    public function __construct(private CarCatalog $catalog) {}
+
+    public function driver(): string
+    {
+        $driver = config('assistant.driver');
+        if ($driver !== 'auto') {
+            return $driver;
+        }
+
+        return config('assistant.ollama.url') ? 'ollama' : (config('assistant.key') ? 'anthropic' : 'builtin');
+    }
+
     /** @param array<int, array{role: string, content: string}> $messages  @return array{reply: string, links: array} */
     public function reply(array $messages): array
     {
@@ -19,12 +31,17 @@ class Assistant
         if ($messages === []) {
             return ['reply' => __('Hello! Ask me about a car, prices, premium or how buying works.'), 'links' => []];
         }
-        if (config('assistant.key')) {
-            try {
-                return ['reply' => $this->askClaude($messages), 'links' => []];
-            } catch (\Throwable $e) {
-                report($e);   // fall through to the built-in answers
+        try {
+            $answer = match ($this->driver()) {
+                'ollama' => $this->askOllama($messages),
+                'anthropic' => ['reply' => $this->askClaude($messages), 'links' => []],
+                default => null,
+            };
+            if ($answer && $answer['reply'] !== '') {
+                return $answer;
             }
+        } catch (\Throwable $e) {
+            report($e);   // too slow or unreachable: fall through to the built-in answers
         }
 
         return $this->builtIn(end($messages)['content']);
@@ -61,6 +78,97 @@ class Assistant
             ]);
 
         return trim(collect($response->json('content'))->where('type', 'text')->pluck('text')->implode("\n"));
+    }
+
+    // Ollama's chat API with tool calling: the model may search the cars (up to a few rounds) before it answers.
+    // The links under the answer are the cars the tools found.
+    private function askOllama(array $messages): array
+    {
+        $cfg = config('assistant.ollama');
+        $deadline = microtime(true) + $cfg['timeout'];
+        $conversation = [['role' => 'system', 'content' => $this->ollamaPrompt()], ...$messages];
+        $found = [];
+
+        for ($round = 0; $round <= $cfg['max_tool_rounds']; $round++) {
+            $left = $deadline - microtime(true);
+            if ($left < 1) {
+                throw new \RuntimeException('The assistant model took longer than '.$cfg['timeout'].' s.');
+            }
+            $message = Http::acceptJson()->asJson()->timeout((int) ceil($left))->throw()
+                ->post(rtrim($cfg['url'], '/').'/api/chat', [
+                    'model' => $cfg['model'],
+                    'messages' => $conversation,
+                    'tools' => $round < $cfg['max_tool_rounds'] ? self::ollamaTools() : [],
+                    'stream' => false,
+                    'think' => false,          // Qwen3 answers straight away instead of reasoning first
+                    'keep_alive' => $cfg['keep_alive'],
+                ])->json('message');
+
+            $calls = $message['tool_calls'] ?? [];
+            if (! $calls) {
+                $reply = trim(preg_replace('/<think>.*?<\/think>/s', '', (string) ($message['content'] ?? '')));
+
+                return ['reply' => $reply, 'links' => array_slice(array_values($found), 0, 3)];
+            }
+            $conversation[] = $message;
+            foreach ($calls as $call) {
+                $name = $call['function']['name'] ?? '';
+                $result = $this->runTool($name, (array) ($call['function']['arguments'] ?? []));
+                foreach ($result['cars'] ?? (isset($result['id']) ? [$result] : []) as $car) {
+                    $found[$car['id']] = [$car['name'].($car['year'] ? " ({$car['year']})" : '').' · '.($car['price_eur'] !== null ? Money::price($car['deal']['price_eur'] ?? $car['price_eur']) : __('Price on request')), $car['url']];
+                }
+                $conversation[] = ['role' => 'tool', 'tool_name' => $name, 'content' => json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)];
+            }
+        }
+
+        throw new \RuntimeException('The assistant model kept calling tools.');
+    }
+
+    private function runTool(string $name, array $args): array
+    {
+        return match ($name) {
+            'search_cars' => $this->catalog->search($args, (int) ($args['limit'] ?? 5)),
+            'get_car' => $this->catalog->car((int) ($args['id'] ?? 0)) ?? ['error' => 'No car with that id.'],
+            'list_car_filters' => $this->catalog->options(),
+            default => ['error' => "Unknown tool {$name}."],
+        };
+    }
+
+    // The same tools as the MCP server (app/Mcp/Tools), in Ollama's function format
+    public static function ollamaTools(): array
+    {
+        $fn = fn (string $name, string $description, array $properties, array $required = []) => ['type' => 'function', 'function' => [
+            'name' => $name, 'description' => $description,
+            'parameters' => ['type' => 'object', 'properties' => (object) $properties, 'required' => $required],
+        ]];
+
+        return [
+            $fn('search_cars', 'Search the used cars for sale. All filters optional; returns the number of matches and the cars with id, name, year, price in EUR, deal, location and url.', [
+                'query' => ['type' => 'string', 'description' => 'Free text: model or place, e.g. "Golf", "Ljubljana"'],
+                'make' => ['type' => 'string', 'description' => 'Make, e.g. "audi", "bmw", "škoda"'],
+                'year_from' => ['type' => 'integer'], 'year_to' => ['type' => 'integer'],
+                'price_from' => ['type' => 'integer', 'description' => 'EUR'], 'price_to' => ['type' => 'integer', 'description' => 'EUR'],
+                'country' => ['type' => 'string', 'description' => 'In English, e.g. "Slovenia"'],
+                'deals_only' => ['type' => 'boolean', 'description' => 'Only cars with a price drop right now'],
+                'sort' => ['type' => 'string', 'enum' => CarSearch::SORTS],
+                'limit' => ['type' => 'integer', 'description' => '1-10, default 5'],
+            ]),
+            $fn('get_car', 'Full details of one car by id: description, photos, seller, deal and how to buy it.', ['id' => ['type' => 'integer']], ['id']),
+            $fn('list_car_filters', 'Which makes, countries, years and prices the cars for sale have.', []),
+        ];
+    }
+
+    // Kept short: a model on a modest server reads every word of it for every question
+    public function ollamaPrompt(): string
+    {
+        $rate = (int) config('pricing.commission_rate');
+
+        return "You are the assistant of KAI Garage, a used-car marketplace in Ljubljana, Slovenia ({$this->base()}). "
+            .'Reply in the visitor\'s language, in 1-3 short sentences, plain text. Only help with KAI Garage. '
+            .'Use search_cars to find cars and never invent cars or prices; mention the cars by name (their links are shown under your answer). '
+            ."Buying: the buyer pays {$rate}% online with \"Buy this car\" to reserve it and the rest to the seller at the handover ({$this->base()}/how-buying-works). "
+            .'Listing a car is free. Premium seller from '.Money::eur(Pricing::yearly() / 12).' a month, premium buyer from '.Money::eur(Pricing::buyerYearly() / 12)." a month ({$this->base()}/premium). "
+            .'Contact: '.config('company.phone').', '.config('company.email').'.';
     }
 
     // What Claude is told about the site: the rules, the prices and the cars for sale right now
@@ -138,12 +246,15 @@ TXT;
 
         // anything else: look for cars matching the words, a year or a price in the question
         $search = $this->searchFrom($t);
-        $cars = Car::query()->forSale()->with('activeDeal')->tap(fn ($q) => $search->apply($q))->limit(3)->get();
-        if ($cars->isEmpty() && ! $search->isEmpty()) {
-            return ['reply' => __("I couldn't find a car like that. Try a make, a year or a price, e.g. \"BMW up to 30.000 €\"."), 'links' => [[__('All cars'), route('cars.index')]]];
+        // nothing recognisable (no make, model, year or price): don't list random cars
+        if ($search->isEmpty()) {
+            return preg_match('/[a-z]{4,}/', $t)
+                ? ['reply' => __("I couldn't find a car like that. Try a make, a year or a price, e.g. \"BMW up to 30.000 €\"."), 'links' => [[__('All cars'), route('cars.index')]]]
+                : ['reply' => __('I can help with the cars for sale, prices, premium, selling and how buying works. What would you like to know?'), 'links' => [[__('All cars'), route('cars.index')]]];
         }
+        $cars = Car::query()->forSale()->with('activeDeal')->tap(fn ($q) => $search->apply($q))->limit(3)->get();
         if ($cars->isEmpty()) {
-            return ['reply' => __('I can help with the cars for sale, prices, premium, selling and how buying works. What would you like to know?'), 'links' => [[__('All cars'), route('cars.index')]]];
+            return ['reply' => __("I couldn't find a car like that. Try a make, a year or a price, e.g. \"BMW up to 30.000 €\"."), 'links' => [[__('All cars'), route('cars.index')]]];
         }
 
         return [
@@ -179,9 +290,22 @@ TXT;
             }
             $words = preg_replace('/\d[\d.,]{2,}\s*(?:€|eur|k\b)?/', ' ', $words);
         }
-        $stop = '/\b(a|an|the|i|me|is|are|do|you|have|any|car|cars|avto|avti|auto|autos|want|looking|for|iscem|imate|kaksen|under|over|up|to|from|do|od|nad|pod|with|and|in|eur|price|cena|year|letnik|show|find|search|najdi|poisci|what|which|kateri|kaj|je|so|ali|please|prosim)\b/';
-        $q = trim(preg_replace('/\s+/', ' ', preg_replace('/[^a-z0-9 ]/', ' ', preg_replace($stop, ' ', $words))));
+        // a make among the words becomes the make filter; of the other words only those that appear in a car's
+        // name are kept (a model like "golf" or "a4"), so filler words in any language don't spoil the search
+        $tokens = preg_split('/[^a-z0-9]+/', $words, -1, PREG_SPLIT_NO_EMPTY);
+        $makes = collect(array_keys(CarSearch::bounds()['makes']))->mapWithKeys(fn ($m) => [Str::lower(Str::ascii($m)) => $m]);
+        $make = '';
+        foreach ($tokens as $i => $token) {
+            if ($makes->has($token)) {
+                $make = $makes[$token];
+                unset($tokens[$i]);
+                break;
+            }
+        }
+        $nameWords = Car::query()->forSale()->pluck('name')
+            ->flatMap(fn ($n) => preg_split('/[^a-z0-9]+/', Str::lower(Str::ascii($n)), -1, PREG_SPLIT_NO_EMPTY))->flip();
+        $q = implode(' ', array_filter($tokens, fn ($t) => mb_strlen($t) > 1 && isset($nameWords[$t])));
 
-        return new CarSearch(q: mb_substr($q, 0, 80), yearFrom: $yearFrom, yearTo: $yearTo, priceFrom: $priceFrom, priceTo: $priceTo);
+        return new CarSearch(q: mb_substr($q, 0, 80), yearFrom: $yearFrom, yearTo: $yearTo, priceFrom: $priceFrom, priceTo: $priceTo, make: $make);
     }
 }

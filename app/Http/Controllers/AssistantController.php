@@ -17,6 +17,9 @@ class AssistantController extends Controller
             'messages.*.content' => ['required', 'string', 'max:'.(int) config('assistant.max_message')],
         ]);
 
+        // a local model may take a while; leave room for it and for the fallback answer
+        set_time_limit((int) config('assistant.ollama.timeout') + 20);
+
         return response()->json($assistant->reply($data['messages']));
     }
 }

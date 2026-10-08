@@ -112,9 +112,26 @@ A manual withdrawal switches Mollie's automatic payouts off until they are switc
 ## Chat assistant
 
 A chat button sits in the corner of every page (a welcome bubble first, folding into a draggable circle after 5 seconds).
-With `ANTHROPIC_API_KEY` in `.env` it answers with Claude (`ANTHROPIC_MODEL`, default `claude-sonnet-5-5`), told about the
-site's rules, prices and the cars for sale (`App\Services\Assistant::systemPrompt()`). Without a key it answers the common
-questions itself and searches the cars by make, year and price. Settings: `config/assistant.php`; the widget: `resources/js/assistant.js`.
+Who answers is set in `config/assistant.php` (`ASSISTANT_DRIVER`, default `auto`):
+
+- **Ollama** (`OLLAMA_URL`, e.g. `http://192.168.0.180:11434`, model `OLLAMA_MODEL`, default `qwen3:30b-a3b`): a local model
+  that searches the cars itself with tool calls (the same tools as the MCP server below). The answer must arrive within
+  `OLLAMA_TIMEOUT` seconds (45), otherwise the built-in answer is shown.
+- **Claude** (`ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL`): told about the site's rules, prices and the cars for sale.
+- **Built-in**: no model; answers the common questions and finds cars by make, model, year and price in any language.
+
+Any model that fails or is too slow falls back to the built-in answers. The widget: `resources/js/assistant.js`.
+
+## Car search for AI agents (MCP)
+
+The cars for sale are searchable over the [Model Context Protocol](https://modelcontextprotocol.io) (read-only, public data),
+with three tools: `search-cars` (text, make, year and price range, country, deals only, sort, limit), `get-car` (full details
+by id) and `list-car-filters` (which makes, countries, years and prices exist). They search exactly like the filters on All cars.
+
+- Over HTTP: `POST /mcp` (routes/ai.php, 60 requests a minute). For example, in Claude Code:
+  `claude mcp add --transport http kai-cars https://your-site/mcp`
+- Locally over stdio: `php artisan mcp:start kai-cars`; try it with `php artisan mcp:inspector kai-cars`.
+- Code: `app/Mcp/` (server and tools) and `app/Services/CarCatalog.php` (the data, shared with the chat assistant).
 
 ## Old site
 

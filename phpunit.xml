@@ -27,6 +27,8 @@
         <env name="KAI_DB_CONNECTION" value="mysql" force="true"/>
         <env name="KAI_DB_DATABASE" value="kai_test" force="true"/>
         <env name="KAI_DB_URL" value="" force="true"/>
+        <env name="OLLAMA_URL" value="" force="true"/>
+        <env name="ANTHROPIC_API_KEY" value="" force="true"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
