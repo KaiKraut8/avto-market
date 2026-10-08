@@ -1,6 +1,7 @@
 // The chat assistant in the corner. A welcome bubble shows on arrival; left alone for 5 seconds it folds
 // into a round button that can be dragged anywhere. Clicking opens the chat; the chat can be hidden again.
-// The circle's position and the conversation are kept for the rest of the browser session.
+// The circle starts in the bottom right corner; where it was dragged to and the conversation are kept
+// for the rest of the browser session (double-click the circle to send it back to the corner).
 const root = document.querySelector('[data-assistant]');
 
 if (root) {
@@ -18,47 +19,61 @@ if (root) {
     let history = load('kai_assistant_history', []);
     let bubbleTimer = null;
 
-    // ---- position: the circle can be dragged; it remembers where it was put ----
-    const place = (x, y) => {
-        const w = root.offsetWidth, h = root.offsetHeight;
-        x = Math.min(Math.max(8, x), innerWidth - w - 8);
-        y = Math.min(Math.max(8, y), innerHeight - h - 8);
-        root.style.left = x + 'px'; root.style.top = y + 'px'; root.style.right = 'auto'; root.style.bottom = 'auto';
-        root.classList.toggle('on-left', x + w / 2 < innerWidth / 2);
-        root.classList.toggle('on-top', y + h / 2 < innerHeight / 2);
-        return { x, y };
+    // ---- position: bottom right by default; the circle can be dragged anywhere ----
+    // The widget is pinned by the circle's distance to the nearest screen edges, so the circle stays put while the
+    // bubble or the chat appear and disappear beside it (the chat opens toward the middle of the screen).
+    const GAP = 20;
+    let pos = load('kai_assistant_circle', null);   // circle's top-left corner, or null for the default corner
+    const apply = () => {
+        Object.assign(root.style, { left: 'auto', right: 'auto', top: 'auto', bottom: 'auto' });
+        if (!pos) {
+            root.style.right = GAP + 'px'; root.style.bottom = GAP + 'px';
+            root.classList.remove('on-left', 'on-top');
+            return;
+        }
+        const size = circle.offsetWidth;
+        const x = Math.min(Math.max(8, pos.x), innerWidth - size - 8);
+        const y = Math.min(Math.max(8, pos.y), innerHeight - size - 8);
+        const left = x + size / 2 < innerWidth / 2, top = y + size / 2 < innerHeight / 2;
+        if (left) root.style.left = x + 'px'; else root.style.right = (innerWidth - x - size) + 'px';
+        if (top) root.style.top = y + 'px'; else root.style.bottom = (innerHeight - y - size) + 'px';
+        root.classList.toggle('on-left', left);
+        root.classList.toggle('on-top', top);
     };
-    const saved = load('kai_assistant_pos', null);
     root.hidden = false;
-    if (saved) place(saved.x, saved.y);
-    else {
-        // bottom right, above the cookie notice if it is showing
-        const notice = document.querySelector('[data-cookie-notice]');
-        const lift = notice && innerWidth < 1100 ? notice.offsetHeight + 16 : 0;
-        place(innerWidth - root.offsetWidth - 20, innerHeight - root.offsetHeight - 20 - lift);
-    }
-    addEventListener('resize', () => { const r = root.getBoundingClientRect(); place(r.left, r.top); });
+    apply();
+    addEventListener('resize', apply);
 
-    let drag = null;
+    let drag = null, lastTap = 0;
     circle.addEventListener('pointerdown', (e) => {
         if (e.button !== 0) return;
-        const r = root.getBoundingClientRect();
-        drag = { dx: e.clientX - r.left, dy: e.clientY - r.top, moved: false };
+        const r = circle.getBoundingClientRect();
+        drag = { dx: e.clientX - r.left, dy: e.clientY - r.top, x0: r.left, y0: r.top, moved: false };
         circle.setPointerCapture(e.pointerId);
     });
     circle.addEventListener('pointermove', (e) => {
         if (!drag) return;
         const x = e.clientX - drag.dx, y = e.clientY - drag.dy;
-        const r = root.getBoundingClientRect();
-        if (!drag.moved && Math.abs(x - r.left) + Math.abs(y - r.top) < 6) return;
+        if (!drag.moved && Math.abs(x - drag.x0) + Math.abs(y - drag.y0) < 6) return;
         drag.moved = true;
         root.classList.add('dragging');
-        place(x, y);
+        pos = { x, y };
+        apply();
     });
     const endDrag = () => {
         if (!drag) return;
-        if (drag.moved) { const r = root.getBoundingClientRect(); store('kai_assistant_pos', place(r.left, r.top)); }
-        else open();
+        if (drag.moved) {
+            const r = circle.getBoundingClientRect();
+            pos = { x: r.left, y: r.top };
+            store('kai_assistant_circle', pos);
+        } else if (performance.now() - lastTap < 350) {
+            // double tap: back to the corner (the first tap already toggled the chat, undo that)
+            pos = null; store('kai_assistant_circle'); apply();
+            chat.hidden ? open() : close();
+        } else {
+            chat.hidden ? open() : close();
+        }
+        lastTap = drag.moved ? 0 : performance.now();
         root.classList.remove('dragging');
         drag = null;
     };
@@ -103,11 +118,9 @@ if (root) {
         root.classList.add('open');
         dot.hidden = true;
         render();
-        const r = root.getBoundingClientRect();
-        place(r.left, r.top);   // keep the open chat on screen
         input.focus({ preventScroll: true });
     }
-    const close = () => { chat.hidden = true; root.classList.remove('open'); const r = root.getBoundingClientRect(); place(r.left, r.top); };
+    const close = () => { chat.hidden = true; root.classList.remove('open'); };
     root.querySelector('[data-assistant-open]')?.addEventListener('click', open);
     root.querySelector('[data-assistant-close]').addEventListener('click', close);
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !chat.hidden) close(); });

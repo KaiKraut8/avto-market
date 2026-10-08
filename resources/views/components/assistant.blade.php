@@ -1,13 +1,6 @@
 {{-- The chat assistant: a welcome bubble that folds into a draggable circle after 5 seconds; click it for the chat --}}
 <div class="assistant" data-assistant data-url="{{ route('assistant') }}" hidden>
-    <div class="assistant-bubble" data-assistant-bubble role="status">
-        <button type="button" class="assistant-bubble-text" data-assistant-open>{{ __('Welcome. How can I help you today?') }}</button>
-        <button type="button" class="assistant-bubble-close" data-assistant-dismiss aria-label="{{ __('Close') }}">&times;</button>
-    </div>
-    <button type="button" class="assistant-circle" data-assistant-circle aria-label="{{ __('Open the assistant') }}" title="{{ __('KAI assistant') }}">
-        <x-icon name="chat" :size="24" />
-        <span class="assistant-dot" data-assistant-dot hidden></span>
-    </button>
+    {{-- chat, bubble, circle: in a column that ends at the circle, so the circle never moves --}}
     <section class="assistant-chat" data-assistant-chat role="dialog" aria-label="{{ __('KAI assistant') }}" hidden>
         <header class="assistant-head">
             <span class="assistant-avatar"><x-icon name="chat" :size="16" /></span>
@@ -20,5 +13,13 @@
             <button type="submit" class="btn accent" aria-label="{{ __('Send') }}">&#10148;</button>
         </form>
     </section>
+    <div class="assistant-bubble" data-assistant-bubble role="status">
+        <button type="button" class="assistant-bubble-text" data-assistant-open>{{ __('Welcome. How can I help you today?') }}</button>
+        <button type="button" class="assistant-bubble-close" data-assistant-dismiss aria-label="{{ __('Close') }}">&times;</button>
+    </div>
+    <button type="button" class="assistant-circle" data-assistant-circle aria-label="{{ __('Open the assistant') }}" title="{{ __('KAI assistant') }}">
+        <x-icon name="chat" :size="24" />
+        <span class="assistant-dot" data-assistant-dot hidden></span>
+    </button>
     <template data-assistant-i18n data-thinking="{{ __('Thinking…') }}" data-error="{{ __('Something went wrong. Please try again.') }}" data-hello="{{ __('Hello! Ask me about a car, prices, premium or how buying works.') }}"></template>
 </div>
