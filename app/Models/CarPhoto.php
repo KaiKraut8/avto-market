@@ -9,10 +9,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 // A car photo. The image itself is stored in the database (column "data"); it is served by
 // PhotoController at /photos/{id}. Lists never load the image bytes: see the "without-data" scope.
-#[Fillable(['path', 'mime', 'size', 'data', 'position'])]
+#[Fillable(['mime', 'size', 'data', 'position'])]
 class CarPhoto extends Model
 {
-    public const LIST_COLUMNS = ['id', 'car_id', 'path', 'mime', 'size', 'position', 'created_at', 'updated_at'];
+    public const LIST_COLUMNS = ['id', 'car_id', 'mime', 'size', 'position', 'created_at', 'updated_at'];
 
     protected $hidden = ['data'];
 

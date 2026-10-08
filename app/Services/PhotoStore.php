@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\Car;
 use App\Models\CarPhoto;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Intervention\Image\ImageManager;
 
@@ -74,9 +73,6 @@ class PhotoStore
 
     public function delete(CarPhoto $photo): void
     {
-        if ($photo->path) {   // a photo from before the database era: its old file goes too
-            Storage::disk('public')->delete($photo->path);
-        }
         $photo->delete();
     }
 }

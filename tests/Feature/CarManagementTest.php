@@ -45,7 +45,7 @@ it('posts a car with photos and requires location and country', function () {
         ->and((float) $car->price)->toBe(12900.0)
         ->and($car->photos()->count())->toBe(1);
     $photo = $car->photos()->first();
-    expect($photo->path)->toBeNull()->and($photo->mime)->toBe('image/jpeg');   // stored in the database, not as a file
+    expect($photo->mime)->toBe('image/jpeg');   // stored in the database, not as a file
     Storage::disk('public')->assertDirectoryEmpty('/');
 
     $image = $this->get(route('photos.show', $photo))->assertOk()->assertHeader('Content-Type', 'image/jpeg')

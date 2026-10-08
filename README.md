@@ -44,7 +44,7 @@ for the old site, and real environment variables would override `.env`.
 Photos are stored in the database (`car_photos.data`, a MEDIUMBLOB), scaled down to 1600 px and re-encoded on upload,
 and served by `PhotoController` at `/photos/{id}` with a one-year cache (a photo never changes; a new upload is a new row).
 Every photo is its own row, so file names never clash. Lists never load the image bytes (the `without-data` scope on
-`CarPhoto`). Photos from before this change were copied in from `storage/app/public/cars`; those files are no longer used.
+`CarPhoto`). Photos from before this change were copied in from the files they used to be.
 
 ## Where things are
 
