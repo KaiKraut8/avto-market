@@ -63,7 +63,7 @@ it('lets the Ollama model search the cars with tools, then shows those cars as l
         ->assertJson(['reply' => 'Imamo VW Golf iz leta 2020 za 18.000 €.', 'links' => [['VW Golf (2020) · 18.000 €', route('cars.show', $golf)]]]);
 
     Http::assertSentCount(2);
-    Http::assertSent(fn ($r) => $r['model'] === 'qwen3:30b-a3b' && $r['think'] === false && $r['tools'][0]['function']['name'] === 'search_cars');
+    Http::assertSent(fn ($r) => $r['model'] === 'qwen3:30b-a3b' && ! isset($r['think']) && $r['tools'][0]['function']['name'] === 'search_cars');
     // the second request carries the tool's answer back to the model
     Http::assertSent(fn ($r) => collect($r['messages'])->contains(fn ($m) => $m['role'] === 'tool' && str_contains($m['content'], 'VW Golf') && ! str_contains($m['content'], 'Audi A6')));
 });

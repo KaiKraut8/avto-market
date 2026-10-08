@@ -116,7 +116,7 @@ Who answers is set in `config/assistant.php` (`ASSISTANT_DRIVER`, default `auto`
 
 - **Ollama** (`OLLAMA_URL`, e.g. `http://192.168.0.180:11434`, model `OLLAMA_MODEL`, default `qwen3:30b-a3b`): a local model
   that searches the cars itself with tool calls (the same tools as the MCP server below). The answer must arrive within
-  `OLLAMA_TIMEOUT` seconds (45), otherwise the built-in answer is shown.
+  `OLLAMA_TIMEOUT` seconds (60), otherwise the built-in answer is shown.
 - **Claude** (`ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL`): told about the site's rules, prices and the cars for sale.
 - **Built-in**: no model; answers the common questions and finds cars by make, model, year and price in any language.
 

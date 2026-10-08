@@ -14,7 +14,7 @@ return [
         'url' => env('OLLAMA_URL', ''),
         'model' => env('OLLAMA_MODEL', 'qwen3:30b-a3b'),
         // seconds for the whole answer, tool calls included; after that the built-in answer is shown
-        'timeout' => (int) env('OLLAMA_TIMEOUT', 45),
+        'timeout' => (int) env('OLLAMA_TIMEOUT', 60),
         'keep_alive' => env('OLLAMA_KEEP_ALIVE', '30m'),
         'max_tool_rounds' => 3,
     ],

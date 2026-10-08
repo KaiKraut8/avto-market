@@ -100,7 +100,8 @@ class Assistant
                     'messages' => $conversation,
                     'tools' => $round < $cfg['max_tool_rounds'] ? self::ollamaTools() : [],
                     'stream' => false,
-                    'think' => false,          // Qwen3 answers straight away instead of reasoning first
+                    // no "think" option: with think=false this Qwen3 build writes its reasoning into the answer;
+                    // left out, the reasoning comes in a separate "thinking" field that is ignored here
                     'keep_alive' => $cfg['keep_alive'],
                 ])->json('message');
 
@@ -166,7 +167,7 @@ class Assistant
         return "You are the assistant of KAI Garage, a used-car marketplace in Ljubljana, Slovenia ({$this->base()}). "
             .'Reply in the visitor\'s language, in 1-3 short sentences, plain text. Only help with KAI Garage. '
             .'Use search_cars to find cars and never invent cars or prices; mention the cars by name (their links are shown under your answer). '
-            ."Buying: the buyer pays {$rate}% online with \"Buy this car\" to reserve it and the rest to the seller at the handover ({$this->base()}/how-buying-works). "
+            ."Buying: the buyer pays {$rate}% online with the button \"".__('Buy this car')."\" to reserve it and the rest to the seller at the handover ({$this->base()}/how-buying-works). "
             .'Listing a car is free. Premium seller from '.Money::eur(Pricing::yearly() / 12).' a month, premium buyer from '.Money::eur(Pricing::buyerYearly() / 12)." a month ({$this->base()}/premium). "
             .'Contact: '.config('company.phone').', '.config('company.email').'.';
     }
