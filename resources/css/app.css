@@ -1558,7 +1558,7 @@ html.welcome-open { overflow: hidden; }
 
 /* ---- the chat assistant in the corner ---- */
 .assistant[hidden], .assistant [hidden] { display: none !important; }
-.assistant { position: fixed; z-index: 55; right: 1.25rem; bottom: 1.25rem; display: flex; flex-direction: column; align-items: flex-end; gap: .6rem; }
+.assistant { position: fixed; z-index: 55; right: calc(8px + env(safe-area-inset-right, 0px)); bottom: calc(8px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; align-items: flex-end; gap: .6rem; }
 .assistant.on-left { align-items: flex-start; }
 .assistant.on-top { flex-direction: column-reverse; }
 .assistant.dragging { transition: none; }

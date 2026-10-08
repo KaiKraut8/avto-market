@@ -1,7 +1,7 @@
 // The chat assistant in the corner. A welcome bubble shows on arrival; left alone for 5 seconds it folds
 // into a round button that can be dragged anywhere. Clicking opens the chat; the chat can be hidden again.
-// The circle starts in the bottom right corner; where it was dragged to and the conversation are kept
-// for the rest of the browser session (double-click the circle to send it back to the corner).
+// The circle always starts in the bottom right corner, on every page and visit; it can be dragged out of the way
+// for as long as the page is open (double-click sends it back). The conversation is kept for the browser session.
 const root = document.querySelector('[data-assistant]');
 
 if (root) {
@@ -22,12 +22,14 @@ if (root) {
     // ---- position: bottom right by default; the circle can be dragged anywhere ----
     // The widget is pinned by the circle's distance to the nearest screen edges, so the circle stays put while the
     // bubble or the chat appear and disappear beside it (the chat opens toward the middle of the screen).
-    const GAP = 20;
-    let pos = load('kai_assistant_circle', null);   // circle's top-left corner, or null for the default corner
+    const GAP = 8;   // distance from the screen's right and bottom edges
+    let pos = null;  // circle's top-left corner after a drag; every page starts in the corner again
+    try { sessionStorage.removeItem('kai_assistant_circle'); } catch {}   // position saved by an older version
     const apply = () => {
         Object.assign(root.style, { left: 'auto', right: 'auto', top: 'auto', bottom: 'auto' });
         if (!pos) {
-            root.style.right = GAP + 'px'; root.style.bottom = GAP + 'px';
+            root.style.right = `calc(${GAP}px + env(safe-area-inset-right, 0px))`;
+            root.style.bottom = `calc(${GAP}px + env(safe-area-inset-bottom, 0px))`;
             root.classList.remove('on-left', 'on-top');
             return;
         }
@@ -65,10 +67,9 @@ if (root) {
         if (drag.moved) {
             const r = circle.getBoundingClientRect();
             pos = { x: r.left, y: r.top };
-            store('kai_assistant_circle', pos);
         } else if (performance.now() - lastTap < 350) {
             // double tap: back to the corner (the first tap already toggled the chat, undo that)
-            pos = null; store('kai_assistant_circle'); apply();
+            pos = null; apply();
             chat.hidden ? open() : close();
         } else {
             chat.hidden ? open() : close();
