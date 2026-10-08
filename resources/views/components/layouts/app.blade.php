@@ -151,6 +151,8 @@
     @endif
 @endguest
 
+<x-assistant />
+
 {{-- cookie notice: part of the page itself, so it shows at once; hidden for good after "OK" --}}
 @unless (request()->cookie('kai_cookies_seen'))
     <div class="cookie-notice" data-cookie-notice role="region" aria-label="{{ __('Cookies') }}">

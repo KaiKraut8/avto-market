@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AssistantController;
 use App\Http\Controllers\CarBoostController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarDealController;
@@ -86,6 +87,9 @@ Route::post('/wishlist/{car}', [WishlistController::class, 'toggle'])->name('wis
 Route::get('/premium', [PremiumController::class, 'index'])->name('premium.index');
 Route::get('/deals', DealController::class)->name('deals.index');
 Route::post('/webhooks/mollie', MollieWebhookController::class)->name('webhooks.mollie');
+
+// the chat assistant
+Route::post('/assistant', AssistantController::class)->name('assistant')->middleware('throttle:20,1');
 
 // information pages
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');

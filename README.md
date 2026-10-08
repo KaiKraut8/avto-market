@@ -109,6 +109,13 @@ The balance and withdrawals need `MOLLIE_ACCESS_TOKEN` in `.env`: an access toke
 The bank account is set and verified in the Mollie dashboard only; the website can't change where money goes.
 A manual withdrawal switches Mollie's automatic payouts off until they are switched back on in the dashboard.
 
+## Chat assistant
+
+A chat button sits in the corner of every page (a welcome bubble first, folding into a draggable circle after 5 seconds).
+With `ANTHROPIC_API_KEY` in `.env` it answers with Claude (`ANTHROPIC_MODEL`, default `claude-sonnet-5-5`), told about the
+site's rules, prices and the cars for sale (`App\Services\Assistant::systemPrompt()`). Without a key it answers the common
+questions itself and searches the cars by make, year and price. Settings: `config/assistant.php`; the widget: `resources/js/assistant.js`.
+
 ## Old site
 
 The original custom-PHP version is in `legacy/` until the switch to Laravel is complete. Its old
