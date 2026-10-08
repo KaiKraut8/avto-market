@@ -17,7 +17,6 @@ composer install
 cp .env.example .env && php artisan key:generate
 npm ci && npm run build          # or `npm run dev` while working on CSS/JS
 php artisan migrate --seed       # schema (car parts are no longer shown; their tables are kept for the old data)
-php artisan storage:link         # serves car photos from storage/app/public
 ```
 
 Set `XDEBUG_MODE=off` in front of composer/artisan commands to make them much faster.
@@ -33,11 +32,19 @@ for the old site, and real environment variables would override `.env`.
 | Command | What it does |
 |---|---|
 | `php artisan test` | Pest tests, on the separate `kai_test` database (refuses to run anywhere else) |
+| `php artisan photos:import [folder]` | Puts the photos from `photos-inbox/` (or another folder) into the database, each with the car it is named after (`Volvo XC60 B4.jpg`, `bmw2.jpg`); a picture the car already has is skipped. `--dry-run` only shows what would happen |
 | `php artisan legacy:import --fresh` | Copies cars, photos, parts, views, wishlists and inquiries from the old site's database (`app`) |
 | `php artisan users:admin you@example.com` | Makes that account the only admin (`--create` makes the account too) |
 | `php artisan cars:assign you@example.com 1 2 3` | Gives cars listed before accounts existed to a seller account |
 | `php artisan db:seed --class=DemoSeeder` | Sample sellers and cars for a local setup |
 | `./vendor/bin/pint` | Code style |
+
+## Car photos
+
+Photos are stored in the database (`car_photos.data`, a MEDIUMBLOB), scaled down to 1600 px and re-encoded on upload,
+and served by `PhotoController` at `/photos/{id}` with a one-year cache (a photo never changes; a new upload is a new row).
+Every photo is its own row, so file names never clash. Lists never load the image bytes (the `without-data` scope on
+`CarPhoto`). Photos from before this change were copied in from `storage/app/public/cars`; those files are no longer used.
 
 ## Where things are
 

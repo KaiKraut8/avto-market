@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Services\PhotoStore;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 // Copies everything from the old custom-PHP database (the "legacy" connection) into the Laravel schema,
 // keeping ids. The old database is only read, never changed.
@@ -32,7 +31,6 @@ class ImportLegacyData extends Command
                 DB::table($t)->truncate();
             }
             DB::statement('SET FOREIGN_KEY_CHECKS=1');
-            Storage::disk('public')->deleteDirectory('cars');
         }
 
         DB::transaction(function () use ($legacy, $uploads, $photos, &$counts) {
@@ -72,11 +70,11 @@ class ImportLegacyData extends Command
                     continue;
                 }
                 $ext = strtolower(pathinfo($p->filename, PATHINFO_EXTENSION)) ?: 'jpg';
-                $path = "cars/{$p->car_id}/".basename($p->filename);
-                $photos->put($path, $source, $ext);
+                $bytes = $photos->encode($source, $ext === 'jpeg' ? 'jpg' : $ext);
                 $position[$p->car_id] = ($position[$p->car_id] ?? 0) + 1;
                 DB::table('car_photos')->insert([
-                    'id' => $p->id, 'car_id' => $p->car_id, 'path' => $path, 'position' => $position[$p->car_id],
+                    'id' => $p->id, 'car_id' => $p->car_id, 'data' => $bytes, 'size' => strlen($bytes),
+                    'mime' => (new \finfo(FILEINFO_MIME_TYPE))->buffer($bytes) ?: 'image/jpeg', 'position' => $position[$p->car_id],
                     'created_at' => $p->created_at, 'updated_at' => $p->created_at,
                 ]);
             }
@@ -135,7 +133,7 @@ class ImportLegacyData extends Command
 
             return self::FAILURE;
         }
-        $this->info('Import complete. Photos are in '.Storage::disk('public')->path('cars'));
+        $this->info('Import complete. Photos are stored in the database.');
 
         return self::SUCCESS;
     }

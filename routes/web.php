@@ -18,11 +18,18 @@ use App\Http\Controllers\MollieWebhookController;
 use App\Http\Controllers\MostWatchedController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\PremiumController;
 use App\Http\Controllers\SavedSearchController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Middleware\EnsureVisitorId;
+use App\Http\Middleware\SetLocale;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 Route::get('/', HomeController::class)->name('home');
 
@@ -84,6 +91,12 @@ Route::post('/wishlist/{car}', [WishlistController::class, 'toggle'])->name('wis
 Route::get('/premium', [PremiumController::class, 'index'])->name('premium.index');
 Route::get('/deals', DealController::class)->name('deals.index');
 Route::post('/webhooks/mollie', MollieWebhookController::class)->name('webhooks.mollie');
+
+// car photos, from the database; no session or cookies, so they can be cached
+Route::get('/photos/{photo}', PhotoController::class)->name('photos.show')->whereNumber('photo')
+    ->withoutMiddleware([StartSession::class, ShareErrorsFromSession::class,
+        PreventRequestForgery::class, AddQueuedCookiesToResponse::class,
+        EnsureVisitorId::class, SetLocale::class]);
 
 // the chat assistant
 Route::post('/assistant', AssistantController::class)->name('assistant')->middleware('throttle:20,1');
