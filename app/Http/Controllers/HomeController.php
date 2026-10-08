@@ -16,8 +16,7 @@ class HomeController extends Controller
             ->forSale()
             ->withPlacement()
             ->withPeopleCount()
-            ->withCount('parts')
-            ->with(['coverPhoto', 'activeDeal', 'activeSale', 'parts' => fn ($q) => $q->select('id', 'car_id', 'name')])
+            ->with(['coverPhoto', 'activeDeal', 'activeSale'])
             ->orderBy('cars.id')
             ->get();
 
@@ -59,7 +58,6 @@ class HomeController extends Controller
             'topLabel' => $watched ? __('Most watched right now') : __('Top pick of the week'),
             'lowest' => $priced->first()?->price,
             'bounds' => CarSearch::bounds(),
-            'totalParts' => $cars->sum('parts_count'),
             // distinct people across all listed cars (one person looking at three cars is one person)
             'interested' => (int) DB::table('car_views')->join('cars', 'cars.id', '=', 'car_views.car_id')
                 ->whereNull('cars.deleted_at')->distinct()->count('car_views.visitor_id'),

@@ -2,7 +2,6 @@
 
 use App\Models\Car;
 use App\Models\User;
-use Database\Seeders\PartCategorySeeder;
 
 it('orders listings premium first, then pushed, then the rest', function () {
     $regular = Car::factory()->create(['name' => 'Regular']);
@@ -14,28 +13,18 @@ it('orders listings premium first, then pushed, then the rest', function () {
         ->toBe(['Premium', 'Legacy', 'Pushed', 'Regular']);
 });
 
-it('searches name, description, location, country and parts, matching text literally', function () {
+it('searches name, description, location and country, matching text literally', function () {
     $bmw = Car::factory()->create(['name' => 'BMW 320d', 'description' => 'Full service history', 'location' => 'Celje', 'country' => 'Slovenia']);
     $audi = Car::factory()->create(['name' => 'Audi A4', 'description' => '100% original', 'location' => 'Zagreb', 'country' => 'Croatia']);
-    $bmw->parts()->create(['name' => 'Volan']);
 
     expect(Car::search('bmw')->pluck('id')->all())->toBe([$bmw->id])
         ->and(Car::search('service')->pluck('id')->all())->toBe([$bmw->id])
         ->and(Car::search('Zagreb')->pluck('id')->all())->toBe([$audi->id])
         ->and(Car::search('croatia')->pluck('id')->all())->toBe([$audi->id])
-        ->and(Car::search('volan')->pluck('id')->all())->toBe([$bmw->id])
         ->and(Car::search('100%')->pluck('id')->all())->toBe([$audi->id])
         ->and(Car::search('%')->pluck('id')->all())->toBe([$audi->id])     // only the car whose text contains "%"
         ->and(Car::search('_')->count())->toBe(0)
         ->and(Car::search('')->count())->toBe(2);
-});
-
-it('links a part to its category by name', function () {
-    $this->seed(PartCategorySeeder::class);
-    $car = Car::factory()->create();
-
-    expect($car->parts()->create(['name' => 'Volan'])->category?->name)->toBe('Volan')
-        ->and($car->parts()->create(['name' => 'Števec'])->part_category_id)->toBeNull();
 });
 
 it('takes seller contact from the profile, or the legacy fields for unowned cars', function () {

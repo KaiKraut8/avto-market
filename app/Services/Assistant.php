@@ -123,7 +123,7 @@ TXT;
                 'links' => [[__('Premium'), route('premium.index')]]];
         }
         if ($has('sell', 'prodaj', 'prodat', 'list a car', 'objav', 'verkauf', 'vendre', 'vender', 'verkop', 'add car', 'dodaj')) {
-            return ['reply' => __('Listing a car is free: create an account, press "Add car", add photos, parts and the price. When it sells through the site, :rate% of the price goes to KAI Garage.', ['rate' => (int) config('pricing.commission_rate')]),
+            return ['reply' => __('Listing a car is free: create an account, press "Add car", add photos and the price. When it sells through the site, :rate% of the price goes to KAI Garage.', ['rate' => (int) config('pricing.commission_rate')]),
                 'links' => [[__('Add car'), route('cars.create')], [__('How buying works'), route('how-buying')]]];
         }
         if ($has('contact', 'kontakt', 'phone', 'telefon', 'email', 'e-mail', 'address', 'naslov', 'hours', 'odprt', 'open', 'where', 'kje', 'adresse', 'horaire', 'direccion', 'morada')) {

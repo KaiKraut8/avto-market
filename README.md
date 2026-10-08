@@ -1,6 +1,6 @@
 # KAI Garage
 
-Used-car marketplace: listings with photos and documented parts, seller accounts, premium and
+Used-car marketplace: listings with photos, seller accounts, premium and
 "push forward" placements, wishlists, live viewer counts and contact-seller. Laravel 13, Blade,
 MySQL 8.4, vanilla JS bundled with Vite. The site is available in English, Slovenian, Croatian,
 German, Dutch, French, Spanish and Portuguese.
@@ -16,7 +16,7 @@ By hand:
 composer install
 cp .env.example .env && php artisan key:generate
 npm ci && npm run build          # or `npm run dev` while working on CSS/JS
-php artisan migrate --seed       # schema + part categories
+php artisan migrate --seed       # schema (car parts are no longer shown; their tables are kept for the old data)
 php artisan storage:link         # serves car photos from storage/app/public
 ```
 

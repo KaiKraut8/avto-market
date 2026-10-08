@@ -3,7 +3,6 @@
 use App\Models\Car;
 use App\Models\CarLog;
 use App\Models\User;
-use Database\Seeders\PartCategorySeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -70,7 +69,6 @@ it('lets only the seller change a car', function () {
     $this->actingAs($other)->put(route('cars.update', $car), carData(['name' => 'Hacked']))->assertForbidden();
     $this->actingAs($other)->delete(route('cars.destroy', $car))->assertForbidden();
     $this->actingAs($other)->post(route('cars.boost', $car))->assertForbidden();
-    $this->actingAs($other)->post(route('cars.parts.store', $car), ['name' => 'Volan'])->assertForbidden();
     $this->actingAs($other)->post(route('cars.photos.store', $car), ['photos' => [UploadedFile::fake()->image('a.jpg')]])->assertForbidden();
     expect($car->fresh()->name)->toBe('Original');
 
@@ -98,21 +96,6 @@ it('soft deletes a car and logs it', function () {
         ->and(Car::withTrashed()->find($car->id))->not->toBeNull()
         ->and(CarLog::where('car_id', $car->id)->where('action', 'delete')->exists())->toBeTrue();
     $this->get(route('cars.show', $car))->assertNotFound();
-});
-
-it('adds parts linked to their category and removes them', function () {
-    $this->seed(PartCategorySeeder::class);
-    $owner = User::factory()->create();
-    $car = Car::factory()->for($owner)->create();
-
-    $this->actingAs($owner)->post(route('cars.parts.store', $car), ['name' => 'Bremza', 'description' => 'New pads']);
-    $part = $car->parts()->first();
-    expect($part->category->name)->toBe('Bremza');
-
-    $other = Car::factory()->for($owner)->create();
-    $this->actingAs($owner)->delete(route('cars.parts.destroy', [$other, $part]))->assertNotFound();   // part belongs to another car
-    $this->actingAs($owner)->delete(route('cars.parts.destroy', [$car, $part]))->assertRedirect();
-    expect($car->parts()->count())->toBe(0);
 });
 
 it('sends a push forward to the checkout, but not for a premium seller\'s car', function () {

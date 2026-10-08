@@ -10,7 +10,7 @@
 <form {{ $attributes->merge(['class' => 'search-panel'.($hero ? ' hero-search' : '')]) }} action="{{ route('cars.index') }}" method="get" role="search">
     <div class="search-bar">
         <x-icon name="search" :size="20" />
-        <input type="search" name="q" value="{{ $search->q }}" placeholder="{{ $placeholder ?? __('Search by make, model, part or location, e.g. BMW, Volan, Ljubljana') }}" aria-label="{{ __('Search cars') }}" maxlength="80">
+        <input type="search" name="q" value="{{ $search->q }}" placeholder="{{ $placeholder ?? __('Search by make, model or location, e.g. BMW, Golf, Ljubljana') }}" aria-label="{{ __('Search cars') }}" maxlength="80">
         @if (! $search->isEmpty())
             <a class="search-clear" href="{{ route('cars.index') }}" aria-label="{{ __('Clear search') }}">&times;</a>
         @endif

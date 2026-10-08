@@ -45,7 +45,7 @@
 
     <div class="why-cta">
         <a class="btn accent big" href="{{ route('most-watched') }}">{{ __('See the ranking') }} &rarr;</a>
-        <a class="btn ghost big" href="{{ route('why', 'documented-parts') }}">{{ __('Next: every part documented') }}</a>
+        <a class="btn ghost big" href="{{ route('how-buying') }}">{{ __('Next: how buying works') }}</a>
     </div>
 </main>
 

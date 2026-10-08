@@ -7,7 +7,6 @@ use App\Models\Car;
 use App\Models\CarInquiry;
 use App\Models\CarLog;
 use App\Models\CarSale;
-use App\Models\PartCategory;
 use App\Models\WishlistItem;
 use App\Services\Alerts;
 use App\Services\PhotoStore;
@@ -50,7 +49,7 @@ class CarController extends Controller
             ->forSale()
             ->withPlacement()
             ->withPeopleCount()
-            ->with(['coverPhoto', 'parts:id,car_id,name', 'activeDeal', 'activeSale'])
+            ->with(['coverPhoto', 'activeDeal', 'activeSale'])
             ->tap(fn ($q) => $search->apply($q))
             ->tap(fn ($q) => $search->order($q))
             ->get();
@@ -97,7 +96,7 @@ class CarController extends Controller
 
     public function show(Car $car, ViewTracker $tracker): View
     {
-        $car = Car::withPlacement()->with(['user', 'photos', 'parts', 'activeDeal', 'activeSale.buyer'])->findOrFail($car->id);
+        $car = Car::withPlacement()->with(['user', 'photos', 'activeDeal', 'activeSale.buyer'])->findOrFail($car->id);
 
         // a visit counts as a view, the reload after saving or uploading doesn't
         if (! session()->has('status')) {
@@ -115,7 +114,6 @@ class CarController extends Controller
             'contacted' => CarInquiry::where('visitor_id', Visitor::id())->where('car_id', $car->id)->exists(),
             'contact' => $car->sellerContact(),
             'stats' => $tracker->stats($car),
-            'categories' => PartCategory::orderBy('id')->pluck('name'),
         ]);
     }
 

@@ -7,7 +7,6 @@ use App\Http\Controllers\CarBoostController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\CarDealController;
 use App\Http\Controllers\CarInquiryController;
-use App\Http\Controllers\CarPartController;
 use App\Http\Controllers\CarPhotoController;
 use App\Http\Controllers\CarSaleController;
 use App\Http\Controllers\CarWatchController;
@@ -37,8 +36,6 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/cars/{car}/photos', [CarPhotoController::class, 'store'])->name('cars.photos.store')->can('update', 'car');
     Route::delete('/cars/{car}/photos/{photo}', [CarPhotoController::class, 'destroy'])->name('cars.photos.destroy')->can('update', 'car')->scopeBindings();
-    Route::post('/cars/{car}/parts', [CarPartController::class, 'store'])->name('cars.parts.store')->can('update', 'car');
-    Route::delete('/cars/{car}/parts/{part}', [CarPartController::class, 'destroy'])->name('cars.parts.destroy')->can('update', 'car')->scopeBindings();
     Route::post('/cars/{car}/boost', CarBoostController::class)->name('cars.boost')->can('update', 'car');
     Route::post('/cars/{car}/deal', [CarDealController::class, 'store'])->name('cars.deal.store')->can('runDeal', 'car');
     Route::get('/cars/{car}/sold', [CarSaleController::class, 'soldForm'])->name('cars.sold.create');
@@ -96,6 +93,7 @@ Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 Route::view('/privacy', 'pages.privacy')->name('privacy');
 Route::view('/cookies', 'pages.cookies')->name('cookies');
 Route::get('/how-buying-works', [PageController::class, 'howBuying'])->name('how-buying');
+Route::redirect('/why/documented-parts', '/how-buying-works', 301);   // the parts page was removed
 Route::get('/why/{page}', [PageController::class, 'why'])->name('why')->whereIn('page', PageController::WHY_PAGES);
 
 Route::get('/language/{locale}', LanguageController::class)->name('language');

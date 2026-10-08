@@ -23,7 +23,7 @@ class SavedSearch extends Model
         return $this->belongsTo(User::class);
     }
 
-    // Same matching as the search box (name, description, location, country, parts) plus the price limit.
+    // Same matching as the search box (name, description, location, country) plus the price limit.
     // $price is what the buyer would pay, so a deal can bring a car under the limit.
     public function matches(Car $car, ?float $price = null): bool
     {

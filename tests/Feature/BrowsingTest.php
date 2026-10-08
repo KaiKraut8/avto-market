@@ -66,10 +66,11 @@ it('shows premium cars as home page highlights, filled up to three', function ()
 
 it('serves the information pages', function () {
     Car::factory()->create();
-    foreach (['/contact', '/why/documented-parts', '/why/real-photos', '/why/live-interest', '/premium', '/most-watched', '/wishlist', '/login', '/register', '/forgot-password'] as $url) {
+    foreach (['/contact', '/why/real-photos', '/why/live-interest', '/premium', '/most-watched', '/wishlist', '/login', '/register', '/forgot-password'] as $url) {
         $this->get($url)->assertOk();
     }
     $this->get('/why/nope')->assertNotFound();
+    $this->get('/why/documented-parts')->assertRedirect('/how-buying-works');   // the parts page was removed
     $this->get('/contact')->assertSee('tel:+38640123456', false)->assertSee('mailto:kaigarage.info@gmail.com', false);
 });
 

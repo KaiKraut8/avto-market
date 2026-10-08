@@ -180,7 +180,7 @@ class Car extends Model
 
     // ---- search ----
 
-    // Name, description, location, country or part name; the text is matched literally (% and _ included)
+    // Name, description, location or country; the text is matched literally (% and _ included)
     public function scopeSearch(Builder $query, ?string $term): void
     {
         $term = trim((string) $term);
@@ -192,8 +192,7 @@ class Car extends Model
             $q->where('cars.name', 'like', $like)
                 ->orWhere('cars.description', 'like', $like)
                 ->orWhere('cars.location', 'like', $like)
-                ->orWhere('cars.country', 'like', $like)
-                ->orWhereHas('parts', fn (Builder $p) => $p->where('name', 'like', $like));
+                ->orWhere('cars.country', 'like', $like);
         });
     }
 

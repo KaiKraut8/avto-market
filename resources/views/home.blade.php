@@ -7,7 +7,7 @@
         <div class="hero-copy">
             <p class="pill"><span class="live-dot"></span>{{ trans_choice(':count car in the garage right now|:count cars in the garage right now', $cars->count()) }}</p>
             <h1>{{ __('The best car offers') }} <span>{{ __('in town.') }}</span></h1>
-            <p class="hero-lede">{{ __('Hand-picked cars, photographed and documented part by part. Fair prices, no surprises: find your next car before someone else does.') }}</p>
+            <p class="hero-lede">{{ __('Hand-picked cars with real photos. Fair prices, no surprises: find your next car before someone else does.') }}</p>
             <x-search-panel :bounds="$bounds" :hero="true" :placeholder="__('What car are you looking for? e.g. BMW, Mercedes, Ljubljana')" />
             <dl class="hero-facts">
                 @if ($lowest !== null)
@@ -16,7 +16,6 @@
                 @if ($bounds['yearMin'] && $bounds['yearMax'] > $bounds['yearMin'])
                     <div class="fact-teal"><dt>{{ __('Years') }}</dt><dd>{{ $bounds['yearMin'] }}–{{ $bounds['yearMax'] }}</dd></div>
                 @endif
-                <div class="fact-blue"><dt>{{ __('Parts documented') }}</dt><dd>{{ $totalParts }}</dd></div>
                 @if ($interested > 0)
                     <div class="fact-violet"><dt>{{ __('Interested buyers') }}</dt><dd>{{ $interested }}</dd></div>
                 @endif
@@ -42,7 +41,6 @@
                                 <div><dt>{{ __('Year') }}</dt><dd>{{ $topPick->year ?: '—' }}</dd></div>
                                 <div><dt>{{ __('Price') }}</dt><dd>@price($topPick->price)</dd></div>
                                 <div><dt>{{ __('Location') }}</dt><dd>{{ $topPick->locationLabel() ?: '—' }}</dd></div>
-                                <div><dt>{{ __('Parts documented') }}</dt><dd>{{ $topPick->parts_count }}</dd></div>
                                 <div><dt>{{ __('People who looked') }}</dt><dd>{{ $topPick->people }}</dd></div>
                             </dl>
                             <a class="btn accent" href="{{ route('cars.show', $topPick) }}" draggable="false">{{ __('View this car') }} <span aria-hidden="true">&rarr;</span></a>
@@ -69,7 +67,6 @@
     @if ($cars->isNotEmpty())
         <section class="offer-row">
             @foreach ($highlights as $i => $car)
-                @php($parts = $car->parts->take(3))
                 <a @class(['offer', 'premium' => $car->isPremium()]) href="{{ route('cars.show', $car) }}" style="--i: {{ $i }}">
                     @if ($car->isPremium())
                         <span class="premium-ribbon"><span aria-hidden="true">&#9813;</span> {{ __('Premium') }}</span>
@@ -92,16 +89,6 @@
                     <div class="offer-body">
                         <h3>{{ $car->name }}@if ($car->year) <span class="offer-year">{{ $car->year }}</span>@endif</h3>
                         <p class="offer-desc">{{ $car->description ?: __('Checked, photographed and ready for a test drive.') }}</p>
-                        @if ($parts->isNotEmpty())
-                            <div class="chips">
-                                @foreach ($parts as $part)
-                                    <span class="chip">{{ $part->name }}</span>
-                                @endforeach
-                                @if ($car->parts_count > $parts->count())
-                                    <span class="chip more">+{{ $car->parts_count - $parts->count() }}</span>
-                                @endif
-                            </div>
-                        @endif
                         <span class="offer-go">{{ __('View this car') }} <span aria-hidden="true">&rarr;</span></span>
                     </div>
                 </a>
@@ -183,10 +170,10 @@
     </section>
 
     <section class="why">
-        <a class="why-item teal" href="{{ route('why', 'documented-parts') }}">
+        <a class="why-item teal" href="{{ route('how-buying') }}">
             <x-icon name="check" />
-            <h3>{{ __('Every part documented') }}</h3>
-            <p>{{ __("Steering, brakes, seats, keys: each car lists what it has, so you know exactly what you're buying.") }}</p>
+            <h3>{{ __('Safe, simple buying') }}</h3>
+            <p>{{ __('Pay a small part online and the car is reserved for you. The rest you pay the seller at the handover.') }}</p>
             <span class="why-more">{{ __('Learn more') }} &rarr;</span>
         </a>
         <a class="why-item blue" href="{{ route('why', 'real-photos') }}">

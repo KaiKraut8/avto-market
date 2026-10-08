@@ -1,8 +1,6 @@
 @props(['car', 'i' => 0, 'wished' => false, 'wishlist' => false])
 @php
     $link = route('cars.show', $car);
-    $parts = $car->parts;
-    $shown = $parts->take(4);
 @endphp
 <article @class(['car-card', 'has-deal' => $car->activeDeal, 'premium' => $car->isPremium(), 'boosted' => ! $car->isPremium() && $car->isBoosted(), 'wish-card' => $wishlist])
          style="--i: {{ $i }}" data-href="{{ $link }}" @if ($wishlist) data-remove-on-unwish @endif>
@@ -62,17 +60,6 @@
         @else
             <p class="card-desc empty-desc">{{ __('No description yet.') }}</p>
         @endif
-        <div class="chips">
-            @foreach ($shown as $part)
-                <span class="chip">{{ $part->name }}</span>
-            @endforeach
-            @if ($parts->count() > $shown->count())
-                <span class="chip more">{{ __('+:count more', ['count' => $parts->count() - $shown->count()]) }}</span>
-            @endif
-            @if ($parts->isEmpty())
-                <span class="chip more">{{ __('No parts yet') }}</span>
-            @endif
-        </div>
         @unless ($wishlist)
             <button type="button" class="views-toggle" data-url="{{ route('cars.view-stats', $car) }}" aria-expanded="false">
                 <x-icon name="eye" />
@@ -87,7 +74,7 @@
         @if ($car->activeDeal)
             <span class="deal-ends">{{ __('Deal ends :date', ['date' => $car->activeDeal->ends_at->format('Y-m-d')]) }}</span>
         @endif
-        <span class="id-tag">#{{ $car->id }} &middot; {{ trans_choice(':count part|:count parts', $parts->count()) }}</span>
+        <span class="id-tag">#{{ $car->id }}</span>
         <a class="btn details" href="{{ $link }}">{{ __('Details') }}</a>
     </div>
 </article>

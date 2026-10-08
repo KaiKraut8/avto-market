@@ -2,7 +2,7 @@
     $mail = '<a href="'.e(company_mailto()).'">'.e(config('company.email')).'</a>';
     $rows = [
         [__('Account'), __('Name, email, phone, location, country and password (stored only as a one-way hash).'), __('To run your account, show your listings and let buyers reach you.'), __('Contract'), __('Until your account is deleted.')],
-        [__('Car listings'), __('Car details, price, description, photos and parts.'), __('To publish your car on the site.'), __('Contract'), __('While the car is listed. Deleted listings are hidden from everyone; we erase them for good on request.')],
+        [__('Car listings'), __('Car details, price, description and photos.'), __('To publish your car on the site.'), __('Contract'), __('While the car is listed. Deleted listings are hidden from everyone; we erase them for good on request.')],
         [__('Messages to sellers'), __('Your name, email, phone and message.'), __('To pass your question on to the seller.'), __('Your request (steps before a contract)'), __('As long as the listing exists, or until you ask us to delete them.')],
         [__('Purchases and sales'), __('Buyer, seller, car, price and the commission.'), __('To reserve the car, put buyer and seller in touch and charge the commission.'), __('Contract and legal obligation'), __('10 years, as tax and accounting law requires.')],
         [__('Payments and subscriptions'), __('Amount, payment method, status and the payment provider\'s reference. Never your card or PayPal details.'), __('To take payments, renew subscriptions until you cancel them, and refund.'), __('Contract and legal obligation'), __('10 years, as tax and accounting law requires.')],

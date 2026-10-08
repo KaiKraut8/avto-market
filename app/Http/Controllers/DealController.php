@@ -30,7 +30,7 @@ class DealController extends Controller
             ->forSale()
             ->withPlacement()
             ->withPeopleCount()
-            ->with(['coverPhoto', 'parts:id,car_id,name', 'activeDeal', 'activeSale'])
+            ->with(['coverPhoto', 'activeDeal', 'activeSale'])
             ->whereHas('deals', fn ($q) => $q->active())
             ->listingOrder()
             ->get();

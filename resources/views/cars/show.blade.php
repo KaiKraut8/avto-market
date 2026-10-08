@@ -44,36 +44,6 @@
                 @endif
             </div>
 
-            <div class="panel">
-                <h2>{{ __('Parts (:count)', ['count' => $car->parts->count()]) }}</h2>
-                <div class="table-scroll">
-                    <table class="parts">
-                        <thead>
-                            <tr><th>{{ __('Part') }}</th><th>{{ __('Description') }}</th><th>{{ __('Added') }}</th>@if ($canEdit)<th></th>@endif</tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($car->parts as $part)
-                                <tr>
-                                    <td><strong>{{ $part->name }}</strong></td>
-                                    <td>{{ $part->description }}</td>
-                                    <td>{{ $part->created_at?->format('Y-m-d H:i') }}</td>
-                                    @if ($canEdit)
-                                        <td>
-                                            <form method="post" action="{{ route('cars.parts.destroy', [$car, $part]) }}">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="btn danger small">{{ __('Remove') }}</button>
-                                            </form>
-                                        </td>
-                                    @endif
-                                </tr>
-                            @empty
-                                <tr><td colspan="4">{{ __('No parts yet') }}</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
             @if ($canEdit)
                 <div class="panel">
                     <h2>{{ __('Photos (:count)', ['count' => $car->photos->count()]) }}</h2>
@@ -100,28 +70,6 @@
                     </form>
                 </div>
 
-                <div class="panel">
-                    <h2>{{ __('Add a part') }}</h2>
-                    <form method="post" action="{{ route('cars.parts.store', $car) }}">
-                        @csrf
-                        <div class="row">
-                            <div>
-                                <label for="part_name">{{ __('Part') }}</label>
-                                <input type="text" id="part_name" name="name" maxlength="100" list="part-options" required>
-                                <datalist id="part-options">
-                                    @foreach ($categories as $option)
-                                        <option value="{{ $option }}">
-                                    @endforeach
-                                </datalist>
-                            </div>
-                            <div>
-                                <label for="part_description">{{ __('Description') }}</label>
-                                <input type="text" id="part_description" name="description" maxlength="1000">
-                            </div>
-                            <button type="submit" class="btn">{{ __('Add part') }}</button>
-                        </div>
-                    </form>
-                </div>
             @endif
         </div>
 
@@ -324,7 +272,6 @@
                     <tr><th>{{ __('Price') }}</th><td>@price($car->price)@if ($car->activeDeal) <span class="hint">({{ __('deal: :price', ['price' => \App\Support\Money::price($car->activeDeal->deal_price)]) }})</span>@endif</td></tr>
                     <tr><th>{{ __('Location') }}</th><td>{!! $car->locationLabel() ? e($car->locationLabel()) : '<span class="hint">'.e(__('Not set')).'</span>' !!}</td></tr>
                     <tr><th>{{ __('Added') }}</th><td>{{ $car->created_at?->format('Y-m-d H:i') }}</td></tr>
-                    <tr><th>{{ __('Parts') }}</th><td>{{ $car->parts->count() }}</td></tr>
                     <tr><th>{{ __('Seen by') }}</th><td>{{ trans_choice(':count person|:count people', $stats['people']) }} <span class="hint">({{ trans_choice(':count view|:count views', $stats['total']) }})</span></td></tr>
                     <tr><th>{{ __('Watching now') }}</th><td><span class="live-dot"></span><span id="watching-now">{{ $stats['watching'] }}</span></td></tr>
                 </table>

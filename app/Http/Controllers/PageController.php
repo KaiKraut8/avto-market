@@ -3,16 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Car;
-use App\Models\CarPart;
 use App\Models\CarPhoto;
 use App\Models\CarSale;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
-// Information pages: contact, and the three "why buy here" pages from the home page
+// Information pages: contact, and the "why buy here" pages from the home page
 class PageController extends Controller
 {
-    public const WHY_PAGES = ['documented-parts', 'real-photos', 'live-interest'];
+    public const WHY_PAGES = ['real-photos', 'live-interest'];
 
     public function contact(): View
     {
@@ -57,13 +56,6 @@ class PageController extends Controller
     public function why(string $page): View
     {
         $data = match ($page) {
-            'documented-parts' => [
-                'parts' => CarPart::whereHas('car')->count(),
-                'cars' => Car::forSale()->count(),
-                'categories' => DB::table('car_parts')->join('cars', 'cars.id', '=', 'car_parts.car_id')->whereNull('cars.deleted_at')
-                    ->select('car_parts.name', DB::raw('COUNT(*) AS n'))->groupBy('car_parts.name')->orderByDesc('n')->limit(8)->get(),
-                'example' => Car::forSale()->withCount('parts')->with(['parts', 'coverPhoto'])->orderByDesc('parts_count')->first(),
-            ],
             'real-photos' => [
                 'photos' => CarPhoto::whereHas('car')->count(),
                 'cars' => Car::forSale()->count(),
