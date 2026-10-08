@@ -1751,3 +1751,4 @@ html.welcome-open { overflow: hidden; }
 }
 @media (max-width: 560px) { .deal-cards { grid-template-columns: 1fr; } .deal-card.featured { grid-column: auto; } }
 @media (prefers-reduced-motion: reduce) { .blob, .deal-coin, .deal-ticker-track, .deal-burst, .deal-card { animation: none; } }
+.home-hero h1 span { text-shadow: none; }   /* a shadow would paint over the gradient fill */
