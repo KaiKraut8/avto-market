@@ -224,6 +224,7 @@
     "Date": "Fecha",
     "Deal": "Oferta",
     "Deal ends :date": "La oferta termina el :date",
+    "Deal price": "Precio de oferta",
     "Deal price (now :price)": "Precio de oferta (ahora :price)",
     "Deal −:percent%": "Oferta −:percent %",
     "Deals": "Ofertas",

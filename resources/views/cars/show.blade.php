@@ -77,7 +77,8 @@
             @php
                 $sale = $car->activeSale;
                 $rate = \App\Models\CarSale::rate();
-                $commission = $car->price !== null ? \App\Models\CarSale::commissionFor((float) $car->price) : null;
+                $salePrice = $car->salePrice(auth()->user());   // the deal price while a deal runs
+                $commission = $salePrice !== null ? \App\Models\CarSale::commissionFor($salePrice) : null;
             @endphp
             @if ($car->isSold())
                 <div class="panel sale-panel sold">
@@ -122,9 +123,9 @@
                 <div class="panel sale-panel buy">
                     <h2>{{ __('Buy this car') }}</h2>
                     <div class="calc-rows small">
-                        <div><span>{{ __('Price of the car') }}</span><b>@price($car->price)</b></div>
+                        <div><span>{{ $car->activeDeal ? __('Deal price') : __('Price of the car') }}</span><b>@price($salePrice)</b></div>
                         <div class="calc-online"><span>{{ __('You pay online now (:rate%, to Vozi)', ['rate' => $rate]) }}</span><b>@eur($commission)</b></div>
-                        <div><span>{{ __('You pay the seller at the handover') }}</span><b>@price((float) $car->price - $commission)</b></div>
+                        <div><span>{{ __('You pay the seller at the handover') }}</span><b>@price($salePrice - $commission)</b></div>
                     </div>
                     <a class="btn gold big buy-btn" href="{{ route('checkout.create', ['product' => 'reserve', 'car' => $car->id]) }}">{{ __('Buy this car') }}</a>
                     <p class="hint">{{ __('Paying online reserves the car for you. Refunded in full if the seller cancels.') }} <a href="{{ route('how-buying') }}">{{ __('How buying works') }}</a></p>

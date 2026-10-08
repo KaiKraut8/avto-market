@@ -84,9 +84,10 @@ class Billing
         if (! $car->isBuyable() || (int) $car->user_id === (int) $buyer->id) {
             throw new RuntimeException(__('This car can\'t be bought right now.'));
         }
+        $price = $car->salePrice($buyer);   // a running deal counts
         $sale = CarSale::create([
             'car_id' => $car->id, 'seller_id' => $car->user_id, 'buyer_id' => $buyer->id, 'via' => 'site', 'status' => 'pending',
-            'price' => $car->price, 'rate' => CarSale::rate(), 'commission' => CarSale::commissionFor((float) $car->price),
+            'price' => $price, 'rate' => CarSale::rate(), 'commission' => CarSale::commissionFor($price),
         ]);
         $payment = $this->newPayment($buyer, [
             'car_id' => $car->id,

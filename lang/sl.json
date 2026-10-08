@@ -224,6 +224,7 @@
     "Date": "Datum",
     "Deal": "Akcija",
     "Deal ends :date": "Akcija se konča :date",
+    "Deal price": "Akcijska cena",
     "Deal price (now :price)": "Akcijska cena (zdaj :price)",
     "Deal −:percent%": "Akcija −:percent %",
     "Deals": "Akcije",

@@ -152,13 +152,14 @@ class CheckoutController extends Controller
             if (! $car->isBuyable()) {
                 return redirect()->route('cars.show', $car)->with('error', __('This car can\'t be bought right now.'));
             }
-            $commission = CarSale::commissionFor((float) $car->price);
+            $price = $car->salePrice($user);   // a running deal counts
+            $commission = CarSale::commissionFor($price);
 
             return [
                 'product' => 'reserve', 'billing' => null, 'car' => $car, 'price' => $commission,
                 'title' => __('Reservation: :car', ['car' => $car->name]),
                 'period' => null, 'renews' => false,
-                'breakdown' => ['price' => (float) $car->price, 'commission' => $commission, 'remainder' => round((float) $car->price - $commission, 2), 'rate' => CarSale::rate()],
+                'breakdown' => ['price' => $price, 'commission' => $commission, 'remainder' => round($price - $commission, 2), 'rate' => CarSale::rate()],
             ];
         }
         Gate::authorize('update', $car);

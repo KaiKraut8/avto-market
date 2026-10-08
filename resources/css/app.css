@@ -717,7 +717,7 @@ body::after {
 .empty-heart { display: block; width: 3rem; height: 3rem; margin: 0 auto .8rem; fill: none; stroke: var(--accent); stroke-width: 1.6; }
 
 /* ---- All cars: every card the same height ---- */
-.results { grid-auto-rows: 14.75rem; }
+.results { grid-auto-rows: minmax(14.75rem, auto); }
 .car-card { height: 100%; overflow: visible; }            /* visible so the ribbon and views panel can stick out */
 .car-card > .thumb { border-radius: var(--radius) 0 0 var(--radius); }
 .car-body { display: flex; flex-direction: column; min-height: 0; }
@@ -1028,9 +1028,13 @@ textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3
     .car-card > .thumb { border-radius: var(--radius) var(--radius) 0 0; }
     .thumb { min-height: 11rem; }
     .car-body { padding: 0 1.1rem; }
-    .car-side { border-left: 0; border-top: 1px solid var(--line); flex-direction: row; align-items: center; }
+    .car-side { border-left: 0; border-top: 1px solid var(--line); flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem 1rem; }
+    .car-side .deal-price { align-items: flex-start; text-align: left; }
+    .car-side .deal-ends, .car-side .id-tag { white-space: nowrap; }
+    .car-side .btn.details { margin-left: auto; }
+    .views-toggle { background: var(--card); }
     .car-side::before { display: none; }
-    .card-curve { left: 0; right: 0; width: 100%; }
+    .card-curve { display: none; }   /* on a phone the curve would run through the text */
     .detail { grid-template-columns: 1fr; }
     .row { grid-template-columns: 1fr; }
 }
@@ -1159,7 +1163,8 @@ a.why-item:hover { text-decoration: none; }
     display: inline-block; padding: .12rem .5rem; border-radius: 999px; font: 800 .75rem var(--font-body);
     color: #fff; background: linear-gradient(135deg, var(--sale-2), var(--sale));
 }
-.member-note { font-size: .76rem; font-weight: 600; color: #ffd36b; max-width: 12rem; }
+.member-note { font-size: .74rem; font-weight: 600; color: #ffd36b; white-space: nowrap; }
+.car-card.has-deal .car-side { gap: .45rem; }
 .member-note.locked { color: #e1c88a; }
 .member-note.locked:hover { color: #ffe3a1; }
 .deal-ends { color: var(--muted); font-size: .78rem; }
@@ -1699,7 +1704,9 @@ html.welcome-open { overflow: hidden; }
     animation: rise-in .7s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--i, 0) * .1s);
 }
 .deal-card:hover { text-decoration: none; box-shadow: 0 2px 0 var(--c3), 0 4px 0 var(--c3), 0 6px 0 var(--c3), 0 8px 0 var(--c3), 0 10px 0 var(--c3), 0 12px 0 var(--c3), 0 44px 70px rgba(0, 0, 0, .6), 0 0 60px var(--glow); }
-.deal-card.featured { grid-column: span 2; grid-row: span 2; }
+.deal-card.featured { grid-column: 1 / -1; display: grid; grid-template-columns: 1.3fr 1fr; }
+.deal-card.featured .deal-card-photo { aspect-ratio: auto; height: 100%; min-height: 20rem; }
+.deal-card.featured .deal-card-body { align-content: center; padding: 2rem 2.2rem; }
 .deal-card.tone-0 { --c1: #ff5c8a; --c2: #ff3d7a; --c3: #8a0f3d; --glow: rgba(255, 61, 122, .45); }
 .deal-card.tone-1 { --c1: #8f6bff; --c2: #6d4bff; --c3: #2d1b8a; --glow: rgba(109, 75, 255, .45); }
 .deal-card.tone-2 { --c1: #3fe0c3; --c2: #19b89b; --c3: #0b5c4c; --glow: rgba(47, 212, 180, .45); }
@@ -1745,10 +1752,12 @@ html.welcome-open { overflow: hidden; }
 
 @media (max-width: 900px) {
     .deal-cards { grid-template-columns: 1fr 1fr; }
-    .deal-card.featured { grid-column: span 2; grid-row: auto; }
+    .deal-card.featured { grid-column: 1 / -1; grid-template-columns: 1fr; }
+    .deal-card.featured .deal-card-photo { aspect-ratio: 16 / 9; min-height: 0; height: auto; }
+    .deal-card.featured .deal-card-body { padding: 1.3rem 1.4rem; }
     .deal-coin { top: -1.8rem; right: .2rem; width: 5rem; height: 5rem; }
     .blob { filter: blur(50px); }
 }
-@media (max-width: 560px) { .deal-cards { grid-template-columns: 1fr; } .deal-card.featured { grid-column: auto; } }
+@media (max-width: 560px) { .deal-cards { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .blob, .deal-coin, .deal-ticker-track, .deal-burst, .deal-card { animation: none; } }
 .home-hero h1 span { text-shadow: none; }   /* a shadow would paint over the gradient fill */

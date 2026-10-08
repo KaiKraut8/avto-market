@@ -85,6 +85,17 @@ class Car extends Model
         return ! $this->isSold() && $this->activeSale?->status === 'reserved';
     }
 
+    // What a buyer pays for the car right now: the running deal's price (the member price for premium buyers),
+    // otherwise the listed price; null when the price is on request
+    public function salePrice(?User $buyer = null): ?float
+    {
+        if ($this->activeDeal) {
+            return $this->activeDeal->priceFor($buyer);
+        }
+
+        return $this->price !== null ? (float) $this->price : null;
+    }
+
     // Can be bought on the site right now
     public function isBuyable(): bool
     {

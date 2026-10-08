@@ -132,3 +132,19 @@ it('counts commissions in the admin earnings', function () {
     $this->actingAs(User::factory()->create(['is_admin' => true]))->get(route('admin.dashboard'))
         ->assertSee('Sales commission')->assertSee('1.000,00 €')->assertSee('Open sales');
 });
+
+it('sells a car on a deal at the deal price, and at the member price to a premium buyer', function () {
+    $seller = User::factory()->premium()->create();
+    $car = Car::factory()->for($seller)->create(['price' => 20000]);
+    $car->deals()->create(['regular_price' => 20000, 'deal_price' => 18000, 'member_price' => 17000, 'ends_at' => now()->addDays(3)]);
+
+    $buyer = User::factory()->create();
+    $this->actingAs($buyer)->get(route('cars.show', $car))->assertSee('900,00 €');   // 5 % of 18.000
+    $this->actingAs($buyer)->get(route('checkout.create', ['product' => 'reserve', 'car' => $car->id]))->assertSee('18.000 €')->assertSee('900,00 €');
+    $sale = reserveCar($this, $buyer, $car)->sale;
+    expect((float) $sale->price)->toBe(18000.0)->and((float) $sale->commission)->toBe(900.0);
+
+    $another = Car::factory()->for($seller)->create(['price' => 20000]);
+    $another->deals()->create(['regular_price' => 20000, 'deal_price' => 18000, 'member_price' => 17000, 'ends_at' => now()->addDays(3)]);
+    $this->actingAs(User::factory()->premiumBuyer()->create())->get(route('cars.show', $another))->assertSee('850,00 €');   // 5 % of 17.000
+});
