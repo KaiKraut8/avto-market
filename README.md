@@ -47,7 +47,7 @@ for the old site, and real environment variables would override `.env`.
 - Site icon and link-preview image: `resources/brand/icon.svg` is the source; the PNGs, `favicon.ico` and `og-image.png` in `public/` are made from it
 - Countries and languages: `config/countries.php`, `config/locales.php`
 - Translations: `lang/{code}.json` (site text, keyed by the English text) and `lang/{code}/*.php` (Laravel's own messages, from laravel-lang)
-- Placement rules (premium, pushed, listing order, text search): `app/Models/Car.php`; the year and price filters: `app/Support/CarSearch.php`
+- Placement rules (premium, pushed, listing order, text search): `app/Models/Car.php`; the filters on All cars (make, year, price, country, deals only) and the sort orders: `app/Support/CarSearch.php`
 - Home page motion (the car that drives as you scroll, the card you can turn around): `resources/js/home.js`, backdrop in `resources/views/components/hero-scene.blade.php`
 - Who may change a car, and who may run a special deal: `app/Policies/CarPolicy.php`
 - Who gets which alert (deals, saved searches, saves, inquiries): `app/Services/Alerts.php`; their text: `app/Support/AlertText.php`

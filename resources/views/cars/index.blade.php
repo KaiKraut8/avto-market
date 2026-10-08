@@ -3,7 +3,7 @@
     // "Results for “bmw”", "Cars 2018–2022, up to 20.000 €" or both
     $what = $q !== '' ? $quoted : '';
     if ($search->hasFilters()) {
-        $what = trim($what.' '.implode(', ', $search->labels()));
+        $what = trim($what.' '.implode(', ', $search->labels($bounds['makes'])));
     }
 @endphp
 <x-layouts.app :title="$what !== '' ? __('Search: :q', ['q' => $what]) : __('All cars')" active="cars">

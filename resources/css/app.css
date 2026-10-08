@@ -1610,3 +1610,34 @@ html.welcome-open { overflow: hidden; }
 .assistant-form input:focus { outline: none; border-color: var(--accent); }
 .assistant-form .btn { padding: .45rem .8rem; }
 @media (prefers-reduced-motion: reduce) { .assistant-circle, .assistant-bubble, .assistant-chat, .assistant-msg.thinking p { animation: none; } }
+
+/* ---- the Filters panel on All cars ---- */
+.filters { border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
+.filters[open] { border-color: rgba(47, 212, 180, .35); }
+.filters summary { display: flex; align-items: center; gap: .6rem; padding: .7rem 1rem; cursor: pointer; list-style: none; font-weight: 700; user-select: none; }
+.filters summary::-webkit-details-marker { display: none; }
+.filters-toggle { display: inline-flex; align-items: center; gap: .45rem; }
+.filters-toggle svg { color: var(--teal); }
+.filters-count { min-width: 1.4rem; height: 1.4rem; padding: 0 .4rem; border-radius: 999px; display: inline-grid; place-items: center; font-size: .75rem; color: #04201a; background: var(--teal); }
+.filters-chevron { margin-left: auto; color: var(--muted); transition: transform .2s; }
+.filters[open] .filters-chevron { transform: rotate(180deg); }
+.filters-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem 1.2rem; padding: .4rem 1rem 1rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+.filter-field { display: grid; gap: .35rem; margin: 0; min-width: 0; }
+.filter-field .filter-label { margin: 0; }
+.filter-field select, .filter-field .filter-money input {
+    width: 100%; background: var(--bg-2); border: 1px solid var(--line); color: var(--ink); border-radius: 10px;
+    padding: .5rem .6rem; font: inherit; font-size: .9rem;
+}
+.filter-field select:focus, .filter-field .filter-money input:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(47, 212, 180, .2); }
+.filter-field:focus-within .filter-label { color: var(--teal); }
+.filter-range { display: grid; grid-template-columns: 1fr auto 1fr; gap: .4rem; align-items: center; }
+.filter-range .filter-money { display: block; position: relative; }
+.filter-range .filter-money input { padding-right: 1.7rem; }
+.filter-range .filter-money i { top: 50%; transform: translateY(-50%); }
+.filter-check { display: flex; align-items: center; gap: .7rem; margin: 0; align-self: end; padding: .45rem .7rem; border-radius: 10px; border: 1px solid rgba(255, 111, 156, .35); background: rgba(255, 111, 156, .06); cursor: pointer; }
+.filter-check input { accent-color: var(--rose); width: 1.05rem; height: 1.05rem; }
+.filter-check b { display: block; font-size: .88rem; color: var(--rose); }
+.filter-check small { color: var(--muted); font-size: .76rem; }
+.filters-actions { display: flex; gap: .6rem; flex-wrap: wrap; padding: 0 1rem 1rem; }
+@media (max-width: 900px) { .filters-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .filters-grid { grid-template-columns: 1fr; } .filters-actions .btn { flex: 1; justify-content: center; } }

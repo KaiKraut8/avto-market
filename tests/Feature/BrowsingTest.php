@@ -35,6 +35,25 @@ it('filters cars by year and price, in either order', function () {
     $this->get('/cars?q=dear&price_to=5000')->assertSee('No cars match');
 });
 
+it('filters by make, country and deals, and sorts by price, year or interest', function () {
+    $a4 = Car::factory()->create(['name' => 'Audi A4', 'year' => 2019, 'price' => 24000, 'country' => 'Slovenia']);
+    Car::factory()->create(['name' => 'audi Q7', 'year' => 2022, 'price' => 52000, 'country' => 'Croatia']);
+    Car::factory()->create(['name' => 'Škoda Octavia', 'year' => 2016, 'price' => 9000, 'country' => 'Slovenia']);
+    Car::factory()->for(User::factory()->premium())->create(['name' => 'BMW X5', 'year' => 2020, 'price' => 61000, 'country' => 'Slovenia']);
+    $a4->deals()->create(['regular_price' => 24000, 'deal_price' => 21000, 'ends_at' => now()->addDays(3)]);
+
+    $this->get('/cars')->assertSee('All makes')->assertSee('<option value="audi" >Audi</option>', false)->assertSee('<option value="škoda" >Škoda</option>', false);
+    $this->get('/cars?make=audi')->assertSee('Audi A4')->assertSee('audi Q7')->assertDontSee('Octavia')->assertDontSee('BMW X5');
+    $this->get('/cars?make=skoda')->assertSee('Octavia')->assertDontSee('Audi A4');                     // accents don't matter
+    $this->get('/cars?country=Croatia')->assertSee('audi Q7')->assertDontSee('Audi A4');
+    $this->get('/cars?deals=1')->assertSee('Audi A4')->assertDontSee('audi Q7')->assertDontSee('Octavia');
+    $this->get('/cars?sort=price_asc')->assertSeeInOrder(['Octavia', 'Audi A4', 'audi Q7', 'BMW X5'])->assertDontSee('Premium listings');
+    $this->get('/cars?sort=price_desc')->assertSeeInOrder(['BMW X5', 'audi Q7', 'Audi A4', 'Octavia']);
+    $this->get('/cars?sort=year_asc')->assertSeeInOrder(['Octavia', 'Audi A4', 'BMW X5', 'audi Q7']);
+    $this->get('/cars')->assertSeeInOrder(['Premium listings', 'BMW X5', 'Other options']);           // recommended: premium first
+    $this->get('/cars?sort=nonsense&country=Atlantis')->assertOk()->assertSee('Premium listings');    // unknown values are ignored
+});
+
 it('shows premium cars as home page highlights, filled up to three', function () {
     Car::factory()->create(['name' => 'Third Car']);
     Car::factory()->boosted()->create(['name' => 'Pushed Car']);

@@ -28,7 +28,7 @@ class CarController extends Controller
         $cars = $this->listing($search);
         $noMatch = ! $search->isEmpty() && $cars->isEmpty();
         if ($noMatch) {
-            $cars = $this->listing(new CarSearch);   // still offer every car, as other options
+            $cars = $this->listing(new CarSearch(sort: $search->sort));   // still offer every car, as other options
         }
 
         return view('cars.index', [
@@ -37,8 +37,9 @@ class CarController extends Controller
             'noMatch' => $noMatch,
             'cars' => $cars,
             'bounds' => CarSearch::bounds(),
-            'premium' => $cars->filter->isPremium()->values(),
-            'regular' => $cars->reject->isPremium()->values(),
+            // sorted by the visitor's choice: one list; otherwise premium cars in their own block first
+            'premium' => $search->isSorted() ? collect() : $cars->filter->isPremium()->values(),
+            'regular' => $search->isSorted() ? $cars : $cars->reject->isPremium()->values(),
             'wished' => WishlistItem::where('visitor_id', Visitor::id())->pluck('car_id')->flip(),
         ]);
     }
@@ -51,7 +52,7 @@ class CarController extends Controller
             ->withPeopleCount()
             ->with(['coverPhoto', 'parts:id,car_id,name', 'activeDeal', 'activeSale'])
             ->tap(fn ($q) => $search->apply($q))
-            ->listingOrder()
+            ->tap(fn ($q) => $search->order($q))
             ->get();
     }
 
