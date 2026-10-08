@@ -12,7 +12,7 @@ use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Tools\Annotations\IsIdempotent;
 use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
-#[Description('Search the used cars for sale on KAI Garage. Every filter is optional and they combine; with none, all cars are listed. Returns the number of matches and up to `limit` cars with id, name, make, year, price (and deal price), location, status, photo and page url.')]
+#[Description('Search the used cars for sale on Vozi. Every filter is optional and they combine; with none, all cars are listed. Returns the number of matches and up to `limit` cars with id, name, make, year, price (and deal price), location, status, photo and page url.')]
 #[IsReadOnly]
 #[IsIdempotent]
 class SearchCars extends Tool

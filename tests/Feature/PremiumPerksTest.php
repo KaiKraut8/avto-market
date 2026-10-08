@@ -67,7 +67,7 @@ it('shows the deal to everyone and the member price only to premium buyers', fun
     $this->get(route('deals.index'))->assertSee($car->name)->assertSee('18.000 €')->assertSee('Premium buyers pay 17.000 €');
     $this->get(route('cars.show', $car))->assertSee('20.000 €')->assertSee('18.000 €');
     $this->actingAs(User::factory()->premiumBuyer()->create())->get(route('cars.show', $car))->assertSee('Your member price');
-    $this->get(route('home'))->assertSee('Special deals');
+    $this->get(route('home'))->assertSee("Deals you can't miss")->assertSee('Grab it');
 });
 
 it('stops showing a deal when it ends', function () {

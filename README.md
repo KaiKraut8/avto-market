@@ -1,4 +1,4 @@
-# KAI Garage
+# Vozi
 
 Used-car marketplace: listings with photos, seller accounts, premium and
 "push forward" placements, wishlists, live viewer counts and contact-seller. Laravel 13, Blade,

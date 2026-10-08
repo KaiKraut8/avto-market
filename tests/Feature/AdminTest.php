@@ -77,7 +77,7 @@ it('asks Mollie for the balance and the payout', function () {
         'api.mollie.com/v2/balances/primary' => Http::response([
             'id' => 'bal_1', 'currency' => 'EUR', 'availableAmount' => ['value' => '120.00', 'currency' => 'EUR'],
             'pendingAmount' => ['value' => '10.00', 'currency' => 'EUR'], 'transferFrequency' => 'daily',
-            'transferDestination' => ['type' => 'bank-account', 'beneficiaryName' => 'KAI Garage d.o.o.', 'bankAccount' => 'SI56 1910 0000 0123 438'],
+            'transferDestination' => ['type' => 'bank-account', 'beneficiaryName' => 'Vozi d.o.o.', 'bankAccount' => 'SI56 1910 0000 0123 438'],
         ]),
         'api.mollie.com/v2/payouts*' => Http::sequence()
             ->push(['_embedded' => ['payouts' => []]])

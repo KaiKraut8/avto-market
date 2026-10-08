@@ -17,7 +17,7 @@
             @isset($breakdown)
                 <div class="calc-rows small">
                     <div><span>{{ __('Price of the car') }}</span><b>@price($breakdown['price'])</b></div>
-                    <div class="calc-online"><span>{{ __('You pay online now (:rate%, to KAI Garage)', ['rate' => $breakdown['rate']]) }}</span><b>@eur($breakdown['commission'])</b></div>
+                    <div class="calc-online"><span>{{ __('You pay online now (:rate%, to Vozi)', ['rate' => $breakdown['rate']]) }}</span><b>@eur($breakdown['commission'])</b></div>
                     <div><span>{{ __('You pay the seller at the handover') }}</span><b>@price($breakdown['remainder'])</b></div>
                 </div>
                 <p class="hint">{{ __('The car is reserved for you as soon as this is paid. If the seller cancels, you get it back in full.') }}</p>

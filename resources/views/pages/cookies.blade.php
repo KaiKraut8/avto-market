@@ -18,7 +18,7 @@
         <div>
             <p class="eyebrow">{{ __('Your data') }}</p>
             <h1>{{ __('Cookie policy') }}</h1>
-            <p class="lede">{{ __('KAI Garage uses only the cookies it needs to work. No advertising, analytics or tracking cookies, and none from other companies.') }}</p>
+            <p class="lede">{{ __('Vozi uses only the cookies it needs to work. No advertising, analytics or tracking cookies, and none from other companies.') }}</p>
             <p class="hint legal-date">{{ __('Last updated: :date', ['date' => \Illuminate\Support\Carbon::parse(config('company.legal_updated'))->isoFormat('LL')]) }}</p>
         </div>
     </div>
@@ -40,7 +40,7 @@
                 </tbody>
             </table>
         </div>
-        <p class="hint">{{ __('All of them are set by KAI Garage itself and are strictly necessary.') }}</p>
+        <p class="hint">{{ __('All of them are set by Vozi itself and are strictly necessary.') }}</p>
     </section>
 
     <section class="panel">

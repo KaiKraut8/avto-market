@@ -19,7 +19,7 @@
         <div>
             <p class="eyebrow">{{ __('Your data') }}</p>
             <h1>{{ __('Privacy policy') }}</h1>
-            <p class="lede">{{ __('What personal data KAI Garage collects, why, how long we keep it and what your rights are.') }}</p>
+            <p class="lede">{{ __('What personal data Vozi collects, why, how long we keep it and what your rights are.') }}</p>
             <p class="hint legal-date">{{ __('Last updated: :date', ['date' => \Illuminate\Support\Carbon::parse(config('company.legal_updated'))->isoFormat('LL')]) }}</p>
         </div>
     </div>
@@ -87,7 +87,7 @@
 
     <section class="panel">
         <h2>{{ __('Children and changes') }}</h2>
-        <p>{{ __('KAI Garage is not meant for children under 15, and only adults can buy or sell a car.') }}</p>
+        <p>{{ __('Vozi is not meant for children under 15, and only adults can buy or sell a car.') }}</p>
         <p>{{ __('If we change this policy, we update the date at the top. We tell account holders about important changes before they apply.') }}</p>
     </section>
 </main>

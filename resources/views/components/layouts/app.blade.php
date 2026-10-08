@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ? $title.' · ' : '' }}KAI Garage</title>
+    <title>{{ $title ? $title.' · ' : '' }}Vozi</title>
     <meta name="description" content="{{ __(config('company.tagline')) }}">
     {{-- icons: Google shows the 48 px (or larger) one next to the site in search results --}}
     <link rel="icon" href="/favicon.ico" sizes="32x32">
@@ -16,9 +16,9 @@
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#0e1116">
     {{-- link previews in chats and social networks --}}
-    <meta property="og:site_name" content="KAI Garage">
+    <meta property="og:site_name" content="Vozi">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="{{ $title ? $title.' · ' : '' }}KAI Garage">
+    <meta property="og:title" content="{{ $title ? $title.' · ' : '' }}Vozi">
     <meta property="og:description" content="{{ __(config('company.tagline')) }}">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:image" content="{{ asset('og-image.png') }}">
@@ -31,7 +31,7 @@
             $site = [
                 '@'.'context' => 'https://schema.org',
                 '@graph' => [
-                    ['@type' => 'WebSite', 'name' => 'KAI Garage', 'url' => url('/')],
+                    ['@type' => 'WebSite', 'name' => 'Vozi', 'url' => url('/')],
                     ['@type' => 'Organization', 'name' => config('company.name'), 'url' => url('/'), 'logo' => asset('icon-512.png'),
                         'email' => config('company.email'), 'telephone' => config('company.phone')],
                 ],
@@ -55,7 +55,7 @@
 
 <header class="topbar">
     <div class="inner">
-        <a class="logo" href="{{ route('home') }}"><span class="mark"></span>KAI<em>Garage</em></a>
+        <a class="logo" href="{{ route('home') }}"><span class="mark"></span><span>Vo<em>zi</em></span></a>
         <nav class="nav">
             <a href="{{ route('home') }}" @class(['active' => $active === 'home'])>{{ __('Home') }}</a>
             <a href="{{ route('cars.index') }}" @class(['active' => $active === 'cars'])>{{ __('All cars') }}</a>
@@ -123,7 +123,7 @@
 <footer class="footer">
     <div class="inner footer-grid">
         <div>
-            <a class="logo" href="{{ route('home') }}"><span class="mark"></span>KAI<em>Garage</em></a>
+            <a class="logo" href="{{ route('home') }}"><span class="mark"></span><span>Vo<em>zi</em></span></a>
             <p class="footer-tag">{{ __(config('company.tagline')) }}</p>
         </div>
         <div>
@@ -157,7 +157,7 @@
 @unless (request()->cookie('kai_cookies_seen'))
     <div class="cookie-notice" data-cookie-notice role="region" aria-label="{{ __('Cookies') }}">
         <x-icon name="cookie" :size="26" class="cookie-notice-icon" />
-        <p>{{ __('KAI Garage uses only necessary cookies: to keep you logged in, protect forms and remember your wishlist. No tracking and no ads.') }}
+        <p>{{ __('Vozi uses only necessary cookies: to keep you logged in, protect forms and remember your wishlist. No tracking and no ads.') }}
             <a href="{{ route('cookies') }}">{{ __('Cookie policy') }}</a></p>
         <button type="button" class="btn accent" data-cookie-ok>{{ __('OK, got it') }}</button>
     </div>

@@ -123,7 +123,7 @@
                     <h2>{{ __('Buy this car') }}</h2>
                     <div class="calc-rows small">
                         <div><span>{{ __('Price of the car') }}</span><b>@price($car->price)</b></div>
-                        <div class="calc-online"><span>{{ __('You pay online now (:rate%, to KAI Garage)', ['rate' => $rate]) }}</span><b>@eur($commission)</b></div>
+                        <div class="calc-online"><span>{{ __('You pay online now (:rate%, to Vozi)', ['rate' => $rate]) }}</span><b>@eur($commission)</b></div>
                         <div><span>{{ __('You pay the seller at the handover') }}</span><b>@price((float) $car->price - $commission)</b></div>
                     </div>
                     <a class="btn gold big buy-btn" href="{{ route('checkout.create', ['product' => 'reserve', 'car' => $car->id]) }}">{{ __('Buy this car') }}</a>

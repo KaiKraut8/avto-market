@@ -11,10 +11,10 @@
     <div class="welcome-backdrop" data-welcome-skip></div>
     <section class="welcome-panel" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
         <div class="welcome-head">
-            <a class="logo" href="{{ route('home') }}"><span class="mark"></span>KAI<em>Garage</em></a>
+            <a class="logo" href="{{ route('home') }}"><span class="mark"></span>Vo<em>zi</em></a>
             <button type="button" class="welcome-skip" data-welcome-skip>{{ __('Skip for now') }} <span aria-hidden="true">&rarr;</span></button>
         </div>
-        <h2 id="welcome-title">{{ __('Welcome to KAI Garage') }}</h2>
+        <h2 id="welcome-title">{{ __('Welcome to Vozi') }}</h2>
         <p class="hint">{{ __('Sign up to sell cars, keep your wishlist on every device and get alerts. Or just look around first.') }}</p>
 
         <div class="welcome-tabs" role="tablist">

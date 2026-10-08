@@ -1,10 +1,10 @@
 {{-- The chat assistant: a welcome bubble that folds into a draggable circle after 5 seconds; click it for the chat --}}
 <div class="assistant" data-assistant data-url="{{ route('assistant') }}" hidden>
     {{-- chat, bubble, circle: in a column that ends at the circle, so the circle never moves --}}
-    <section class="assistant-chat" data-assistant-chat role="dialog" aria-label="{{ __('KAI assistant') }}" hidden>
+    <section class="assistant-chat" data-assistant-chat role="dialog" aria-label="{{ __('Vozi assistant') }}" hidden>
         <header class="assistant-head">
             <span class="assistant-avatar"><x-icon name="chat" :size="16" /></span>
-            <div><b>{{ __('KAI assistant') }}</b><small>{{ __('Cars, prices, premium, how buying works') }}</small></div>
+            <div><b>{{ __('Vozi assistant') }}</b><small>{{ __('Cars, prices, premium, how buying works') }}</small></div>
             <button type="button" class="assistant-min" data-assistant-close aria-label="{{ __('Hide the chat') }}">&minus;</button>
         </header>
         <div class="assistant-log" data-assistant-log aria-live="polite"></div>
@@ -17,7 +17,7 @@
         <button type="button" class="assistant-bubble-text" data-assistant-open>{{ __('Welcome. How can I help you today?') }}</button>
         <button type="button" class="assistant-bubble-close" data-assistant-dismiss aria-label="{{ __('Close') }}">&times;</button>
     </div>
-    <button type="button" class="assistant-circle" data-assistant-circle aria-label="{{ __('Open the assistant') }}" title="{{ __('KAI assistant') }}">
+    <button type="button" class="assistant-circle" data-assistant-circle aria-label="{{ __('Open the assistant') }}" title="{{ __('Vozi assistant') }}">
         <x-icon name="chat" :size="24" />
         <span class="assistant-dot" data-assistant-dot hidden></span>
     </button>

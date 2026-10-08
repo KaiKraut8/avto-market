@@ -7,5 +7,5 @@
   </defs>
   <rect width="512" height="512" rx="112" fill="#0e1116"/>
   <rect x="122" y="122" width="268" height="268" rx="44" fill="url(#g)" transform="rotate(45 256 256)"/>
-  <path fill="#1a1203" d="M184 166h44v72l62-72h54l-78 88 80 92h-55l-63-74v74h-44z"/>
+  <path fill="#1a1203" d="M158 172h52l46 128 46-128h52l-74 184h-48z"/>
 </svg>

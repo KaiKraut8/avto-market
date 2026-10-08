@@ -24,7 +24,11 @@
 
         @if ($topPick)
             {{-- the featured car floats and can be turned around by dragging; the back shows its key facts --}}
-            <div class="hero-car-stage">
+            <div class="hero-car-stage" data-depth="-.6">
+                <a class="deal-coin" href="#deals" data-depth="-1.4">
+                    <span class="deal-coin-face front"><b>{{ $maxOff ? '−'.$maxOff.'%' : '€' }}</b><small>{{ $maxOff ? __('Deals') : __('Hot prices') }}</small></span>
+                    <span class="deal-coin-face back"><b>{{ $wall->count() }}</b><small>{{ $maxOff ? __('deals now') : __('top prices') }}</small></span>
+                </a>
                 <div class="hero-car" data-flip-card>
                     <div class="hero-car-inner">
                         <a class="hero-car-face front" href="{{ route('cars.show', $topPick) }}" draggable="false">
@@ -56,6 +60,56 @@
 
 <main class="wrap home">
     <div class="journey" aria-hidden="true"><div class="journey-car"><x-car-top /></div></div>
+
+    {{-- the deal wall: the running deals, or the hottest prices when there are none --}}
+    @if ($wall->isNotEmpty())
+        <section class="deal-wall" id="deals">
+            <div class="deal-ticker" aria-hidden="true">
+                <div class="deal-ticker-track">
+                    @foreach ([0, 1] as $copy)
+                        @foreach ($wall as $car)
+                            <span class="tick"><b>{{ $car->activeDeal ? '−'.$car->activeDeal->percentOff().'%' : __('Top price') }}</b> {{ $car->name }} <i>@price($car->activeDeal ? $car->activeDeal->deal_price : $car->price)</i></span>
+                        @endforeach
+                    @endforeach
+                </div>
+            </div>
+            <div class="section-head deal-head">
+                <div>
+                    <p class="eyebrow rose">{{ $wallIsDeals ? __('Price drops right now') : __('The best prices in the garage') }}</p>
+                    <h2 class="big-title deal-title">{{ $wallIsDeals ? __("Deals you can't miss") : __('Hot prices this week') }}</h2>
+                </div>
+                <a href="{{ $wallIsDeals ? route('deals.index') : route('cars.index', ['sort' => 'price_asc']) }}">{{ $wallIsDeals ? __('All deals') : __('See every car') }} &rarr;</a>
+            </div>
+            <div class="deal-cards">
+                @foreach ($wall as $i => $car)
+                    @php($deal = $car->activeDeal)
+                    <a @class(['deal-card', 'featured' => $i === 0, 'tone-'.($i % 6)]) href="{{ route('cars.show', $car) }}" style="--i: {{ $i }}" data-tilt>
+                        <span class="deal-burst" aria-hidden="true">{{ $deal ? '−'.$deal->percentOff().'%' : __('Top price') }}</span>
+                        <div class="deal-card-photo"><x-car-photo :car="$car" /></div>
+                        <div class="deal-card-body">
+                            <h3>{{ $car->name }}@if ($car->year) <span class="offer-year">{{ $car->year }}</span>@endif</h3>
+                            <div class="deal-card-price">
+                                @if ($deal)
+                                    <s>@price($deal->regular_price)</s>
+                                    <b>@price($deal->deal_price)</b>
+                                @else
+                                    <b>@price($car->price)</b>
+                                @endif
+                            </div>
+                            @if ($deal)
+                                <span class="deal-save">{{ __('You save :amount', ['amount' => \App\Support\Money::price($deal->regular_price - $deal->deal_price)]) }}</span>
+                                <small class="deal-ends"><x-icon name="clock" :size="13" /> {{ trans_choice('Ends in :count day|Ends in :count days', max(1, (int) ceil(now()->diffInHours($deal->ends_at, true) / 24))) }}</small>
+                            @else
+                                <small class="deal-ends">{{ $car->locationLabel() }}</small>
+                            @endif
+                            <span class="btn accent deal-go">{{ __('Grab it') }} <span aria-hidden="true">&rarr;</span></span>
+                        </div>
+                        <span class="deal-glare" aria-hidden="true"></span>
+                    </a>
+                @endforeach
+            </div>
+        </section>
+    @endif
     <div class="section-head" id="highlights">
         <div>
             <p class="eyebrow">{{ __('Hot right now') }}</p>
@@ -67,7 +121,7 @@
     @if ($cars->isNotEmpty())
         <section class="offer-row">
             @foreach ($highlights as $i => $car)
-                <a @class(['offer', 'premium' => $car->isPremium()]) href="{{ route('cars.show', $car) }}" style="--i: {{ $i }}">
+                <a @class(['offer', 'premium' => $car->isPremium()]) href="{{ route('cars.show', $car) }}" style="--i: {{ $i }}" data-tilt>
                     @if ($car->isPremium())
                         <span class="premium-ribbon"><span aria-hidden="true">&#9813;</span> {{ __('Premium') }}</span>
                     @endif
@@ -98,35 +152,8 @@
         <div class="empty">{{ __('The garage is empty.') }} <a href="{{ route('cars.create') }}">{{ __('Add the first car') }}</a>.</div>
     @endif
 
-    @if ($deals->isNotEmpty())
-        <div class="section-head" id="deals">
-            <div>
-                <p class="eyebrow rose">{{ __('For a few days only') }}</p>
-                <h2 class="big-title">{{ __('Special deals') }}</h2>
-            </div>
-            <a href="{{ route('deals.index') }}">{{ __('All deals') }} &rarr;</a>
-        </div>
-        <section class="deal-strip">
-            @foreach ($deals as $car)
-                <a class="deal-tile" href="{{ route('cars.show', $car) }}">
-                    <div class="deal-tile-photo">
-                        <x-car-photo :car="$car" />
-                        <span class="deal-off">&minus;{{ $car->activeDeal->percentOff() }}%</span>
-                        @if ($car->for_you)
-                            <span class="for-you"><x-icon name="heart" :size="12" /> {{ __('For you') }}</span>
-                        @endif
-                    </div>
-                    <div class="deal-tile-body">
-                        <b>{{ $car->name }}</b>
-                        <x-deal-price :car="$car" size="tile" />
-                        <small><x-icon name="clock" :size="13" /> {{ __('Ends :date', ['date' => $car->activeDeal->ends_at->format('Y-m-d')]) }}</small>
-                    </div>
-                </a>
-            @endforeach
-        </section>
-    @endif
 
-    <section class="premium-promo">
+    <section class="premium-promo" data-tilt data-tilt-max="4">
         <span class="promo-crown" aria-hidden="true">&#9813;</span>
         <div class="promo-copy">
             <p class="eyebrow">{{ __('Premium') }}</p>
@@ -170,19 +197,19 @@
     </section>
 
     <section class="why">
-        <a class="why-item teal" href="{{ route('how-buying') }}">
+        <a class="why-item teal" href="{{ route('how-buying') }}" data-tilt>
             <x-icon name="check" />
             <h3>{{ __('Safe, simple buying') }}</h3>
             <p>{{ __('Pay a small part online and the car is reserved for you. The rest you pay the seller at the handover.') }}</p>
             <span class="why-more">{{ __('Learn more') }} &rarr;</span>
         </a>
-        <a class="why-item blue" href="{{ route('why', 'real-photos') }}">
+        <a class="why-item blue" href="{{ route('why', 'real-photos') }}" data-tilt>
             <x-icon name="camera" />
             <h3>{{ __('Real photos, no stock images') }}</h3>
             <p>{{ __('What you see is the actual car sitting in our garage, not a picture from a catalogue.') }}</p>
             <span class="why-more">{{ __('Learn more') }} &rarr;</span>
         </a>
-        <a class="why-item violet" href="{{ route('why', 'live-interest') }}">
+        <a class="why-item violet" href="{{ route('why', 'live-interest') }}" data-tilt>
             <x-icon name="eye" />
             <h3>{{ __('See the interest live') }}</h3>
             <p>{{ __("Every car shows how many people looked at it and who's viewing it right now. Good offers go fast.") }}</p>
@@ -190,7 +217,7 @@
         </a>
     </section>
 
-    <section class="cta-band">
+    <section class="cta-band" data-tilt data-tilt-max="4">
         <div>
             <h2>{{ __('Found the one? Come for a test drive.') }}</h2>
             <p>{{ config('company.address') }} &middot; {{ opening_hours_summary() }}</p>

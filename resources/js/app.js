@@ -13,3 +13,4 @@ import './cookie-notice';
 import './home';
 import './welcome';
 import './assistant';
+import './tilt';

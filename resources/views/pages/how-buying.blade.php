@@ -10,7 +10,7 @@
         <div>
             <p class="eyebrow">{{ __('Before you buy or sell') }}</p>
             <h1>{{ __('How buying works') }}</h1>
-            <p class="lede">{{ __('Every car on KAI Garage is sold through the site. :rate% of the price goes to KAI Garage, the rest to the seller.', ['rate' => $rate]) }}</p>
+            <p class="lede">{{ __('Every car on Vozi is sold through the site. :rate% of the price goes to Vozi, the rest to the seller.', ['rate' => $rate]) }}</p>
         </div>
     </div>
 
@@ -18,11 +18,11 @@
         <h2>{{ __('Example: a car listed at :price', ['price' => Money::price($example)]) }}</h2>
         <div class="calc-rows">
             <div><span>{{ __('Price of the car') }}</span><b>@price($example)</b></div>
-            <div class="calc-online"><span>{{ __('You pay online now (:rate%, to KAI Garage)', ['rate' => $rate]) }}</span><b>@eur($commission)</b></div>
+            <div class="calc-online"><span>{{ __('You pay online now (:rate%, to Vozi)', ['rate' => $rate]) }}</span><b>@eur($commission)</b></div>
             <div><span>{{ __('You pay the seller at the handover') }}</span><b>@price($example - $commission)</b></div>
             <div class="calc-total"><span>{{ __('Together, the buyer pays') }}</span><b>@price($example)</b></div>
         </div>
-        <p class="hint">{{ __('The buyer pays exactly the listed price. The seller receives :percent% of it and KAI Garage :rate%.', ['percent' => 100 - $rate, 'rate' => $rate]) }}</p>
+        <p class="hint">{{ __('The buyer pays exactly the listed price. The seller receives :percent% of it and Vozi :rate%.', ['percent' => 100 - $rate, 'rate' => $rate]) }}</p>
     </section>
 
     <div class="how-grid">
@@ -39,7 +39,7 @@
         <section class="panel">
             <h2>{{ __('For sellers') }}</h2>
             <ol class="steps">
-                <li>{{ __('Listing a car is free. By listing it you agree that :rate% of its selling price goes to KAI Garage when it is sold.', ['rate' => $rate]) }}</li>
+                <li>{{ __('Listing a car is free. By listing it you agree that :rate% of its selling price goes to Vozi when it is sold.', ['rate' => $rate]) }}</li>
                 <li>{{ __('When a buyer reserves your car, they have already paid the :rate% online. You get their details and an alert.', ['rate' => $rate]) }}</li>
                 <li>{{ __('At the handover the buyer pays you the rest (:percent% of the price). Then press "Confirm the sale" on the car\'s page.', ['percent' => 100 - $rate]) }}</li>
                 <li>{{ __('If the sale falls through, press "Cancel the sale": the buyer is refunded and the car is for sale again.') }}</li>
@@ -53,7 +53,7 @@
         <ul class="perks">
             <li>{{ __('The commission is the only fee for selling. Premium and Push forward are optional extras.') }}</li>
             <li>{{ __('Questions about a car before buying? Use "Contact seller" on its page; the purchase itself always goes through "Buy this car".') }}</li>
-            <li>{{ __('Payments are handled by our payment provider, Mollie. KAI Garage never sees your card details.') }}</li>
+            <li>{{ __('Payments are handled by our payment provider, Mollie. Vozi never sees your card details.') }}</li>
         </ul>
     </section>
 </main>

@@ -1,12 +1,15 @@
 {{-- The home page backdrop: evening sky, city skyline, the sun, the road, and a car that drives across as you scroll --}}
-<div class="scene" aria-hidden="true">
+<div class="scene" aria-hidden="true" data-parallax>
     <div class="sky"></div>
-    <div class="stars"></div>
-    <div class="hero-sun"></div>
-    <svg class="skyline far" viewBox="0 200 1600 200" preserveAspectRatio="none">
+    <div class="stars" data-depth=".4"></div>
+    <div class="blob blob-violet" data-depth=".6"></div>
+    <div class="blob blob-teal" data-depth=".9"></div>
+    <div class="blob blob-rose" data-depth="1.2"></div>
+    <div class="hero-sun" data-depth=".5"></div>
+    <svg class="skyline far" data-depth=".8" viewBox="0 200 1600 200" preserveAspectRatio="none">
         <path d="M0,200 L0,111 L50,111 L50,62 L84,62 L84,62 L69,62 L69,34 L65,51 L65,62 L88,126 L131,126 L131,126 L111,126 L111,103 L107,114 L107,126 L132,60 L167,60 L173,115 L239,115 L244,56 L314,56 L318,80 L385,80 L385,80 L353,80 L353,63 L349,69 L349,80 L389,93 L427,93 L431,57 L468,57 L474,117 L515,117 L520,83 L562,83 L562,83 L543,83 L543,71 L539,55 L539,83 L562,104 L631,104 L635,90 L692,90 L695,92 L748,92 L748,92 L723,92 L723,77 L719,75 L719,92 L748,92 L814,92 L816,94 L874,94 L874,65 L911,65 L917,111 L968,111 L971,45 L1003,45 L1003,45 L989,45 L989,18 L985,17 L985,45 L1009,87 L1059,87 L1063,56 L1124,56 L1124,96 L1159,96 L1164,123 L1198,123 L1200,43 L1266,43 L1268,45 L1322,45 L1325,109 L1377,109 L1380,103 L1413,103 L1414,80 L1459,80 L1465,120 L1526,120 L1526,120 L1497,120 L1497,98 L1493,93 L1493,120 L1528,75 L1566,75 L1568,85 L1624,85 L1600,200 Z" transform="translate(0,200)"/>
     </svg>
-    <svg class="skyline near" viewBox="0 200 1600 200" preserveAspectRatio="none">
+    <svg class="skyline near" data-depth="1.4" viewBox="0 200 1600 200" preserveAspectRatio="none">
         <defs>
             <pattern id="windows" width="14" height="18" patternUnits="userSpaceOnUse">
                 <rect x="4" y="5" width="4" height="6" fill="#ffd27a" opacity=".55"/>

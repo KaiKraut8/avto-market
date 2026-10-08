@@ -29,7 +29,7 @@ it('answers MCP clients over HTTP at /mcp', function () {
 
     $this->postJson('/mcp', ['jsonrpc' => '2.0', 'id' => 1, 'method' => 'initialize', 'params' => [
         'protocolVersion' => '2025-06-18', 'capabilities' => (object) [], 'clientInfo' => ['name' => 'test', 'version' => '1'],
-    ]])->assertOk()->assertJsonPath('result.serverInfo.name', 'KAI Garage cars');
+    ]])->assertOk()->assertJsonPath('result.serverInfo.name', 'Vozi cars');
 
     $tools = $this->postJson('/mcp', ['jsonrpc' => '2.0', 'id' => 2, 'method' => 'tools/list'])->assertOk()->json('result.tools');
     expect(collect($tools)->pluck('name')->all())->toBe(['search-cars', 'get-car', 'list-car-filters'])

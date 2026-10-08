@@ -71,7 +71,7 @@ it('serves the information pages', function () {
     }
     $this->get('/why/nope')->assertNotFound();
     $this->get('/why/documented-parts')->assertRedirect('/how-buying-works');   // the parts page was removed
-    $this->get('/contact')->assertSee('tel:+38640123456', false)->assertSee('mailto:kaigarage.info@gmail.com', false);
+    $this->get('/contact')->assertSee('tel:+38640123456', false)->assertSee('mailto:info@vozi.si', false);
 });
 
 it('serves the privacy and cookie policies, linked from every page', function () {

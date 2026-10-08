@@ -125,9 +125,9 @@
         @php($rate = \App\Models\CarSale::rate())
         <div class="commission-box">
             <b>{{ __('Selling costs :rate% of the price', ['rate' => $rate]) }}</b>
-            <p>{{ __('Listing is free. When the car is sold, :rate% of the price goes to KAI Garage: the buyer pays it online when they reserve the car, and pays you the other :percent% at the handover.', ['rate' => $rate, 'percent' => 100 - $rate]) }}
+            <p>{{ __('Listing is free. When the car is sold, :rate% of the price goes to Vozi: the buyer pays it online when they reserve the car, and pays you the other :percent% at the handover.', ['rate' => $rate, 'percent' => 100 - $rate]) }}
                 <a href="{{ route('how-buying') }}" target="_blank">{{ __('How buying works') }}</a></p>
-            <label class="remember"><input type="checkbox" name="terms" value="1" required @checked(old('terms'))> {{ __('I agree that :rate% of the selling price goes to KAI Garage.', ['rate' => $rate]) }}</label>
+            <label class="remember"><input type="checkbox" name="terms" value="1" required @checked(old('terms'))> {{ __('I agree that :rate% of the selling price goes to Vozi.', ['rate' => $rate]) }}</label>
         </div>
     @endif
 

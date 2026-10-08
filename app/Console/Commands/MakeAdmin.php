@@ -13,7 +13,7 @@ class MakeAdmin extends Command
 {
     protected $signature = 'users:admin {email : the account that becomes the only admin}
                             {--create : create the account if it doesn\'t exist (prints a temporary password)}
-                            {--name=KAI Garage : name for a created account}';
+                            {--name=Vozi : name for a created account}';
 
     protected $description = 'Make one account the only admin';
 

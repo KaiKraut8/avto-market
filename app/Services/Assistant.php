@@ -164,8 +164,8 @@ class Assistant
     {
         $rate = (int) config('pricing.commission_rate');
 
-        return "You are the assistant of KAI Garage, a used-car marketplace in Ljubljana, Slovenia ({$this->base()}). "
-            .'Reply in the visitor\'s language, in 1-3 short sentences, plain text. Only help with KAI Garage. '
+        return "You are the assistant of Vozi, a used-car marketplace in Ljubljana, Slovenia ({$this->base()}). "
+            .'Reply in the visitor\'s language, in 1-3 short sentences, plain text. Only help with Vozi. '
             .'Use search_cars to find cars and never invent cars or prices; mention the cars by name (their links are shown under your answer). '
             ."Buying: the buyer pays {$rate}% online with the button \"".__('Buy this car')."\" to reserve it and the rest to the seller at the handover ({$this->base()}/how-buying-works). "
             .'Listing a car is free. Premium seller from '.Money::eur(Pricing::yearly() / 12).' a month, premium buyer from '.Money::eur(Pricing::buyerYearly() / 12)." a month ({$this->base()}/premium). "
@@ -183,11 +183,11 @@ class Assistant
             ->implode("\n");
 
         return <<<TXT
-You are the assistant of KAI Garage, a used-car marketplace at {$this->base()}. Answer in the language the visitor writes in (the site is in English, Slovenian, Croatian, German, Dutch, French, Spanish and Portuguese). Be brief and friendly: a few sentences, plain text, no markdown headings. Only talk about the site and its cars; for anything else say politely that you can only help with KAI Garage. Never invent cars, prices or rules that aren't listed here. When you mention a car or a page, give its link on its own line.
+You are the assistant of Vozi, a used-car marketplace at {$this->base()}. Answer in the language the visitor writes in (the site is in English, Slovenian, Croatian, German, Dutch, French, Spanish and Portuguese). Be brief and friendly: a few sentences, plain text, no markdown headings. Only talk about the site and its cars; for anything else say politely that you can only help with Vozi. Never invent cars, prices or rules that aren't listed here. When you mention a car or a page, give its link on its own line.
 
 Company: {config('company.name')}, {config('company.address')}, phone {config('company.phone')}, email {config('company.email')}, hours {config('company.hours')}.
 
-How buying works ({$this->base()}/how-buying-works): the buyer presses "Buy this car" and pays {$rate}% of the price online (card, PayPal or paysafecard; paysafecard only up to 1.000 €). That reserves the car and gives buyer and seller each other's contact details. At the handover the buyer pays the seller the remaining {$this->pct(100 - $rate)}%, so the buyer pays exactly the listed price and the seller receives {$this->pct(100 - $rate)}% of it; KAI Garage keeps {$rate}%. The seller then confirms the sale or cancels it (the buyer is refunded in full). A car sold elsewhere must be marked sold by the seller, who pays the {$rate}% commission; until then they can't list new cars. "Contact seller" is for questions; the purchase always goes through "Buy this car".
+How buying works ({$this->base()}/how-buying-works): the buyer presses "Buy this car" and pays {$rate}% of the price online (card, PayPal or paysafecard; paysafecard only up to 1.000 €). That reserves the car and gives buyer and seller each other's contact details. At the handover the buyer pays the seller the remaining {$this->pct(100 - $rate)}%, so the buyer pays exactly the listed price and the seller receives {$this->pct(100 - $rate)}% of it; Vozi keeps {$rate}%. The seller then confirms the sale or cancels it (the buyer is refunded in full). A car sold elsewhere must be marked sold by the seller, who pays the {$rate}% commission; until then they can't list new cars. "Contact seller" is for questions; the purchase always goes through "Buy this car".
 
 Listing a car is free and needs an account ({$this->base()}/register). Search: {$this->base()}/cars with text, year and price filters (?q=, ?year_from=, ?year_to=, ?price_from=, ?price_to=). Wishlist works without an account. Deals: {$this->base()}/deals.
 
@@ -232,7 +232,7 @@ TXT;
                 'links' => [[__('Premium'), route('premium.index')]]];
         }
         if ($has('sell', 'prodaj', 'prodat', 'list a car', 'objav', 'verkauf', 'vendre', 'vender', 'verkop', 'add car', 'dodaj')) {
-            return ['reply' => __('Listing a car is free: create an account, press "Add car", add photos and the price. When it sells through the site, :rate% of the price goes to KAI Garage.', ['rate' => (int) config('pricing.commission_rate')]),
+            return ['reply' => __('Listing a car is free: create an account, press "Add car", add photos and the price. When it sells through the site, :rate% of the price goes to Vozi.', ['rate' => (int) config('pricing.commission_rate')]),
                 'links' => [[__('Add car'), route('cars.create')], [__('How buying works'), route('how-buying')]]];
         }
         if ($has('contact', 'kontakt', 'phone', 'telefon', 'email', 'e-mail', 'address', 'naslov', 'hours', 'odprt', 'open', 'where', 'kje', 'adresse', 'horaire', 'direccion', 'morada')) {

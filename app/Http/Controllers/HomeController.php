@@ -47,9 +47,16 @@ class HomeController extends Controller
             $badges[$newest->id][] = [__('New arrival'), 'new'];
         }
 
+        // the deal wall: every running deal, biggest cut first; without deals, the three cheapest cars as "hot prices"
+        $deals = DealController::forVisitor($alerts)->sortByDesc(fn ($c) => $c->activeDeal->percentOff())->values();
+        $wall = $deals->isNotEmpty() ? $deals->take(6) : $priced->take(3);
+
         return view('home', [
             'cars' => $cars,
-            'deals' => DealController::forVisitor($alerts)->take(3),
+            'deals' => $deals,
+            'wall' => $wall,
+            'wallIsDeals' => $deals->isNotEmpty(),
+            'maxOff' => $deals->isNotEmpty() ? $deals->first()->activeDeal->percentOff() : 0,
             'premiumCount' => $premium->count(),
             'highlights' => $highlights,
             'badges' => $badges,
