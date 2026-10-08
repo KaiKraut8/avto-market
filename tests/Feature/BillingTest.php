@@ -32,7 +32,8 @@ it('offers 3 months with 14 % off, renewing every 3 months', function () {
     expect(Pricing::price('seller', 'quarterly'))->toBe(115.04)   // 3 × 44,59 = 133,77, minus 14 %
         ->and(Pricing::price('buyer', 'quarterly'))->toBe(12.87);  // 3 × 4,99 = 14,97, minus 14 %
 
-    $this->get('/premium')->assertSee('Offer')->assertSee('115,04 €')->assertSee('12,87 €')->assertSee('Save 14%');
+    $this->get('/premium')->assertSee('Most popular')->assertSee('Best offer')->assertSee('38,35 €')->assertSee('4,29 €')   // per month
+        ->assertSee('data-quarterly="115,04 €"', false)->assertSee('data-quarterly="12,87 €"', false);
 
     $user = User::factory()->create();
     $this->actingAs($user)->get(route('checkout.create', ['product' => 'seller', 'billing' => 'quarterly']))

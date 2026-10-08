@@ -15,19 +15,17 @@
     <fieldset class="plan-pick billing-pick">
         <legend>{{ __('Billing') }}</legend>
         @foreach ($plans as $plan => $p)
-            <label @class(['plan', 'plan-premium', 'plan-offer' => $plan === 'quarterly'])>
+            <label @class(['plan', 'plan-premium', 'plan-offer' => $plan === 'quarterly', 'plan-best' => $plan === 'yearly'])>
                 <input type="radio" name="billing" value="{{ $plan }}" @checked($plan === 'monthly')>
                 <span class="plan-card">
                     @if ($plan === 'quarterly')
-                        <span class="offer-ribbon">{{ __('Offer') }}</span>
+                        <span class="offer-ribbon">{{ __('Most popular') }}</span>
+                    @elseif ($plan === 'yearly')
+                        <span class="offer-ribbon best">{{ __('Best offer') }}</span>
                     @endif
-                    <b>{{ __(ucfirst($plan)) }}@if ($p['saving']) <span class="save-badge">{{ __('Save :percent%', ['percent' => $p['saving']]) }}</span>@endif</b>
-                    <span class="plan-price">@eur($p['price']) <i>/ {{ Subscription::periodLabel($plan) }}</i></span>
-                    @if ($p['saving'])
-                        <small><s>@eur($p['full'])</s> {{ __('if paid monthly') }} &middot; {{ __('about :price a month', ['price' => Money::eur($p['price'] / $p['months'])]) }}</small>
-                    @else
-                        <small>{{ __('Cancel any time.') }}</small>
-                    @endif
+                    <b>{{ __(ucfirst($plan)) }}</b>
+                    {{-- the price per month; with a discount, the full monthly price struck through beside it --}}
+                    <span class="plan-price">@if ($p['saving'])<s>{{ Money::eur($p['full'] / $p['months']) }}</s> @endif{{ Money::eur($p['price'] / $p['months']) }} <i>/ {{ __('month') }}</i></span>
                 </span>
             </label>
         @endforeach

@@ -1550,3 +1550,8 @@ html.welcome-open { overflow: hidden; }
 .plan-offer .plan-card { border-color: rgba(255, 111, 156, .45); }
 .plan-offer .plan-card .save-badge { background: linear-gradient(135deg, var(--rose), #ff8a6f); color: #fff; box-shadow: none; }
 .premium-plan .plan-offer .plan-card { margin-top: .35rem; }
+.premium-plan .plan-card { min-height: 3.6rem; }
+.premium-plan .plan-price s { color: var(--muted); font: 500 .85rem var(--font-body); margin-right: .35rem; }
+.offer-ribbon.best { background: linear-gradient(135deg, var(--teal), var(--blue)); color: #04201a; box-shadow: 0 4px 12px rgba(47, 212, 180, .35); }
+.plan-best .plan-card { border-color: rgba(47, 212, 180, .45); }
+.premium-plan .plan-best .plan-card { margin-top: .35rem; }
