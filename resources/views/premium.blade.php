@@ -43,7 +43,7 @@
                     <a class="btn ghost" href="{{ route('account') }}#subscriptions">{{ __('Manage subscription') }}</a>
                 </div>
             @else
-                @include('premium._buy', ['kind' => 'seller', 'monthly' => Pricing::monthly(), 'yearly' => Pricing::yearly(), 'full' => Pricing::yearlyAtMonthlyRate()])
+                @include('premium._buy', ['kind' => 'seller'])
             @endif
         </section>
 
@@ -67,7 +67,7 @@
                     <a class="btn ghost" href="{{ route('account') }}#subscriptions">{{ __('Manage subscription') }}</a>
                 </div>
             @else
-                @include('premium._buy', ['kind' => 'buyer', 'monthly' => Pricing::buyerMonthly(), 'yearly' => Pricing::buyerYearly(), 'full' => Pricing::buyerYearlyAtMonthlyRate()])
+                @include('premium._buy', ['kind' => 'buyer'])
             @endif
         </section>
     </div>

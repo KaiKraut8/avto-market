@@ -186,7 +186,7 @@
                         <div @class(['sub-row', 'canceled' => $sub->cancel_at_period_end, 'past-due' => $sub->status === 'past_due'])>
                             <div class="sub-head">
                                 <b>&#9813; {{ $sub->label() }}</b>
-                                <span class="sub-price">@eur($sub->price()) / {{ $sub->plan === 'yearly' ? __('year') : __('month') }}</span>
+                                <span class="sub-price">@eur($sub->price()) / {{ \App\Models\Subscription::periodLabel($sub->plan) }}</span>
                             </div>
                             <p class="sub-state">
                                 @if ($sub->status === 'past_due')

@@ -25,7 +25,7 @@
             @if ($product === 'renew')
                 <p class="hint">{{ __('The next period of your subscription.') }}</p>
             @elseif ($product !== 'boost')
-                <p class="hint">{{ $billing === 'yearly' ? __('Yearly') : __('Monthly') }}</p>
+                <p class="hint">{{ __(ucfirst($billing)) }}</p>
             @endif
             <div class="buy-total">
                 <span>{{ __('Total today') }}</span>
@@ -36,6 +36,8 @@
                     <x-icon name="clock" :size="15" />
                     @if ($billing === 'yearly')
                         {{ __('Renews automatically every year at :price until you cancel. Cancel any time on your profile; you keep premium until the end of the period you paid for.', ['price' => \App\Support\Money::eur($price)]) }}
+                    @elseif ($billing === 'quarterly')
+                        {{ __('Renews automatically every 3 months at :price until you cancel. Cancel any time on your profile; you keep premium until the end of the period you paid for.', ['price' => \App\Support\Money::eur($price)]) }}
                     @else
                         {{ __('Renews automatically every month at :price until you cancel. Cancel any time on your profile; you keep premium until the end of the period you paid for.', ['price' => \App\Support\Money::eur($price)]) }}
                     @endif

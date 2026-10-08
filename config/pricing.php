@@ -1,7 +1,7 @@
 <?php
 
 // Paid placements. Purchases are simulated: there is no payment provider yet, so no money is taken.
-//  - Premium: monthly or yearly subscription for a seller account; every car of a premium seller
+//  - Premium: monthly, 3-monthly or yearly subscription for a seller account; every car of a premium seller
 //    is shown first on All cars and in the home page highlights, in gold.
 //    Premium sellers can also run special deals, see insights per car and get an alert when someone saves a car.
 //  - Premium for buyers: monthly or yearly; member prices on deals, alerts for deals on similar cars,
@@ -10,6 +10,7 @@
 return [
     'premium_monthly' => 44.59,
     'premium_yearly_saving' => 39,   // percent saved against paying monthly for a year (both premium plans)
+    'premium_quarterly_saving' => 14, // percent saved against paying monthly for 3 months (both premium plans)
     'buyer_monthly' => 4.99,
     'boost_weekly' => 6.99,
 

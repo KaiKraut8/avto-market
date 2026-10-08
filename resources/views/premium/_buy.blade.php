@@ -1,30 +1,38 @@
 @php
+    use App\Models\Subscription;
     use App\Services\Pricing;
     use App\Support\Money;
+    $plans = collect(Pricing::PLANS)->map(fn ($months, $plan) => [
+        'months' => $months,
+        'price' => Pricing::price($kind, $plan),
+        'full' => Pricing::fullPrice($kind, $plan),
+        'saving' => Pricing::saving($plan),
+    ]);
 @endphp
 {{-- billing choice and buy button for one premium plan ($kind: seller or buyer) --}}
 <form method="get" action="{{ route('checkout.create') }}" class="buy-box">
     <input type="hidden" name="product" value="{{ $kind }}">
     <fieldset class="plan-pick billing-pick">
         <legend>{{ __('Billing') }}</legend>
-        <label class="plan plan-premium">
-            <input type="radio" name="billing" value="monthly" checked>
-            <span class="plan-card">
-                <b>{{ __('Monthly') }}</b>
-                <span class="plan-price">@eur($monthly) <i>/ {{ __('month') }}</i></span>
-                <small>{{ __('Cancel any time.') }}</small>
-            </span>
-        </label>
-        <label class="plan plan-premium">
-            <input type="radio" name="billing" value="yearly">
-            <span class="plan-card">
-                <b>{{ __('Yearly') }} <span class="save-badge">{{ __('Save :percent%', ['percent' => Pricing::yearlySaving()]) }}</span></b>
-                <span class="plan-price">@eur($yearly) <i>/ {{ __('year') }}</i></span>
-                <small><s>@eur($full)</s> {{ __('if paid monthly') }} &middot; {{ __('about :price a month', ['price' => Money::eur($yearly / 12)]) }}</small>
-            </span>
-        </label>
+        @foreach ($plans as $plan => $p)
+            <label @class(['plan', 'plan-premium', 'plan-offer' => $plan === 'quarterly'])>
+                <input type="radio" name="billing" value="{{ $plan }}" @checked($plan === 'monthly')>
+                <span class="plan-card">
+                    @if ($plan === 'quarterly')
+                        <span class="offer-ribbon">{{ __('Offer') }}</span>
+                    @endif
+                    <b>{{ __(ucfirst($plan)) }}@if ($p['saving']) <span class="save-badge">{{ __('Save :percent%', ['percent' => $p['saving']]) }}</span>@endif</b>
+                    <span class="plan-price">@eur($p['price']) <i>/ {{ Subscription::periodLabel($plan) }}</i></span>
+                    @if ($p['saving'])
+                        <small><s>@eur($p['full'])</s> {{ __('if paid monthly') }} &middot; {{ __('about :price a month', ['price' => Money::eur($p['price'] / $p['months'])]) }}</small>
+                    @else
+                        <small>{{ __('Cancel any time.') }}</small>
+                    @endif
+                </span>
+            </label>
+        @endforeach
     </fieldset>
-    <div class="buy-total"><span>{{ __('Total') }}</span><b data-buy-total data-monthly="{{ Money::eur($monthly) }}" data-yearly="{{ Money::eur($yearly) }}">@eur($monthly)</b></div>
+    <div class="buy-total"><span>{{ __('Total') }}</span><b data-buy-total @foreach ($plans as $plan => $p) data-{{ $plan }}="{{ Money::eur($p['price']) }}" @endforeach>@eur($plans['monthly']['price'])</b></div>
     @auth
         <button type="submit" class="btn gold big">&#9813; {{ $kind === 'buyer' ? __('Become a premium buyer') : __('Buy premium') }}</button>
         <p class="hint demo-note">{{ __('Pay by card, PayPal or paysafecard. Renews automatically until you cancel; cancel any time.') }}</p>

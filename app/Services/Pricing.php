@@ -9,6 +9,38 @@ use Illuminate\Support\Facades\DB;
 // Paid placements (simulated: nothing is charged). Prices live in config/pricing.php.
 class Pricing
 {
+    // Premium billing periods, in months
+    public const PLANS = ['monthly' => 1, 'quarterly' => 3, 'yearly' => 12];
+
+    // Percent saved against paying monthly for the same months
+    public static function saving(string $plan): int
+    {
+        return match ($plan) {
+            'quarterly' => (int) config('pricing.premium_quarterly_saving'),
+            'yearly' => self::yearlySaving(),
+            default => 0,
+        };
+    }
+
+    // The price of one period of a premium plan ($kind: seller or buyer)
+    public static function price(string $kind, string $plan): float
+    {
+        return round(self::fullPrice($kind, $plan) * (1 - self::saving($plan) / 100), 2);
+    }
+
+    // The same months at the monthly price
+    public static function fullPrice(string $kind, string $plan): float
+    {
+        $monthly = $kind === 'buyer' ? self::buyerMonthly() : self::monthly();
+
+        return round($monthly * (self::PLANS[$plan] ?? 1), 2);
+    }
+
+    public static function quarterlySaving(): int
+    {
+        return self::saving('quarterly');
+    }
+
     public static function monthly(): float
     {
         return (float) config('pricing.premium_monthly');
@@ -56,11 +88,11 @@ class Pricing
         if ($user->hasPremium()) {
             return false;
         }
-        $plan = $plan === 'yearly' ? 'yearly' : 'monthly';
+        $plan = isset(self::PLANS[$plan]) ? $plan : 'monthly';
         $user->forceFill([
             'premium_plan' => $plan,
             'premium_since' => now(),
-            'premium_until' => now()->addMonths($plan === 'yearly' ? 12 : 1),
+            'premium_until' => now()->addMonths(self::PLANS[$plan]),
         ])->save();
 
         return true;
@@ -72,11 +104,11 @@ class Pricing
         if ($user->hasBuyerPremium()) {
             return false;
         }
-        $plan = $plan === 'yearly' ? 'yearly' : 'monthly';
+        $plan = isset(self::PLANS[$plan]) ? $plan : 'monthly';
         $user->forceFill([
             'buyer_premium_plan' => $plan,
             'buyer_premium_since' => now(),
-            'buyer_premium_until' => now()->addMonths($plan === 'yearly' ? 12 : 1),
+            'buyer_premium_until' => now()->addMonths(self::PLANS[$plan]),
         ])->save();
 
         return true;

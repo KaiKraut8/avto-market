@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Services\Pricing;
 use App\Support\CarSearch;
 use App\Support\Money;
 use Illuminate\Foundation\Http\FormRequest;
@@ -33,7 +34,7 @@ class CarRequest extends FormRequest
             'plan' => ['sometimes', Rule::in(['free', 'boost', 'premium'])],
             // a new car: the seller agrees to the commission on its sale
             'terms' => [$this->isMethod('post') ? 'accepted' : 'nullable'],
-            'billing' => ['sometimes', Rule::in(['monthly', 'yearly'])],
+            'billing' => ['sometimes', Rule::in(array_keys(Pricing::PLANS))],
             'photos' => ['sometimes', 'array', 'max:20'],
             'photos.*' => ['file'],   // contents are checked by PhotoStore
         ];

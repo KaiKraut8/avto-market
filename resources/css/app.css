@@ -1540,3 +1540,13 @@ html.welcome-open { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
     .welcome-panel, .welcome-backdrop, .welcome.leaving .welcome-panel, .welcome.leaving .welcome-backdrop { animation: none; }
 }
+
+/* the 3-month plan is the featured offer */
+.offer-ribbon {
+    position: absolute; top: -.65rem; left: .8rem; z-index: 1;
+    padding: .16rem .6rem; border-radius: 999px; font: 800 .68rem var(--font-body); letter-spacing: .08em; text-transform: uppercase;
+    color: #fff; background: linear-gradient(135deg, var(--rose), var(--violet)); box-shadow: 0 4px 12px rgba(255, 111, 156, .35);
+}
+.plan-offer .plan-card { border-color: rgba(255, 111, 156, .45); }
+.plan-offer .plan-card .save-badge { background: linear-gradient(135deg, var(--rose), #ff8a6f); color: #fff; box-shadow: none; }
+.premium-plan .plan-offer .plan-card { margin-top: .35rem; }

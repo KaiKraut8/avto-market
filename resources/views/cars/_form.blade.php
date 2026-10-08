@@ -97,23 +97,25 @@
             </label>
             {{-- only shown once Premium is picked --}}
             <div class="premium-billing">
-                <label class="plan plan-premium">
-                    <input type="radio" name="billing" value="monthly" @checked(old('billing', 'monthly') !== 'yearly')>
-                    <span class="plan-card">
-                        <b>{{ __('Monthly') }}</b>
-                        <span class="plan-price">@eur(\App\Services\Pricing::monthly()) <i>/ {{ __('month') }}</i></span>
-                        <small>{{ __('Cancel any time.') }}</small>
-                    </span>
-                </label>
-                <label class="plan plan-premium">
-                    <input type="radio" name="billing" value="yearly" @checked(old('billing') === 'yearly')>
-                    <span class="plan-card">
-                        <b>{{ __('Yearly') }}</b>
-                        <span class="plan-price">@eur(\App\Services\Pricing::yearly()) <i>/ {{ __('year') }}</i></span>
-                        <small><s>@eur(\App\Services\Pricing::yearlyAtMonthlyRate())</s> {{ __('if paid monthly.') }}</small>
-                        <span class="save-badge">{{ __('Save :percent%', ['percent' => \App\Services\Pricing::yearlySaving()]) }}</span>
-                    </span>
-                </label>
+                @foreach (\App\Services\Pricing::PLANS as $billingPlan => $months)
+                    @php($saving = \App\Services\Pricing::saving($billingPlan))
+                    <label @class(['plan', 'plan-premium', 'plan-offer' => $billingPlan === 'quarterly'])>
+                        <input type="radio" name="billing" value="{{ $billingPlan }}" @checked(old('billing', 'monthly') === $billingPlan)>
+                        <span class="plan-card">
+                            @if ($billingPlan === 'quarterly')
+                                <span class="offer-ribbon">{{ __('Offer') }}</span>
+                            @endif
+                            <b>{{ __(ucfirst($billingPlan)) }}</b>
+                            <span class="plan-price">@eur(\App\Services\Pricing::price('seller', $billingPlan)) <i>/ {{ \App\Models\Subscription::periodLabel($billingPlan) }}</i></span>
+                            @if ($saving)
+                                <small><s>@eur(\App\Services\Pricing::fullPrice('seller', $billingPlan))</s> {{ __('if paid monthly.') }}</small>
+                                <span class="save-badge">{{ __('Save :percent%', ['percent' => $saving]) }}</span>
+                            @else
+                                <small>{{ __('Cancel any time.') }}</small>
+                            @endif
+                        </span>
+                    </label>
+                @endforeach
             </div>
             <p class="hint demo-note">{{ __('Push forward and premium are paid on the next page, by card, PayPal or paysafecard. The car is saved either way.') }}</p>
         </fieldset>

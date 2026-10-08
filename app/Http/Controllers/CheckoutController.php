@@ -101,7 +101,7 @@ class CheckoutController extends Controller
         $data = $request->validate([
             'product' => ['required', Rule::in(['seller', 'buyer', 'renew', 'boost', 'reserve', 'commission'])],
             'sale' => ['nullable', 'integer'],
-            'billing' => ['nullable', Rule::in(['monthly', 'yearly'])],
+            'billing' => ['nullable', Rule::in(array_keys(Pricing::PLANS))],
             'car' => ['nullable', 'integer'],
             'subscription' => ['nullable', 'integer'],
         ]);
@@ -118,7 +118,7 @@ class CheckoutController extends Controller
             return [
                 'product' => $product, 'billing' => $billing, 'price' => $price,
                 'title' => $product === 'buyer' ? __('Premium buyer') : __('Premium seller'),
-                'period' => $billing === 'yearly' ? __('year') : __('month'),
+                'period' => Subscription::periodLabel($billing),
                 'renews' => true,
             ];
         }
@@ -129,7 +129,7 @@ class CheckoutController extends Controller
             return [
                 'product' => 'renew', 'billing' => $subscription->plan, 'subscription' => $subscription, 'price' => $subscription->price(),
                 'title' => $subscription->label(),
-                'period' => $subscription->plan === 'yearly' ? __('year') : __('month'),
+                'period' => Subscription::periodLabel($subscription->plan),
                 'renews' => true,
             ];
         }

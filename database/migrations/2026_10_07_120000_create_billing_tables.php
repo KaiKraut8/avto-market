@@ -14,7 +14,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('kind', 10);                 // seller | buyer
-            $table->string('plan', 10);                 // monthly | yearly
+            $table->string('plan', 10);                 // monthly | quarterly | yearly
             $table->string('method', 20);               // creditcard | paypal | paysafecard
             $table->string('status', 12)->default('pending')->index();   // pending | active | past_due | ended
             $table->dateTime('current_period_end')->nullable()->index();

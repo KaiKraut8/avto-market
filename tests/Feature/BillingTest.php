@@ -8,6 +8,7 @@ use App\Services\Billing;
 use App\Services\Payments\MollieGateway;
 use App\Services\Payments\PaymentGateway;
 use App\Services\Payments\TestGateway;
+use App\Services\Pricing;
 use Illuminate\Support\Facades\Http;
 
 // Pays a checkout with the test gateway: choose a method, "pay" on the test page, come back
@@ -25,6 +26,26 @@ it('shows the checkout with card, PayPal and paysafecard', function () {
     $this->actingAs(User::factory()->create())->get(route('checkout.create', ['product' => 'seller', 'billing' => 'yearly']))
         ->assertOk()->assertSee('326,40 €')->assertSee('Credit or debit card')->assertSee('PayPal')->assertSee('paysafecard')
         ->assertSee('Renews automatically every year');
+});
+
+it('offers 3 months with 14 % off, renewing every 3 months', function () {
+    expect(Pricing::price('seller', 'quarterly'))->toBe(115.04)   // 3 × 44,59 = 133,77, minus 14 %
+        ->and(Pricing::price('buyer', 'quarterly'))->toBe(12.87);  // 3 × 4,99 = 14,97, minus 14 %
+
+    $this->get('/premium')->assertSee('Offer')->assertSee('115,04 €')->assertSee('12,87 €')->assertSee('Save 14%');
+
+    $user = User::factory()->create();
+    $this->actingAs($user)->get(route('checkout.create', ['product' => 'seller', 'billing' => 'quarterly']))
+        ->assertOk()->assertSee('115,04 €')->assertSee('Renews automatically every 3 months');
+
+    $sub = payCheckout($this, $user, ['product' => 'seller', 'billing' => 'quarterly'])->subscription;
+    expect($sub->plan)->toBe('quarterly')->and((float) $sub->payments->first()->amount)->toBe(115.04)
+        ->and($sub->current_period_end->isSameDay(now()->addMonths(3)))->toBeTrue()
+        ->and($user->fresh()->premium_plan)->toBe('quarterly');
+
+    $this->travelTo($sub->current_period_end->copy()->subHours(2));
+    app(Billing::class)->renewDue();
+    expect($sub->fresh()->current_period_end->isSameDay(now()->addHours(2)->addMonths(3)))->toBeTrue();
 });
 
 it('switches premium on only once the payment is paid', function () {

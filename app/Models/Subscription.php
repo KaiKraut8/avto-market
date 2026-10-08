@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-// A premium plan (seller or buyer) that renews every month or year until it is cancelled
+// A premium plan (seller or buyer) that renews every month, 3 months or year until it is cancelled
 #[Fillable(['kind', 'plan', 'method', 'status'])]
 class Subscription extends Model
 {
@@ -46,17 +46,22 @@ class Subscription extends Model
 
     public static function priceFor(string $kind, string $plan): float
     {
-        return match ([$kind, $plan]) {
-            ['seller', 'yearly'] => Pricing::yearly(),
-            ['buyer', 'monthly'] => Pricing::buyerMonthly(),
-            ['buyer', 'yearly'] => Pricing::buyerYearly(),
-            default => Pricing::monthly(),
-        };
+        return Pricing::price($kind, $plan);
     }
 
     public function months(): int
     {
-        return $this->plan === 'yearly' ? 12 : 1;
+        return Pricing::PLANS[$this->plan] ?? 1;
+    }
+
+    // "month", "3 months" or "year", as in "44,59 € / month"
+    public static function periodLabel(string $plan): string
+    {
+        return match ($plan) {
+            'quarterly' => __('3 months'),
+            'yearly' => __('year'),
+            default => __('month'),
+        };
     }
 
     // Cards and PayPal are charged again automatically; paysafecard is paid by hand each period

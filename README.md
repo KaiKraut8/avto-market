@@ -54,7 +54,7 @@ for the old site, and real environment variables would override `.env`.
 
 ## Premium
 
-Two plans, paid monthly or yearly (see Payments):
+Two plans, paid monthly, every 3 months (14 % off, shown as the offer) or yearly (39 % off); see Payments:
 
 - **Premium seller**: top placement in gold, special deals (1–50 % off for 3, 7 or 14 days, with an optional
   lower member price for premium buyers), insights per car on the account page, and an alert when someone saves a car.
