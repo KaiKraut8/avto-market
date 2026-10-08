@@ -82,36 +82,37 @@ class Assistant
 
     // Ollama's chat API with tool calling: the model may search the cars (up to a few rounds) before it answers.
     // The links under the answer are the cars the tools found.
-    private function askOllama(array $messages): array
+    // Ollama's chat API with tool calling, streamed: the model may search the cars (up to a few rounds) before it
+    // answers. $emit, when given, receives the answer as it is written: ['type' => 'status'|'delta', 'text' => ...].
+    // The links under the answer are the cars the tools found.
+    private function askOllama(array $messages, ?callable $emit = null): array
     {
         $cfg = config('assistant.ollama');
         $deadline = microtime(true) + $cfg['timeout'];
         $conversation = [['role' => 'system', 'content' => $this->ollamaPrompt()], ...$messages];
         $found = [];
+        $emit ??= fn () => null;
+        $emit(['type' => 'status', 'text' => __('Thinking…')]);
 
         for ($round = 0; $round <= $cfg['max_tool_rounds']; $round++) {
-            $left = $deadline - microtime(true);
-            if ($left < 1) {
-                throw new \RuntimeException('The assistant model took longer than '.$cfg['timeout'].' s.');
-            }
-            $message = Http::acceptJson()->asJson()->timeout((int) ceil($left))->throw()
-                ->post(rtrim($cfg['url'], '/').'/api/chat', [
-                    'model' => $cfg['model'],
-                    'messages' => $conversation,
-                    'tools' => $round < $cfg['max_tool_rounds'] ? self::ollamaTools() : [],
-                    'stream' => false,
-                    // no "think" option: with think=false this Qwen3 build writes its reasoning into the answer;
-                    // left out, the reasoning comes in a separate "thinking" field that is ignored here
-                    'keep_alive' => $cfg['keep_alive'],
-                ])->json('message');
+            $message = $this->streamChat([
+                'model' => $cfg['model'],
+                'messages' => $conversation,
+                'tools' => $round < $cfg['max_tool_rounds'] ? self::ollamaTools() : [],
+                'stream' => true,
+                // no "think" option: this Qwen3 build reasons whatever it is told (think=false and /no_think only
+                // move the reasoning into the answer), so the reasoning is left in its own "thinking" field and ignored
+                'keep_alive' => $cfg['keep_alive'],
+            ], $deadline, fn (string $text) => $emit(['type' => 'delta', 'text' => $text]));
 
             $calls = $message['tool_calls'] ?? [];
             if (! $calls) {
-                $reply = trim(preg_replace('/<think>.*?<\/think>/s', '', (string) ($message['content'] ?? '')));
+                $reply = trim(preg_replace('/<think>.*?<\/think>/s', '', $message['content']));
 
                 return ['reply' => $reply, 'links' => array_slice(array_values($found), 0, 3)];
             }
-            $conversation[] = $message;
+            $emit(['type' => 'status', 'text' => __('Searching the cars…')]);
+            $conversation[] = ['role' => 'assistant', 'content' => $message['content'], 'tool_calls' => $calls];
             foreach ($calls as $call) {
                 $name = $call['function']['name'] ?? '';
                 $result = $this->runTool($name, (array) ($call['function']['arguments'] ?? []));
@@ -120,9 +121,96 @@ class Assistant
                 }
                 $conversation[] = ['role' => 'tool', 'tool_name' => $name, 'content' => json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)];
             }
+            // the model now reasons over what it found before it writes; say so meanwhile
+            $emit(['type' => 'status', 'text' => trans_choice('Found :count car, writing the answer…|Found :count cars, writing the answer…', count($found))]);
         }
 
         throw new \RuntimeException('The assistant model kept calling tools.');
+    }
+
+    // One streamed /api/chat call: reads Ollama's NDJSON lines, passes the answer's words on as they come,
+    // and returns the whole message (content and any tool calls)
+    private function streamChat(array $body, float $deadline, callable $onText): array
+    {
+        $left = $deadline - microtime(true);
+        if ($left < 1) {
+            throw new \RuntimeException('The assistant model took longer than '.config('assistant.ollama.timeout').' s.');
+        }
+        $stream = Http::withOptions(['stream' => true])->accept('application/x-ndjson')->asJson()
+            ->connectTimeout(5)->timeout((int) ceil($left))->throw()
+            ->post(rtrim(config('assistant.ollama.url'), '/').'/api/chat', $body)
+            ->toPsrResponse()->getBody();
+
+        $content = '';
+        $calls = [];
+        $buffer = '';
+        $handle = function (string $line) use (&$content, &$calls, $onText) {
+            $chunk = json_decode($line, true);
+            if (! is_array($chunk)) {
+                return;
+            }
+            if (isset($chunk['error'])) {
+                throw new \RuntimeException('Ollama: '.$chunk['error']);
+            }
+            $text = (string) ($chunk['message']['content'] ?? '');
+            if ($text !== '') {
+                $content .= $text;
+                $onText($text);
+            }
+            array_push($calls, ...($chunk['message']['tool_calls'] ?? []));
+        };
+        while (! $stream->eof()) {
+            if (microtime(true) > $deadline) {
+                throw new \RuntimeException('The assistant model took longer than '.config('assistant.ollama.timeout').' s.');
+            }
+            $buffer .= $stream->read(2048);
+            while (($nl = strpos($buffer, "\n")) !== false) {
+                $handle(substr($buffer, 0, $nl));
+                $buffer = substr($buffer, $nl + 1);
+            }
+        }
+        if (trim($buffer) !== '') {
+            $handle($buffer);
+        }
+
+        return ['content' => $content, 'tool_calls' => $calls];
+    }
+
+    // The answer written out as it comes ($emit gets status, delta and done events), for the chat window.
+    // Without a streaming model, or when it fails before writing anything, the whole answer comes at once.
+    public function stream(array $messages, callable $emit): void
+    {
+        $messages = $this->trim($messages);
+        $started = false;
+        if ($messages !== [] && $this->driver() === 'ollama') {
+            try {
+                $answer = $this->askOllama($messages, function (array $event) use ($emit, &$started) {
+                    $started = $started || $event['type'] === 'delta';
+                    $emit($event);
+                });
+                if ($answer['reply'] !== '') {
+                    $emit(['type' => 'done', 'reply' => $answer['reply'], 'links' => $answer['links']]);
+
+                    return;
+                }
+            } catch (\Throwable $e) {
+                report($e);
+                if ($started) {   // part of the answer is already on screen: end it there
+                    $emit(['type' => 'done', 'reply' => null, 'links' => [], 'cut' => true]);
+
+                    return;
+                }
+            }
+        }
+        $answer = $messages === [] || $this->driver() === 'ollama' ? $this->fallback($messages) : $this->reply($messages);
+        $emit(['type' => 'done'] + $answer);
+    }
+
+    private function fallback(array $messages): array
+    {
+        return $messages === []
+            ? ['reply' => __('Hello! Ask me about a car, prices, premium or how buying works.'), 'links' => []]
+            : $this->builtIn(end($messages)['content']);
     }
 
     private function runTool(string $name, array $args): array

@@ -92,17 +92,19 @@ if (root) {
     root.querySelector('[data-assistant-dismiss]')?.addEventListener('click', (e) => { e.stopPropagation(); root.classList.remove('greeting'); hideBubble(); });
 
     // ---- the chat ----
+    const addLinks = (row, links) => {
+        if (!links.length) return;
+        const ul = document.createElement('ul');
+        links.forEach(([label, url]) => { const a = document.createElement('a'); a.href = url; a.textContent = label; const li = document.createElement('li'); li.append(a); ul.append(li); });
+        row.append(ul);
+    };
     const add = (role, text, links = []) => {
         const row = document.createElement('div');
         row.className = 'assistant-msg from-' + role;
         const p = document.createElement('p');
         p.textContent = text;
         row.append(p);
-        if (links.length) {
-            const ul = document.createElement('ul');
-            links.forEach(([label, url]) => { const a = document.createElement('a'); a.href = url; a.textContent = label; const li = document.createElement('li'); li.append(a); ul.append(li); });
-            row.append(ul);
-        }
+        addLinks(row, links);
         log.append(row);
         log.scrollTop = log.scrollHeight;
         return row;
@@ -140,14 +142,45 @@ if (root) {
         try {
             const res = await fetch(root.dataset.url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+                headers: { 'Content-Type': 'application/json', Accept: 'application/x-ndjson', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
                 body: JSON.stringify({ messages: history.slice(-12).map(({ role, content }) => ({ role, content })) }),
             });
-            if (!res.ok) throw new Error(res.status);
-            const data = await res.json();
-            wait.remove();
-            add('assistant', data.reply, data.links || []);
-            history.push({ role: 'assistant', content: data.reply, links: data.links || [] });
+            if (!res.ok || !res.body) throw new Error(res.status);
+
+            // the answer arrives as one JSON event per line: status (what the model is doing), delta (words), done
+            const p = wait.querySelector('p');
+            let written = '', links = [], buffer = '';
+            const handle = (event) => {
+                if (event.type === 'status' && !written) {
+                    p.textContent = event.text;
+                } else if (event.type === 'delta') {
+                    if (!written) { wait.classList.remove('thinking'); p.textContent = ''; }
+                    written += event.text;
+                    p.textContent = written.trimStart();
+                } else if (event.type === 'done') {
+                    if (event.reply) { written = event.reply; p.textContent = written; }
+                    if (event.cut) { written += ' …'; p.textContent = written.trim(); }
+                    links = event.links || [];
+                    wait.classList.remove('thinking');
+                    addLinks(wait, links);
+                }
+                log.scrollTop = log.scrollHeight;
+            };
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            for (;;) {
+                const { value, done } = await reader.read();
+                buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+                let nl;
+                while ((nl = buffer.indexOf('\n')) >= 0) {
+                    const line = buffer.slice(0, nl).trim();
+                    buffer = buffer.slice(nl + 1);
+                    if (line) handle(JSON.parse(line));
+                }
+                if (done) break;
+            }
+            if (!written.trim()) throw new Error('empty');
+            history.push({ role: 'assistant', content: written.trim(), links });
             store('kai_assistant_history', history.slice(-30));
             if (chat.hidden) dot.hidden = false;
         } catch {
