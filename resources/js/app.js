@@ -8,6 +8,7 @@ import './photo-shrink';
 import './most-watched';
 import './premium';
 import './contact';
+import './nav';
 import './language';
 import './cookie-notice';
 import './home';

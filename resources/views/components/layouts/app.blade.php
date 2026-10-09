@@ -56,51 +56,64 @@
 <header class="topbar">
     <div class="inner">
         <a class="logo" href="{{ route('home') }}"><span class="mark"></span><span>Vo<em>zi</em></span></a>
-        <nav class="nav">
-            <a href="{{ route('home') }}" @class(['active' => $active === 'home'])>{{ __('Home') }}</a>
-            <a href="{{ route('cars.index') }}" @class(['active' => $active === 'cars'])>{{ __('All cars') }}</a>
-            <a href="{{ route('deals.index') }}" @class(['active' => $active === 'deals'])>{{ __('Deals') }}</a>
-            <a href="{{ route('most-watched') }}" @class(['active' => $active === 'most-watched'])>{{ __('Most watched') }}</a>
-            <a href="{{ route('wishlist.index') }}" @class(['active' => $active === 'wishlist'])>{{ __('Wishlist') }} <span class="nav-count" data-wish-count @if (! $wishCount) hidden @endif>{{ $wishCount }}</span></a>
-            <a href="{{ route('premium.index') }}" @class(['active' => $active === 'premium'])><span class="nav-crown" aria-hidden="true">&#9813;</span> {{ __('Premium') }}</a>
-            <a class="btn accent" href="{{ route('cars.create') }}">+ {{ __('Add car') }}</a>
-            @can('admin')
-                <a href="{{ route('admin.dashboard') }}" @class(['nav-admin', 'active' => $active === 'admin'])>{{ __('Admin') }}</a>
-            @endcan
-            @auth
-                <a @class(['nav-bell', 'active' => $active === 'notifications']) href="{{ route('notifications.index') }}" title="{{ __('Notifications') }}" aria-label="{{ __('Notifications') }}">
-                    <x-icon name="bell" :size="19" />
-                    @if ($unreadAlerts)
-                        <span class="nav-count">{{ $unreadAlerts }}</span>
-                    @endif
-                </a>
-                <a @class(['account-chip', 'active' => $active === 'account']) href="{{ route('account') }}" title="{{ __('Your profile') }}">
-                    <span class="chip-avatar">{{ auth()->user()->initial() }}</span>
-                    {{ auth()->user()->firstName() }}@if (auth()->user()->hasPremium()) <span class="nav-crown" title="{{ __('Premium seller') }}">&#9813;</span>@endif
-                </a>
-            @else
-                <a href="{{ route('login') }}" @class(['active' => $active === 'login'])>{{ __('Log in') }}</a>
-                <a class="btn ghost" href="{{ route('register') }}">{{ __('Sign up') }}</a>
-            @endauth
-
-            {{-- language picker, far right --}}
-            <details class="lang-menu">
-                <summary aria-label="{{ __('Language') }}" title="{{ __('Language') }}">
-                    <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M2.5 12h19M12 2.5c2.6 2.8 3.9 6 3.9 9.5s-1.3 6.7-3.9 9.5c-2.6-2.8-3.9-6-3.9-9.5s1.3-6.7 3.9-9.5Z" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
-                    <span>{{ strtoupper(app()->getLocale()) }}</span>
-                </summary>
-                <ul>
-                    @foreach (config('locales') as $code => $language)
-                        <li>
-                            <a href="{{ route('language', $code) }}" lang="{{ $code }}" @class(['current' => app()->getLocale() === $code]) @if (app()->getLocale() === $code) aria-current="true" @endif>
-                                <b>{{ strtoupper($code) }}</b> {{ $language }}
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
-            </details>
-        </nav>
+        {{-- the tabs live in a panel that slides in from the right when this button is pressed --}}
+        <button type="button" class="nav-toggle" aria-controls="site-nav" aria-expanded="false" aria-label="{{ __('Menu') }}" data-nav-toggle>
+            <span class="nav-toggle-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+            @if ($wishCount || $unreadAlerts)
+                <span class="nav-toggle-dot" aria-hidden="true"></span>
+            @endif
+        </button>
     </div>
+    <div class="nav-backdrop" data-nav-close></div>
+    <nav class="nav" id="site-nav" aria-label="{{ __('Menu') }}">
+        <div class="nav-head">
+            <b>{{ __('Menu') }}</b>
+            <button type="button" class="nav-close" aria-label="{{ __('Close') }}" data-nav-close>&times;</button>
+        </div>
+        <a href="{{ route('home') }}" @class(['active' => $active === 'home'])>{{ __('Home') }}</a>
+        <a href="{{ route('cars.index') }}" @class(['active' => $active === 'cars'])>{{ __('All cars') }}</a>
+        <a href="{{ route('deals.index') }}" @class(['active' => $active === 'deals'])>{{ __('Deals') }}</a>
+        <a href="{{ route('most-watched') }}" @class(['active' => $active === 'most-watched'])>{{ __('Most watched') }}</a>
+        <a href="{{ route('wishlist.index') }}" @class(['active' => $active === 'wishlist'])>{{ __('Wishlist') }} <span class="nav-count" data-wish-count @if (! $wishCount) hidden @endif>{{ $wishCount }}</span></a>
+        <a href="{{ route('premium.index') }}" @class(['active' => $active === 'premium'])><span class="nav-crown" aria-hidden="true">&#9813;</span> {{ __('Premium') }}</a>
+        <a class="btn accent" href="{{ route('cars.create') }}">+ {{ __('Add car') }}</a>
+        @can('admin')
+            <a href="{{ route('admin.dashboard') }}" @class(['nav-admin', 'active' => $active === 'admin'])>{{ __('Admin') }}</a>
+        @endcan
+        @auth
+            <a @class(['nav-bell', 'active' => $active === 'notifications']) href="{{ route('notifications.index') }}">
+                <x-icon name="bell" :size="19" />
+                <span>{{ __('Notifications') }}</span>
+                @if ($unreadAlerts)
+                    <span class="nav-count">{{ $unreadAlerts }}</span>
+                @endif
+            </a>
+            <a @class(['account-chip', 'active' => $active === 'account']) href="{{ route('account') }}" title="{{ __('Your profile') }}">
+                <span class="chip-avatar">{{ auth()->user()->initial() }}</span>
+                {{ auth()->user()->firstName() }}@if (auth()->user()->hasPremium()) <span class="nav-crown" title="{{ __('Premium seller') }}">&#9813;</span>@endif
+            </a>
+        @else
+            <a href="{{ route('login') }}" @class(['active' => $active === 'login'])>{{ __('Log in') }}</a>
+            <a class="btn ghost" href="{{ route('register') }}">{{ __('Sign up') }}</a>
+        @endauth
+
+        {{-- language picker, at the bottom of the menu --}}
+        <details class="lang-menu">
+            <summary aria-label="{{ __('Language') }}" title="{{ __('Language') }}">
+                <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M2.5 12h19M12 2.5c2.6 2.8 3.9 6 3.9 9.5s-1.3 6.7-3.9 9.5c-2.6-2.8-3.9-6-3.9-9.5s1.3-6.7 3.9-9.5Z" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+                <span>{{ strtoupper(app()->getLocale()) }}</span>
+            </summary>
+            <ul>
+                @foreach (config('locales') as $code => $language)
+                    <li>
+                        <a href="{{ route('language', $code) }}" lang="{{ $code }}" @class(['current' => app()->getLocale() === $code]) @if (app()->getLocale() === $code) aria-current="true" @endif>
+                            <b>{{ strtoupper($code) }}</b> {{ $language }}
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        </details>
+    </nav>
 </header>
 
 @if ($active !== 'home')

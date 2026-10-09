@@ -42,6 +42,7 @@ body {
     color: var(--ink);
     font: 15px/1.55 var(--font-body);
     -webkit-font-smoothing: antialiased;
+    overflow-x: clip;   /* full-bleed decorations never make the page scroll sideways */
 }
 
 h1, h2, h3 { font-family: var(--font-head); letter-spacing: -.01em; }
@@ -52,22 +53,18 @@ a:hover { text-decoration: underline; }
 .wrap { padding-block: 2rem 4rem; }
 
 /* ---- top bar ---- */
-.topbar {
-    position: sticky; top: 0; z-index: 10;
-    background: rgba(14, 17, 22, .8);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--line);
-}
-.topbar .inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: .8rem; flex-wrap: wrap; }
+.topbar { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--line); }
+/* the blur sits on its own layer: on the bar itself it would trap the fixed menu panel inside the bar */
+.topbar::before { content: ""; position: absolute; inset: 0; z-index: -1; background: rgba(14, 17, 22, .8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.topbar .inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: .8rem; }
 .logo { display: inline-flex; align-items: center; gap: .55rem; font: 800 1.25rem var(--font-head); color: var(--ink); letter-spacing: .02em; }
 .logo em { font-style: normal; color: var(--accent); font-weight: 500; }
 .logo:hover { text-decoration: none; }
 .mark { width: 12px; height: 12px; border-radius: 3px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); transform: rotate(45deg); }
-.nav { display: flex; align-items: center; gap: .25rem; flex-wrap: wrap; }
-.nav a { color: var(--muted); padding: .45rem .8rem; border-radius: 8px; font-weight: 500; }
+.nav a { color: var(--muted); padding: .75rem .9rem; border-radius: 10px; font-weight: 500; font-size: 1rem; }
 .nav a:hover { color: var(--ink); background: var(--card); text-decoration: none; }
 .nav a.active { color: var(--ink); background: var(--card-2); }
-.nav .btn { margin-left: .5rem; }
+.nav .btn { margin: .5rem 0 .2rem; justify-content: center; padding: .75rem 1rem; }
 
 /* ---- buttons ---- */
 .btn {
@@ -956,11 +953,8 @@ input[type=email]:focus, input[type=tel]:focus { outline: none; border-color: va
 .search-empty { margin-bottom: 1.6rem; }
 
 /* ---- accounts: nav chip, login / sign up, profile ---- */
-.account-chip {
-    display: inline-flex !important; align-items: center; gap: .45rem; padding: .3rem .8rem .3rem .3rem !important;
-    border: 1px solid var(--line); border-radius: 999px !important; color: var(--ink) !important;
-}
-.account-chip:hover, .account-chip.active { border-color: rgba(255, 176, 46, .6); background: var(--card) !important; }
+.nav a.account-chip { display: flex; align-items: center; gap: .55rem; padding: .45rem .9rem .45rem .45rem; border: 1px solid var(--line); color: var(--ink); }
+.nav a.account-chip:hover, .nav a.account-chip.active { border-color: rgba(255, 176, 46, .6); background: var(--card); }
 .chip-avatar {
     width: 1.8rem; height: 1.8rem; border-radius: 50%; display: grid; place-items: center;
     font: 800 .85rem var(--font-head); color: var(--accent-ink); background: linear-gradient(135deg, var(--accent), var(--accent-2));
@@ -1044,20 +1038,19 @@ textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3
    ===================================================================== */
 
 /* ---- language picker (far right of the menu) ---- */
-.lang-menu { position: relative; margin-left: .3rem; }
+.lang-menu { margin: .6rem 0 0; }
 .lang-menu summary {
     list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: .35rem;
-    padding: .42rem .7rem; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-weight: 600; font-size: .85rem;
+    padding: .6rem .9rem; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-weight: 600; font-size: .85rem;
 }
 .lang-menu summary::-webkit-details-marker { display: none; }
 .lang-menu summary:hover, .lang-menu[open] summary { color: var(--ink); border-color: rgba(255, 176, 46, .6); }
 .lang-menu ul {
-    position: absolute; right: 0; top: calc(100% + .45rem); z-index: 50; min-width: 12rem; margin: 0; padding: .35rem; list-style: none;
-    background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow);
-    animation: pop-in .18s ease-out;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(8.4rem, 1fr)); gap: .15rem; margin: .5rem 0 0; padding: .3rem; list-style: none;
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px; animation: pop-in .18s ease-out;
 }
-.lang-menu li a { display: flex; align-items: center; gap: .6rem; padding: .5rem .65rem; border-radius: 8px; color: var(--ink); }
-.lang-menu li a b { width: 1.8rem; color: var(--muted); font-size: .75rem; letter-spacing: .06em; }
+.lang-menu li a { display: flex; align-items: center; gap: .45rem; padding: .5rem .5rem; border-radius: 8px; color: var(--ink); font-size: .92rem; }
+.lang-menu li a b { width: 1.5rem; flex: none; color: var(--muted); font-size: .75rem; letter-spacing: .06em; }
 .lang-menu li a:hover { background: var(--card-2); text-decoration: none; }
 .lang-menu li a.current { color: var(--accent); background: rgba(255, 176, 46, .08); }
 .lang-menu li a.current b { color: var(--accent); }
@@ -1139,7 +1132,6 @@ a.why-item:hover { text-decoration: none; }
 @media (max-width: 860px) {
     .contact-grid, .why-grid { grid-template-columns: 1fr; }
     .why-hero { flex-direction: column; }
-    .lang-menu ul { right: auto; left: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
     .call-icon { animation: none; }
@@ -1216,8 +1208,7 @@ a.why-item:hover { text-decoration: none; }
 .page-title h1 { display: flex; align-items: center; gap: .5rem; }
 
 /* bell in the menu and the notifications page */
-.nav a.nav-bell { position: relative; display: inline-flex; align-items: center; padding: .45rem .6rem; }
-.nav-bell .nav-count { position: absolute; top: .05rem; right: -.1rem; }
+.nav a.nav-bell { display: flex; align-items: center; gap: .6rem; }
 .alerts-page { max-width: 46rem; }
 .alert-row {
     display: grid; grid-template-columns: auto 1fr auto; gap: .9rem; align-items: start; padding: .95rem 1.1rem; margin-bottom: .6rem;
@@ -1687,7 +1678,7 @@ html.welcome-open { overflow: hidden; }
 
 /* ---- the deal wall ---- */
 .deal-wall { position: relative; margin: 0 0 4rem; padding: 0 0 2.5rem; }
-.deal-wall::before { content: ""; position: absolute; inset: -1rem -50vw 0; z-index: -1; background: radial-gradient(60% 70% at 20% 0%, rgba(255, 61, 122, .18), transparent 60%), radial-gradient(50% 60% at 85% 20%, rgba(109, 75, 255, .18), transparent 60%); }
+.deal-wall::before { content: ""; position: absolute; inset: -1rem calc(50% - 50vw) 0; z-index: -1; background: radial-gradient(60% 70% at 20% 0%, rgba(255, 61, 122, .18), transparent 60%), radial-gradient(50% 60% at 85% 20%, rgba(109, 75, 255, .18), transparent 60%); }
 .deal-ticker { overflow: hidden; margin: 0 0 2rem; padding: .55rem 0; transform: rotate(-1.2deg); background: linear-gradient(90deg, #ff3d7a, #ff7a1a 35%, #ffd36b 60%, #c8ff5a 85%, #2fd4b4); box-shadow: 0 10px 30px rgba(255, 90, 120, .35), inset 0 -3px 0 rgba(0, 0, 0, .2); }
 .deal-ticker-track { display: flex; gap: 2.5rem; width: max-content; animation: ticker 28s linear infinite; }
 .deal-ticker:hover .deal-ticker-track { animation-play-state: paused; }
@@ -1761,3 +1752,96 @@ html.welcome-open { overflow: hidden; }
 @media (max-width: 560px) { .deal-cards { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .blob, .deal-coin, .deal-ticker-track, .deal-burst, .deal-card { animation: none; } }
 .home-hero h1 span { text-shadow: none; }   /* a shadow would paint over the gradient fill */
+
+/* =====================================================================
+   Phones and tablets: the menu folds behind a button, smaller touches
+   ===================================================================== */
+.nav-toggle {
+    display: inline-grid; position: relative; place-items: center; width: 2.75rem; height: 2.75rem; padding: 0; flex: none;
+    border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--ink); cursor: pointer;
+}
+.nav-toggle:hover { border-color: rgba(255, 176, 46, .6); }
+.nav-toggle-bars { display: grid; gap: 4px; width: 1.2rem; }
+.nav-toggle-bars span { display: block; height: 2px; border-radius: 2px; background: currentColor; transition: transform .25s, opacity .2s; }
+.nav-toggle-dot { position: absolute; top: .4rem; right: .4rem; width: .55rem; height: .55rem; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--card); }
+fieldset { min-width: 0; }   /* by default a fieldset never gets narrower than its contents */
+.my-cars, .results, .my-car-text { grid-template-columns: minmax(0, 1fr); }
+
+/* the panel with all the tabs, sliding in from the right */
+.topbar.nav-open { z-index: 70; }   /* above the back button, the assistant and the welcome panel */
+html.nav-locked { overflow: hidden; }
+.nav {
+    position: fixed; top: 0; right: 0; bottom: 0; z-index: 2; width: min(21rem, 86vw);
+    display: flex; flex-direction: column; gap: .2rem; overflow-y: auto; overscroll-behavior: contain;
+    padding: 0 max(1.1rem, env(safe-area-inset-right, 0px)) calc(1.4rem + env(safe-area-inset-bottom, 0px)) 1.1rem;
+    background: var(--bg-2); border-left: 1px solid var(--line); box-shadow: -24px 0 60px rgba(0, 0, 0, .55);
+    transform: translateX(105%); visibility: hidden;
+    transition: transform .32s cubic-bezier(.2, .8, .2, 1), visibility 0s linear .32s;
+}
+.topbar.nav-open .nav { transform: none; visibility: visible; transition: transform .32s cubic-bezier(.2, .8, .2, 1); }
+.nav-backdrop {
+    position: fixed; inset: 0; z-index: 1; background: rgba(5, 8, 14, .6); backdrop-filter: blur(3px);
+    opacity: 0; visibility: hidden; transition: opacity .3s, visibility 0s linear .3s;
+}
+.topbar.nav-open .nav-backdrop { opacity: 1; visibility: visible; transition: opacity .3s; }
+.nav-head {
+    position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between;
+    margin: 0 -.2rem .4rem; padding: calc(.8rem + env(safe-area-inset-top, 0px)) .2rem .7rem; background: var(--bg-2); border-bottom: 1px solid var(--line);
+}
+.nav-head b { font: 700 1.1rem var(--font-head); }
+.nav-close {
+    width: 2.75rem; height: 2.75rem; display: grid; place-items: center; padding: 0; cursor: pointer;
+    border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--ink); font-size: 1.6rem; line-height: 1;
+}
+.nav-close:hover { border-color: rgba(255, 176, 46, .6); }
+@media (prefers-reduced-motion: reduce) { .nav, .nav-backdrop { transition: none; } }
+
+@media (max-width: 900px) {
+    /* stacked columns may shrink below their widest line (a plain 1fr would not) */
+    .premium-plans, .split-grid, .hero-grid, .offer-row, .why, .premium-promo { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 860px) {
+    .detail, .contact-grid, .why-grid, .footer-grid, .detail.new-car .car-form, .detail.new-car .seller-fields,
+    .detail.new-car .plan-pick, .detail.new-car .premium-billing { grid-template-columns: minmax(0, 1fr); }
+    .wrap { padding-block: 1.25rem 5rem; }   /* room for the back button at the bottom */
+    .page-title h1, .detail-head h1 { font-size: 1.75rem; }
+    .detail-head .price, .deal-price-big .price.now { font-size: 1.5rem; }
+    .detail-head { align-items: flex-start; }
+    .panel { padding: 1.1rem 1.1rem; }
+    .home-hero { min-height: 0; padding-top: 2.5rem; }
+    .premium-promo, .cta-band { padding: 1.6rem 1.3rem; border-radius: 20px; }
+    .call-card { padding: 2rem 1.2rem 1.6rem; }
+    /* the tilted highlight cards stand straight once they are stacked */
+    .offer-row .offer:first-child:not(.tilting), .offer-row .offer:last-child:not(.tilting) { --ry: 0deg; }
+}
+
+@media (max-width: 800px) { .checkout-grid, .how-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) {
+    .inner, .wrap { padding-inline: 1rem; }
+    .topbar .inner { padding-block: .6rem; }
+    .back-menu { left: .75rem; bottom: calc(.75rem + env(safe-area-inset-bottom, 0px)); }
+    .stat-row { grid-template-columns: 1fr; }
+    .stat { min-width: 0; flex: 1 1 8rem; }
+    .hero-facts dd { font-size: 1.25rem; }
+    .why-hero-icon { width: 4rem; height: 4rem; }
+    .auth-card { padding: 1.4rem 1.1rem; }
+    .alert-row { grid-template-columns: auto 1fr; }
+    .alert-row time { grid-column: 2; }
+    .payout-row { grid-template-columns: 1fr auto; }
+    .deal-card.featured .deal-card-price b { font-size: 2.3rem; }
+    .deal-card.featured h3 { font-size: 1.4rem; }
+    .promo-crown { font-size: 7rem; }
+    /* the assistant's greeting stays small so it doesn't cover the page */
+    .assistant-bubble { max-width: min(15rem, calc(100vw - 5.5rem)); font-size: .88rem; padding: .55rem .4rem .55rem .8rem; }
+    .assistant-circle { width: 3rem; height: 3rem; }
+    .assistant-chat { width: calc(100vw - 1rem - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)); height: min(32rem, calc(100dvh - 5.5rem)); }
+}
+
+/* phones have no hover: cards don't jump when tapped or scrolled past */
+@media (hover: none) {
+    .feature:hover, .offer:hover, .car-card:hover, .why-item:hover, .deal-tile:hover, .promo-plan:hover { transform: none; }
+}
+@media (max-width: 400px) {
+    .premium-plan .plan-card { grid-template-columns: minmax(0, 1fr); }
+    .premium-plan .plan-price { text-align: left; }
+}
