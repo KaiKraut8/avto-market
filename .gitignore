@@ -32,3 +32,6 @@ Thumbs.db
 !/photos-inbox/.gitkeep
 /legacy/public/uploads/*
 !/legacy/public/uploads/.gitkeep
+
+# Database dumps
+/*.sql
