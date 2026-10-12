@@ -66,13 +66,17 @@
 <header class="topbar">
     <div class="inner">
         <a class="logo" href="{{ route('home') }}"><span class="mark"></span><span>Vo<em>zi</em></span></a>
-        {{-- the tabs live in a panel that slides in from the right when this button is pressed --}}
-        <button type="button" class="nav-toggle" aria-controls="site-nav" aria-expanded="false" aria-label="{{ __('Menu') }}" data-nav-toggle>
-            <span class="nav-toggle-bars" aria-hidden="true"><span></span><span></span><span></span></span>
-            @if ($wishCount || $unreadAlerts)
-                <span class="nav-toggle-dot" aria-hidden="true"></span>
-            @endif
-        </button>
+        <div class="topbar-end">
+            {{-- the current weather in Maribor (ARSO); open pages fetch it again every 15 minutes (weather.js) --}}
+            <div class="weather-slot" data-weather-url="{{ route('weather') }}"><x-weather /></div>
+            {{-- the tabs live in a panel that slides in from the right when this button is pressed --}}
+            <button type="button" class="nav-toggle" aria-controls="site-nav" aria-expanded="false" aria-label="{{ __('Menu') }}" data-nav-toggle>
+                <span class="nav-toggle-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+                @if ($wishCount || $unreadAlerts)
+                    <span class="nav-toggle-dot" aria-hidden="true"></span>
+                @endif
+            </button>
+        </div>
     </div>
     <div class="nav-backdrop" data-nav-close></div>
     <nav class="nav" id="site-nav" aria-label="{{ __('Menu') }}">

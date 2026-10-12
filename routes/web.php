@@ -22,6 +22,7 @@ use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\PremiumController;
 use App\Http\Controllers\SavedSearchController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\WeatherController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Middleware\EnsureVisitorId;
 use App\Http\Middleware\SetLocale;
@@ -97,6 +98,9 @@ Route::get('/photos/{photo}', PhotoController::class)->name('photos.show')->wher
     ->withoutMiddleware([StartSession::class, ShareErrorsFromSession::class,
         PreventRequestForgery::class, AddQueuedCookiesToResponse::class,
         EnsureVisitorId::class, SetLocale::class]);
+
+// the current weather in Maribor, for the widget next to the menu button
+Route::get('/weather', WeatherController::class)->name('weather');
 
 // the chat assistant
 Route::post('/assistant', AssistantController::class)->name('assistant')->middleware('throttle:20,1');

@@ -16,3 +16,4 @@ import './welcome';
 import './assistant';
 import './tilt';
 import './motion';
+import './weather';
