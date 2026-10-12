@@ -49,6 +49,10 @@
             }, 4000);
         }
     </script>
+    {{-- the weather widget: a visitor who shared their location gets it swapped in by weather.js; until then Maribor's stays hidden --}}
+    <script>
+        try { if ((JSON.parse(localStorage.getItem('kai_weather_near')) || {}).lat !== undefined) document.documentElement.classList.add('weather-near'); } catch (e) {}
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @php
         // labels the scripts show, in the current language
@@ -67,8 +71,8 @@
     <div class="inner">
         <a class="logo" href="{{ route('home') }}"><span class="mark"></span><span>Vo<em>zi</em></span></a>
         <div class="topbar-end">
-            {{-- the current weather in Maribor (ARSO); open pages fetch it again every 15 minutes (weather.js) --}}
-            <div class="weather-slot" data-weather-url="{{ route('weather') }}"><x-weather /></div>
+            {{-- the current weather (ARSO): Maribor's, until weather.js swaps in the visitor's own place; again every 15 minutes --}}
+            <div class="weather-slot" data-weather-url="{{ route('weather') }}"><x-weather :reading="app(\App\Services\Weather::class)->current()" /></div>
             {{-- the tabs live in a panel that slides in from the right when this button is pressed --}}
             <button type="button" class="nav-toggle" aria-controls="site-nav" aria-expanded="false" aria-label="{{ __('Menu') }}" data-nav-toggle>
                 <span class="nav-toggle-bars" aria-hidden="true"><span></span><span></span><span></span></span>

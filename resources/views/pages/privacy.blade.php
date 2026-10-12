@@ -8,6 +8,7 @@
         [__('Payments and subscriptions'), __('Amount, payment method, status and the payment provider\'s reference. Never your card or PayPal details.'), __('To take payments, renew subscriptions until you cancel them, and refund.'), __('Contract and legal obligation'), __('10 years, as tax and accounting law requires.')],
         [__('Wishlist, saved searches and alerts'), __('The cars and searches you saved and the alerts we sent you.'), __('To show your wishlist and send the alerts you asked for.'), __('Contract'), __('Until you remove them or your account is deleted.')],
         [__('Visitor statistics'), __('A random visitor id, which cars it viewed and when. No name, no IP address.'), __('To show view counts and who is watching a car right now, and to keep a wishlist without an account.'), __('Legitimate interest'), __('Views are kept as statistics; "watching now" lasts 40 seconds.')],
+        [__('Local weather'), __('Your approximate location, rounded to about 1 km, only if you allow it in your browser.'), __('To show the weather at the nearest weather station. We pass the rounded location to ARSO to find that station.'), __('Consent'), __('Kept only in your browser, until you clear this site\'s data or block location for this site. Our server keeps the weather for that spot for 3 hours, with nothing that links it to you.')],
         [__('Security'), __('IP address and browser in your login session; email and IP address of failed logins.'), __('To keep you logged in and stop password guessing.'), __('Legitimate interest'), __('The session ends 2 hours after your last visit; failed logins are forgotten after 1 minute.')],
     ];
 @endphp
@@ -45,7 +46,7 @@
                 </tbody>
             </table>
         </div>
-        <p class="hint">{{ __('Legal bases under the GDPR: contract, Art. 6(1)(b); legal obligation, Art. 6(1)(c); legitimate interest, Art. 6(1)(f).') }}</p>
+        <p class="hint">{{ __('Legal bases under the GDPR: consent, Art. 6(1)(a); contract, Art. 6(1)(b); legal obligation, Art. 6(1)(c); legitimate interest, Art. 6(1)(f).') }}</p>
     </section>
 
     <section class="panel">
@@ -55,6 +56,7 @@
             <li><b>{{ __('Buyers who contact you') }}</b>{{ __('When a visitor sends you a message through "Contact seller", they see your name, phone and email.') }}</li>
             <li><b>{{ __('Buyer and seller of a car') }}</b>{{ __('When a car is reserved, the buyer and the seller get each other\'s name, email and phone to arrange the handover.') }}</li>
             <li><b>{{ __('Mollie B.V., Amsterdam') }}</b>{{ __('Our payment provider. It receives your name, email and the payment. Card and PayPal details go straight to Mollie, never to us. Mollie\'s own privacy statement also applies.') }}</li>
+            <li><b>{{ __('ARSO, the Slovenian Environment Agency') }}</b>{{ __('Only if you allow local weather: it gets your location, rounded to about 1 km, to find the nearest weather station. Nothing else about you.') }}</li>
             <li><b>{{ __('Our hosting and email providers') }}</b>{{ __('They store the site and send emails (such as password resets) on our behalf, under a data processing agreement.') }}</li>
             <li><b>{{ __('Authorities') }}</b>{{ __('Only when the law requires it.') }}</li>
         </ul>

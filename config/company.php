@@ -21,7 +21,7 @@ return [
         7 => null,
     ],
     // shown as "Last updated" on the privacy and cookie policies; change it whenever they change
-    'legal_updated' => '2026-10-07',
+    'legal_updated' => '2026-10-12',
 
     // a link to the address on a map
     'map_url' => 'https://www.google.com/maps/search/?api=1&query='.rawurlencode('Dunajska cesta 100, 1000 Ljubljana, Slovenia'),
