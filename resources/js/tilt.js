@@ -1,6 +1,6 @@
 // Depth for pointer devices: cards tilt toward the pointer, hero layers slide at their own depth.
-// Nothing moves on touch screens, where there is no pointer to follow.
-const still = !matchMedia('(pointer: fine)').matches;
+// Nothing moves on touch screens or for people who prefer reduced motion.
+const still = matchMedia('(prefers-reduced-motion: reduce)').matches || !matchMedia('(pointer: fine)').matches;
 
 // Elements that tilt without being marked up: selector → how far they turn, in degrees
 const AUTO_TILT = [
