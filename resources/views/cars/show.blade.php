@@ -22,7 +22,10 @@
         <div>
             <div class="panel">
                 @if ($car->photos->isNotEmpty())
-                    <img class="hero-img" id="hero-img" src="{{ $car->photos->first()->url() }}" alt="{{ $car->name }}">
+                    {{-- the stage tilts toward the pointer (tilt.js) --}}
+                    <div class="hero-stage" data-tilt data-tilt-max="6">
+                        <img class="hero-img" id="hero-img" src="{{ $car->photos->first()->url() }}" alt="{{ $car->name }}">
+                    </div>
                 @else
                     <div class="hero">{{ $car->initial() }}</div>
                 @endif

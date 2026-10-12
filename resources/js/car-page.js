@@ -16,10 +16,24 @@ if (page) {
     addEventListener('pagehide', () => beacon(page.dataset.leaveUrl));
 }
 
-// Gallery thumbnails swap the big photo
-document.querySelectorAll('.thumbs img').forEach((img) => {
+// Gallery thumbnails swap the big photo: it fades out, the new one is decoded meanwhile, then fades in.
+// The thumbnail that is showing stays lit.
+const hero = document.getElementById('hero-img');
+const thumbs = [...document.querySelectorAll('.thumbs img')];
+const light = () => thumbs.forEach((t) => t.classList.toggle('active', !!hero && t.src === hero.src));
+light();
+thumbs.forEach((img) => {
     img.addEventListener('click', () => {
-        const hero = document.getElementById('hero-img');
-        if (hero) hero.src = img.src;
+        if (!hero || hero.src === img.src) return;
+        const next = new Image();
+        next.src = img.src;
+        hero.classList.add('swapping');
+        const decoded = next.decode ? next.decode().catch(() => {}) : Promise.resolve();
+        const faded = new Promise((done) => setTimeout(done, 220));
+        Promise.all([decoded, faded]).then(() => {
+            hero.src = img.src;
+            hero.classList.remove('swapping');
+            light();
+        });
     });
 });

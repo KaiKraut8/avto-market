@@ -15,3 +15,4 @@ import './home';
 import './welcome';
 import './assistant';
 import './tilt';
+import './motion';
