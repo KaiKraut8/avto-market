@@ -40,9 +40,9 @@
         <script type="application/ld+json">{!! json_encode($site, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
     @endif
     {{-- the motion layer: sections rise into view as they scroll in (motion.js). Marked here, before the first paint,
-         so nothing flashes; never with reduced motion, and undone if the script does not arrive --}}
+         so nothing flashes, and undone if the script does not arrive --}}
     <script>
-        if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+        if ('IntersectionObserver' in window) {
             document.documentElement.classList.add('motion');
             setTimeout(function () {
                 if (!document.documentElement.classList.contains('motion-js')) document.documentElement.classList.remove('motion');

@@ -309,11 +309,6 @@ body::after {
 }
 @keyframes wallpaper-drift { from { transform: translateY(0); } to { transform: translateY(-14px); } }
 
-@media (prefers-reduced-motion: reduce) {
-    .card-curve, .car-side::before, body::after { animation: none; }
-    .card-curve { clip-path: none; }
-    .car-side::before { transform: none; }
-}
 
 /* ---- views ---- */
 .live-dot {
@@ -670,9 +665,6 @@ body::after {
     .drive-car { bottom: 1.5%; }
     .offer-row, .why { grid-template-columns: 1fr; }
     .home-hero { padding-bottom: 6rem; }
-}
-@media (prefers-reduced-motion: reduce) {
-    .hero-road, .stars, .drive-car, .car-drawing .wheel, .car-drawing .car-headlight, .hero-car, .hero-car-hint span, .home-hero h1 span, .home-hero h1 > span:not(.words), .scroll-cue span, .offer, .hero-copy > *, .journey-car { animation: none; }
 }
 
 /* ---- Details button on car cards: amber outline that fills on hover ---- */
@@ -1133,9 +1125,6 @@ a.why-item:hover { text-decoration: none; }
     .contact-grid, .why-grid { grid-template-columns: 1fr; }
     .why-hero { flex-direction: column; }
 }
-@media (prefers-reduced-motion: reduce) {
-    .call-icon { animation: none; }
-}
 
 /* ---- special deals (premium sellers), member prices (premium buyers), alerts ---- */
 :root { --sale: #ff4d6d; --sale-2: #ff8a5c; }
@@ -1533,9 +1522,6 @@ html.welcome-open { overflow: hidden; }
     .welcome-panel { padding: 1rem 1.1rem 1.2rem; border-radius: 0 0 18px 18px; max-height: 100dvh; }
     .welcome-form .field-row { grid-template-columns: 1fr; gap: 0; }
 }
-@media (prefers-reduced-motion: reduce) {
-    .welcome-panel, .welcome-backdrop, .welcome.leaving .welcome-panel, .welcome.leaving .welcome-backdrop { animation: none; }
-}
 
 /* the 3-month plan is the featured offer */
 .offer-ribbon {
@@ -1605,7 +1591,6 @@ html.welcome-open { overflow: hidden; }
 .assistant-form input { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); font: inherit; font-size: .9rem; padding: .5rem .7rem; }
 .assistant-form input:focus { outline: none; border-color: var(--accent); }
 .assistant-form .btn { padding: .45rem .8rem; }
-@media (prefers-reduced-motion: reduce) { .assistant-circle, .assistant-bubble, .assistant-chat, .assistant-msg.thinking p { animation: none; } }
 
 /* ---- the Filters panel on All cars ---- */
 .filters { border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
@@ -1750,7 +1735,6 @@ html.welcome-open { overflow: hidden; }
     .blob { filter: blur(50px); }
 }
 @media (max-width: 560px) { .deal-cards { grid-template-columns: 1fr; } }
-@media (prefers-reduced-motion: reduce) { .blob, .deal-coin, .deal-ticker-track, .deal-burst, .deal-card { animation: none; } }
 .home-hero h1 > span:not(.words) { text-shadow: none; }   /* a shadow would paint over the gradient fill */
 
 /* =====================================================================
@@ -1794,7 +1778,6 @@ html.nav-locked { overflow: hidden; }
     border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--ink); font-size: 1.6rem; line-height: 1;
 }
 .nav-close:hover { border-color: rgba(255, 176, 46, .6); }
-@media (prefers-reduced-motion: reduce) { .nav, .nav-backdrop { transition: none; } }
 
 @media (max-width: 900px) {
     /* stacked columns may shrink below their widest line (a plain 1fr would not) */
@@ -1849,8 +1832,8 @@ html.nav-locked { overflow: hidden; }
 /* =====================================================================
    Motion layer: the whole site moves in depth. Sections rise into view as they scroll in, numbers
    count up, pages slide into each other, cards tilt and shine, and the wallpaper follows the scrolling.
-   Hidden-until-revealed states apply only under html.motion (set in the layout's <head>, never with
-   reduced motion), so without JavaScript nothing is ever hidden. Keep the :is() list in step with motion.js.
+   Hidden-until-revealed states apply only under html.motion (set in the layout's <head>),
+   so without JavaScript nothing is ever hidden. Keep the :is() list in step with motion.js.
    ===================================================================== */
 html { scroll-behavior: smooth; }
 
@@ -2013,16 +1996,6 @@ body::before {
 @keyframes fab-in { from { opacity: 0; transform: translateX(-120%); } }
 .assistant { animation: rise-in .5s .5s cubic-bezier(.2, .8, .2, 1) backwards; }
 
-@media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
-    ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
-    .mark, .stars::after, .hero-sun, .deal-glare, .premium-ribbon, .premium-tag, .hero-car-tag, .tag-premium, .promo-crown, .premium-hero-crown,
-    .footer::before, .back-menu, .assistant, .page-title h1, .detail-head h1, .contact-head h1, .premium-head h1, .premium-hero h1, .why-hero h1,
-    .auth-card h1, .cancel-box h1, .withdraw-box h1, .test-pay h1, .crumbs, .lede, .page-title .count, .page-title .updated, .premium-switch, .detail-actions { animation: none; }
-    .scroll-progress, .cursor-glow { display: none !important; }
-    .btn::after { display: none; }
-    body::before { transform: none; }
-}
 
 /* =====================================================================
    Motion layer, second pass: headlines arrive word by word, the home hero parts as you scroll, cards have
@@ -2102,9 +2075,3 @@ input[type=text], input[type=number], input[type=email], input[type=tel], input[
 .seller-avatar, .chip-avatar { transition: transform .5s cubic-bezier(.2, .8, .2, 1); }
 .seller-head:hover .seller-avatar, .account-chip:hover .chip-avatar { transform: perspective(200px) rotateY(360deg); }
 
-@media (prefers-reduced-motion: reduce) {
-    .split > .words > .w, .split > :not(.words), .home-hero h1.split > span:not(.words), .notice { animation: none; }
-    .hero-copy, .hero-car-stage, .scroll-cue { transform: none; opacity: 1; }
-    .hero-stage .hero-img { transform: none; }
-    .panel::after { display: none; }
-}

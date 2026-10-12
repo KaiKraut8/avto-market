@@ -1,7 +1,7 @@
 // Home page motion: the car in the backdrop drives as the page scrolls, and the featured car card
-// can be turned around by dragging. Both stay still for people who prefer reduced motion.
+// can be turned around by dragging.
 const hero = document.querySelector('[data-hero]');
-const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reduced = false;   // the motion plays for everyone, whatever the system's reduced-motion setting
 
 if (hero && !reduced) {
     // --p goes from 0 (top of the page) to 1 (hero scrolled out of view)

@@ -1,10 +1,9 @@
 // Site-wide motion. Headlines arrive word by word, sections rise into view as they scroll in, numbers
 // count up, the wallpaper and a progress bar follow the scrolling, and on pointer devices a soft light
-// follows the cursor, panels light up along their edge and the big buttons lean toward it. All of it
-// stays off for people who prefer reduced motion. Nothing is hidden unless <html> carries the "motion"
-// class, which the layout's <head> sets before the first paint.
+// follows the cursor, panels light up along their edge and the big buttons lean toward it. Nothing is
+// hidden unless <html> carries the "motion" class, which the layout's <head> sets before the first paint.
 const html = document.documentElement;
-const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reduced = false;   // the motion plays for everyone, whatever the system's reduced-motion setting
 const fine = matchMedia('(pointer: fine)').matches;
 
 html.classList.add('motion-js');   // the <head> script drops "motion" again if this never arrives
